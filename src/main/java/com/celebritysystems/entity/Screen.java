@@ -5,10 +5,8 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
-@ToString(exclude = {"contracts"})
+@ToString
 @Setter
 @Getter
 @Builder
@@ -33,20 +31,8 @@ public class Screen {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @Builder.Default
-    @OneToMany(mappedBy = "screen", cascade = CascadeType.ALL)
-    private Set<Contract> contracts = new HashSet<>();
-
     public Screen(String info) {
         this.info = info;
-    }
-
-    public Set<Contract> getContracts() {
-        return contracts;
-    }
-
-    public void setContracts(Set<Contract> contracts) {
-        this.contracts = contracts;
     }
 
     @Override

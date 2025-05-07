@@ -2,10 +2,8 @@ package com.celebritysystems.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.util.HashSet;
-import java.util.Set;
 
-@ToString(exclude = {"accounts", "contracts", "mainRelations", "accessRelations"})
+@ToString
 @Setter
 @Getter
 @Builder
@@ -36,22 +34,6 @@ public class Company {
     @Column(name = "company_type", nullable = false)
     private String companyType;
     
-    @Builder.Default
-    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL)
-    private Set<Account> accounts = new HashSet<>();
-    
-    @Builder.Default
-    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL)
-    private Set<Contract> contracts = new HashSet<>();
-    
-    @Builder.Default
-    @OneToMany(mappedBy = "companyMain", cascade = CascadeType.ALL)
-    private Set<CompanyRelations> mainRelations = new HashSet<>();
-    
-    @Builder.Default
-    @OneToMany(mappedBy = "companyAccess", cascade = CascadeType.ALL)
-    private Set<CompanyRelations> accessRelations = new HashSet<>();
-    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -64,4 +46,4 @@ public class Company {
     public int hashCode() {
         return getClass().hashCode();
     }
-} 
+}

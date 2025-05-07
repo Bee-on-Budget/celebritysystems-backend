@@ -2,12 +2,8 @@ package com.celebritysystems.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.util.HashSet;
-import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
-@ToString(exclude = {"users"})
+@ToString
 @Setter
 @Getter
 @Builder
@@ -26,10 +22,6 @@ public class Role {
     @Column(name = "role_type", nullable = false, unique = true)
     private String roleType;
     
- @ManyToMany(mappedBy = "roles")
-@JsonBackReference
-private Set<User> users;
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

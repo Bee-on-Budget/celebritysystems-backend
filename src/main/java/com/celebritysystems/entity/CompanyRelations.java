@@ -3,7 +3,7 @@ package com.celebritysystems.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-@ToString(exclude = {"companyMain", "companyAccess"})
+@ToString
 @Setter
 @Getter
 @Builder
@@ -17,13 +17,11 @@ public class CompanyRelations {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "company_main_id")
-    private Company companyMain;
+    @Column(name = "company_main_id")
+    private Long companyMainId;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "company_access_id")
-    private Company companyAccess;
+    @Column(name = "company_access_id")
+    private Long companyAccessId;
     
     @Override
     public boolean equals(Object o) {
@@ -37,4 +35,4 @@ public class CompanyRelations {
     public int hashCode() {
         return getClass().hashCode();
     }
-} 
+}

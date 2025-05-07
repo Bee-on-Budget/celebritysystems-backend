@@ -3,7 +3,7 @@ package com.celebritysystems.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-@ToString(exclude = {"account", "company"})
+@ToString
 @Setter
 @Getter
 @Builder
@@ -20,49 +20,14 @@ public class AccountPermission {
     @Column(name = "permission", nullable = false)
     private String permission;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "account_id")
-    private Account account;
+    @Column(name = "account_id")
+    private Long accountId;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "company_id")
-    private Company company;
+    @Column(name = "company_id")
+    private Long companyId;
     
     public AccountPermission(String permission) {
         this.permission = permission;
-    }
-    
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-    
-    public void setId(Long id) {
-        this.id = id;
-    }
-    
-    public String getPermission() {
-        return permission;
-    }
-    
-    public void setPermission(String permission) {
-        this.permission = permission;
-    }
-    
-    public Account getAccount() {
-        return account;
-    }
-    
-    public void setAccount(Account account) {
-        this.account = account;
-    }
-    
-    public Company getCompany() {
-        return company;
-    }
-    
-    public void setCompany(Company company) {
-        this.company = company;
     }
     
     @Override
@@ -77,4 +42,4 @@ public class AccountPermission {
     public int hashCode() {
         return getClass().hashCode();
     }
-} 
+}

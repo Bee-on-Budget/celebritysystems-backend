@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 
-@ToString(exclude = {"company", "screen"})
+@ToString
 @Setter
 @Getter
 @Builder
@@ -27,13 +27,11 @@ public class Contract {
     @Column(name = "expired_at", nullable = false)
     private LocalDateTime expiredAt;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "company_id")
-    private Company company;
+    @Column(name = "company_id")
+    private Long companyId;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "screen_id")
-    private Screen screen;
+    @Column(name = "screen_id")
+    private Long screenId;
     
     @Override
     public boolean equals(Object o) {

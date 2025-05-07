@@ -8,11 +8,11 @@ import java.util.List;
 
 @Repository
 public interface AccountPermissionRepository extends JpaRepository<AccountPermission, Long> {
-    List<AccountPermission> findByAccount_Id(Long accountId);
+    List<AccountPermission> findByAccountId(Long accountId);
     
-    List<AccountPermission> findByCompany_Id(Long companyId);
+    List<AccountPermission> findByCompanyId(Long companyId);
     
     List<AccountPermission> findByPermission(String permission);
     
-    List<AccountPermission> findByAccount_IdAndPermission(Long accountId, String permission);
+    List<AccountPermission> findByAccountIdAndPermission(Long accountId, String permission);
 }
