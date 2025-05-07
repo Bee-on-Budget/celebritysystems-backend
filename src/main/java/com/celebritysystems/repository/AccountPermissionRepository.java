@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface AccountPermissionRepository extends JpaRepository<AccountPermission, Long> {
     List<AccountPermission> findByAccountId(Long accountId);
-    List<AccountPermission> findByCompanyId(Long companyId);
+    List<AccountPermission> findByPermissionId(Long permissionId);
 } 
