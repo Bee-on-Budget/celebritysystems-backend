@@ -5,6 +5,8 @@ import lombok.*;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 @ToString(exclude = {"users"})
 @Setter
 @Getter
@@ -24,10 +26,10 @@ public class Role {
     @Column(name = "role_type", nullable = false, unique = true)
     private String roleType;
     
-    @Builder.Default
-    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL)
-    private Set<User> users = new HashSet<>();
-    
+ @ManyToMany(mappedBy = "roles")
+@JsonBackReference
+private Set<User> users;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

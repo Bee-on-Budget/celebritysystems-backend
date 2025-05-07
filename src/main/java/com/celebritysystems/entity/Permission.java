@@ -23,12 +23,19 @@ public class Permission {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id")
     private Account account;
-    
+    private String name;  
+
     public Permission(String permissionType) {
         this.permissionType = permissionType;
     }
     
-    // Getters and Setters
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
     public Long getId() {
         return id;
     }
