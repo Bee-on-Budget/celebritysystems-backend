@@ -1,8 +1,9 @@
 package com.celebritysystems.AuthControllers;
 
 import com.celebritysystems.config.TokenProvider;
-import com.celebritysystems.dto.UserRegistrationDto;
+import com.celebritysystems.dto.auth.UserRegistrationDto;
 import com.celebritysystems.entity.User;
+import com.celebritysystems.entity.enums.RoleInSystem;
 import com.celebritysystems.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,9 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -52,7 +51,19 @@ public class AuthController {
             user.setName(registrationDto.getName());
             user.setEmail(registrationDto.getEmail());
             user.setPassword(passwordEncoder.encode(registrationDto.getPassword()));
-            user.setRoles(Collections.singleton("USER")); 
+
+            Set<String> validatedRoles = new HashSet<>();
+            for (String roleStr : registrationDto.getRoles()) {
+                try {
+                    RoleInSystem role = RoleInSystem.valueOf(roleStr.toUpperCase());
+                    validatedRoles.add(role.toString());
+                } catch (IllegalArgumentException e) {
+                    return ResponseEntity.badRequest()
+                            .body("Invalid role: " + roleStr);
+                }
+            }
+
+            user.setRoles(validatedRoles);
 
             User savedUser = userService.save(user);
             
