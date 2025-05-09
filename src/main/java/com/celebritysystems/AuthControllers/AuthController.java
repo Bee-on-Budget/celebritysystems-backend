@@ -41,12 +41,14 @@ public class AuthController {
                     .body("Email already in use");
             }
 
+            // Check if username already exists
             if (userService.getUserByUsername(registrationDto.getUsername()).isPresent()) {
                 return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body("Username already taken");
             }
 
+            // Create new user
             User user = new User();
             user.setName(registrationDto.getName());
             user.setEmail(registrationDto.getEmail());
@@ -67,6 +69,7 @@ public class AuthController {
 
             User savedUser = userService.save(user);
             
+            // Generate token for immediate login after registration
             String token = tokenProvider.generateToken(savedUser);
             
             return ResponseEntity.ok(Collections.singletonMap("token", token));
