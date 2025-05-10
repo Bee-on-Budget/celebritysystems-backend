@@ -42,11 +42,11 @@ public class AuthController {
             }
 
             // Check if username already exists
-            if (userService.getUserByUsername(registrationDto.getUsername()).isPresent()) {
-                return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body("Username already taken");
-            }
+//            if (userService.getUserByUsername(registrationDto.getUsername()).isPresent()) {
+//                return ResponseEntity
+//                    .status(HttpStatus.BAD_REQUEST)
+//                    .body("Username already taken");
+//            }
 
             // Create new user
             User user = new User();

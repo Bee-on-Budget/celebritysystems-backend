@@ -31,7 +31,7 @@ public class TokenProvider {
         return Jwts.builder()
                 .setSubject(user.getId().toString())
                 .claim("email", user.getEmail())
-                .claim("username", user.getUsername())
+//                .claim("username", user.getUsername())
                 .claim("name", user.getName())
                 .claim("roles", user.getRoles()) 
                 .setIssuedAt(now)

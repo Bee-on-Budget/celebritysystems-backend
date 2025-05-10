@@ -10,6 +10,6 @@ public interface UserService {
     User save(User user);
     void deleteById(Long id);
     Optional<User> getUserByEmail(String email);
-    Optional<User> getUserByUsername(String username);
+//    Optional<User> getUserByUsername(String username);
     boolean verifyPassword(User user, String rawPassword);
 }

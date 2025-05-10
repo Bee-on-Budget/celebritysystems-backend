@@ -47,11 +47,11 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByEmail(email);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<User> getUserByUsername(String username) {
-        return userRepository.findByUsername(username);
-    }
+//    @Override
+//    @Transactional(readOnly = true)
+//    public Optional<User> getUserByUsername(String username) {
+//        return userRepository.findByUsername(username);
+//    }
 
     @Override
     public boolean verifyPassword(User user, String rawPassword) {
