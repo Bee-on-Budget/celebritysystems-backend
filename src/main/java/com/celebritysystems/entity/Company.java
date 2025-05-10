@@ -1,5 +1,7 @@
 package com.celebritysystems.entity;
 
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,12 +30,18 @@ public class Company {
     @Column(name = "email", nullable = false)
     private String email;
     
-    @Column(name = "location", nullable = false)
+    @Column(name = "location")
     private String location;
-    
+
+    @Column(name = "activated", nullable = false)
+    private Boolean activated;
+
     @Column(name = "company_type", nullable = false)
     private String companyType;
     
+    @OneToMany(mappedBy = "id")
+    private List<User> user_id;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

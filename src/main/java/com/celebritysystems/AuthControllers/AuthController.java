@@ -34,23 +34,21 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserRegistrationDto registrationDto) {
         try {
-            // Check if email already exists
             if (userService.getUserByEmail(registrationDto.getEmail()).isPresent()) {
                 return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body("Email already in use");
             }
-
-            // Check if username already exists
-//            if (userService.getUserByUsername(registrationDto.getUsername()).isPresent()) {
-//                return ResponseEntity
-//                    .status(HttpStatus.BAD_REQUEST)
-//                    .body("Username already taken");
-//            }
+        //TODO
+        //    if (userService.getUserByUsername(registrationDto.getUsername()).isPresent()) {
+        //        return ResponseEntity
+        //            .status(HttpStatus.BAD_REQUEST)
+        //            .body("Username already taken");
+        //    }
 
             // Create new user
             User user = new User();
-            user.setName(registrationDto.getName());
+            user.setUsername(registrationDto.getUsername());
             user.setEmail(registrationDto.getEmail());
             user.setPassword(passwordEncoder.encode(registrationDto.getPassword()));
 

@@ -13,9 +13,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public  class UserRegistrationDto {
-    private String name;
     private String email;
-//    private String username;
+    private String username;
     private String password;
     private List<String> roles;
 
