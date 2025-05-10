@@ -12,7 +12,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -34,8 +34,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
                 Long userId = tokenProvider.getUserIdFromJWT(jwt);
-                List<SimpleGrantedAuthority> authorities = tokenProvider.getRolesFromJWT(jwt).stream()
-                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                
+                // Get roles as Set from TokenProvider
+                Set<String> roles = tokenProvider.getRolesFromJWT(jwt);
+                
+                // Convert to authorities
+                List<SimpleGrantedAuthority> authorities = roles.stream()
+                        .filter(Objects::nonNull)
+                        .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role)
+                        .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
 
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
@@ -49,6 +56,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch (Exception ex) {
             logger.error("Could not set user authentication in security context", ex);
             SecurityContextHolder.clearContext();
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid authentication");
+            return;
         }
 
         filterChain.doFilter(request, response);

@@ -1,6 +1,7 @@
 package com.celebritysystems.controller;
 
 import com.celebritysystems.entity.User;
+import com.celebritysystems.repository.UserRepository;
 import com.celebritysystems.service.UserService;
 import lombok.RequiredArgsConstructor;
 
@@ -18,20 +19,25 @@ public class UserController {
     @Autowired
     private  UserService userService;
 
+    @Autowired
+    private  UserRepository userRepository;
+
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
         return ResponseEntity.ok(userService.findAll());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/id/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
         return userService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/{username}")
-    public ResponseEntity<User> getUserByUsername(@PathVariable  String username) {
+    @GetMapping("/username/{username}")  
+    public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
+    
+        System.out.println(userRepository.findByUsername("sami"));
         return userService.getUserByUsername(username)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());

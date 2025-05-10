@@ -9,9 +9,9 @@ import org.springframework.stereotype.Service;
 import com.celebritysystems.entity.User;
 
 import javax.crypto.SecretKey;
-import java.util.Date;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 public class TokenProvider {
@@ -32,7 +32,7 @@ public class TokenProvider {
                 .setSubject(user.getId().toString())
                 .claim("email", user.getEmail())
                 .claim("username", user.getUsername())
-                .claim("roles", user.getRoles()) 
+                .claim("roles", new ArrayList<>(user.getRoles())) // Convert Set to List
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(jwtSecretKey, SignatureAlgorithm.HS512)
@@ -51,9 +51,20 @@ public class TokenProvider {
         return parseToken(token).get("username", String.class);
     }
 
-    @SuppressWarnings("unchecked")
     public Set<String> getRolesFromJWT(String token) {
-        return parseToken(token).get("roles", Set.class);
+        Claims claims = parseToken(token);
+        Object rolesClaim = claims.get("roles");
+        
+        if (rolesClaim instanceof List) {
+            return ((List<?>) rolesClaim).stream()
+                    .filter(Objects::nonNull)  // Fixed: Changed from Object::toString to Objects::nonNull
+                    .map(Object::toString)
+                    .collect(Collectors.toSet());
+        } else if (rolesClaim instanceof String) {
+            return Collections.singleton((String) rolesClaim);
+        }
+        
+        return Collections.emptySet();
     }
 
     public boolean validateToken(String token) {

@@ -36,7 +36,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(AbstractHttpConfigurer::disable)
+        .csrf(csrf -> csrf.disable())  // Disable CSRF for simplicity (not recommended for production)
+
             
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             
@@ -46,7 +47,7 @@ public class SecurityConfig {
             
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers(
-                    "/api/auth/**",
+                    "/api/**",
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
                     "/actuator/health"
