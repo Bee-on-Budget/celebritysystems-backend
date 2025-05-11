@@ -16,28 +16,28 @@ import lombok.*;
     @UniqueConstraint(columnNames = "email")
 })
 public class Company {
-    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(name = "name", nullable = false)
+    @Column(nullable = false)
     private String name;
     
-    @Column(name = "phone", nullable = false)
+    @Column(nullable = false)
     private String phone;
     
-    @Column(name = "email", nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
     
-    @Column(name = "location")
     private String location;
-
-    @Column(name = "activated", nullable = false)
-    private Boolean activated;
-
-    @Column(name = "company_type", nullable = false)
-    private String companyType;
+    
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean activated = true;
+    
+    @Column(nullable = false)
+    @Builder.Default
+    private String companyType = "DEFAULT";
     
     @OneToMany(mappedBy = "id")
     private List<User> user_id;

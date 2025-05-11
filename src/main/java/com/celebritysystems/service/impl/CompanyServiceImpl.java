@@ -6,12 +6,14 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.celebritysystems.dto.CompanyDto;
+import com.celebritysystems.dto.CompanyDTO;
 import com.celebritysystems.entity.Company;
 import com.celebritysystems.entity.User;
 import com.celebritysystems.repository.CompanyRepository;
 import com.celebritysystems.repository.UserRepository;
 import com.celebritysystems.service.CompanyService;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class CompanyServiceImpl implements CompanyService {
@@ -50,22 +52,22 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
 
+
     @Override
-    public Optional<Company> createCompany(CompanyDto companyDto) {
-            Company company =new Company();
-            if(companyDto.getName()!=null)
-            company.setName(companyDto.getName());
-            if(companyDto.getEmail()!=null)
-            company.setEmail(companyDto.getEmail());
-            if(companyDto.getPhone()!=null)
-            company.setPhone(companyDto.getPhone());
-            if(companyDto.getLocation()!=null)
-            company.setLocation(companyDto.getLocation());
-            
-            return Optional.of(companyRepository.save(company));
-        }
+    @Transactional
+    public Optional<Company> createCompany(CompanyDTO companyDto) {
+   
+        Company company = Company.builder()
+            .name(companyDto.getName())
+            .phone(companyDto.getPhone())
+            .email(companyDto.getEmail())
+            .location(companyDto.getLocation())
+            .activated(true)
+            .companyType("DEFAULT")
+            .build();
 
-
+        return Optional.of(companyRepository.save(company));
+    }
 
 
 

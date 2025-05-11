@@ -3,7 +3,8 @@ package com.celebritysystems.controller;
 import java.util.List;
 import com.celebritysystems.service.impl.CompanyServiceImpl;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import org.springframework.web.bind.annotation.RequestBody;
+import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.celebritysystems.dto.CompanyDto;
+import com.celebritysystems.dto.CompanyDTO;
 import com.celebritysystems.entity.Company;
 import com.celebritysystems.repository.CompanyRepository;
 
@@ -53,11 +54,16 @@ public class CompanyContoller {
                 .orElse(ResponseEntity.notFound().build());
     }
     @PostMapping
-    public ResponseEntity<Company> createCompany(@RequestBody CompanyDto companyDto) {
-        return companyServiceImpl.createCompany(companyDto)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.badRequest().build());
+    public ResponseEntity<?> createCompany(@Valid @RequestBody CompanyDTO companyDto) {
+        try {
+            Company company = companyServiceImpl.createCompany(companyDto)
+                .orElseThrow(() -> new RuntimeException("Failed to create company"));
+            return ResponseEntity.ok(company);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
+    
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCompany(@PathVariable Long id) {

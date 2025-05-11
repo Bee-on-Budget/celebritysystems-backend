@@ -1,7 +1,7 @@
 package com.celebritysystems.AuthControllers;
 
 import com.celebritysystems.config.TokenProvider;
-import com.celebritysystems.dto.auth.UserRegistrationDto;
+import com.celebritysystems.dto.auth.UserRegistrationDTO;
 import com.celebritysystems.entity.User;
 import com.celebritysystems.entity.enums.RoleInSystem;
 import com.celebritysystems.service.UserService;
@@ -32,7 +32,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody UserRegistrationDto registrationDto) {
+    public ResponseEntity<?> registerUser(@RequestBody UserRegistrationDTO registrationDto) {
         try {
             if (userService.getUserByEmail(registrationDto.getEmail()).isPresent()) {
                 return ResponseEntity
