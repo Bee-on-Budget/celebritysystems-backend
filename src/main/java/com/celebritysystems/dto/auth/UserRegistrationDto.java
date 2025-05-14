@@ -12,7 +12,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public  class UserRegistrationDTO {
+public  class UserRegistrationDto {
     private String email;
     private String username;
     private String password;

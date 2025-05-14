@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.celebritysystems.dto.CompanyDTO;
+import com.celebritysystems.dto.CompanyDto;
 import com.celebritysystems.entity.Company;
 import com.celebritysystems.entity.User;
 import com.celebritysystems.repository.CompanyRepository;
@@ -55,7 +55,7 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     @Transactional
-    public Optional<Company> createCompany(CompanyDTO companyDto) {
+    public Optional<Company> createCompany(CompanyDto companyDto) {
    
         Company company = Company.builder()
             .name(companyDto.getName())

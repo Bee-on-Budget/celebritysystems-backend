@@ -1,6 +1,8 @@
 package com.celebritysystems.controller;
 
 import java.util.List;
+
+import com.celebritysystems.dto.CompanyDto;
 import com.celebritysystems.service.impl.CompanyServiceImpl;
 
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,7 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.celebritysystems.dto.CompanyDTO;
+import com.celebritysystems.dto.CompanyDto;
 import com.celebritysystems.entity.Company;
 import com.celebritysystems.repository.CompanyRepository;
 
@@ -54,7 +56,7 @@ public class CompanyContoller {
                 .orElse(ResponseEntity.notFound().build());
     }
     @PostMapping
-    public ResponseEntity<?> createCompany(@Valid @RequestBody CompanyDTO companyDto) {
+    public ResponseEntity<?> createCompany(@Valid @RequestBody CompanyDto companyDto) {
         try {
             Company company = companyServiceImpl.createCompany(companyDto)
                 .orElseThrow(() -> new RuntimeException("Failed to create company"));
