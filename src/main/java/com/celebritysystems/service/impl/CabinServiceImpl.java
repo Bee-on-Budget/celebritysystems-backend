@@ -1,14 +1,29 @@
 package com.celebritysystems.service.impl;
 
+import com.celebritysystems.dto.CabinDto;
 import com.celebritysystems.entity.Cabin;
+import com.celebritysystems.entity.Company;
+import com.celebritysystems.entity.repository.CabinRepository;
 import com.celebritysystems.service.CabinService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class CabinServiceImpl implements CabinService {
+    @Autowired
+    private CabinRepository cabinRepository;
 
     @Override
-    public Cabin createCabin(Cabin cabinRequest) {
-        return null;
+    public Optional<Cabin> createCabin(CabinDto cabinRequest) {
+        Cabin cabin = Cabin.builder()
+                .height(cabinRequest.getHeight())
+                .width(cabinRequest.getWidth())
+                .quantity(cabinRequest.getQuantity())
+                .type(cabinRequest.getType())
+                .build();
+
+        return Optional.of(cabinRepository.save(cabin));
     }
 }

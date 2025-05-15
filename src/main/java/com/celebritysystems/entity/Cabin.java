@@ -26,6 +26,6 @@ public class Cabin {
 
     private String type;
 
-    @OneToOne(mappedBy = "cabin", cascade = CascadeType.ALL)
-    private Screen screen;
+//    @OneToOne(mappedBy = "cabin", cascade = CascadeType.ALL)
+//    private Screen screen;
 }

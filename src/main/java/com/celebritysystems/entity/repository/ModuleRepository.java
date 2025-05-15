@@ -1,4 +1,4 @@
-package com.celebritysystems.repository;
+package com.celebritysystems.entity.repository;
 
 import com.celebritysystems.entity.Contract;
 import com.celebritysystems.entity.Module;

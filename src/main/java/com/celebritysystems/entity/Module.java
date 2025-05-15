@@ -26,6 +26,6 @@ public class Module {
 
     private Double width;
 
-    @OneToOne(mappedBy = "module", cascade = CascadeType.ALL)
-    private Screen screen;
+//    @OneToOne(mappedBy = "module", cascade = CascadeType.ALL)
+//    private Screen screen;
 }

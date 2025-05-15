@@ -1,6 +1,6 @@
 package com.celebritysystems.dto;
 
-import com.celebritysystems.entity.Screen;
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,10 +10,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ModuleDto {
+public class CabinDto {
     private Long quantity;
 
     private Double height;
 
     private Double width;
+
+    private String type;
 }

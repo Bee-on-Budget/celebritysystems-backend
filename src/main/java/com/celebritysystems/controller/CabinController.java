@@ -1,11 +1,9 @@
 package com.celebritysystems.controller;
 
+import com.celebritysystems.dto.CabinDto;
 import com.celebritysystems.entity.Cabin;
-import com.celebritysystems.entity.Module;
-import com.celebritysystems.repository.CabinRepository;
-import com.celebritysystems.repository.ModuleRepository;
+import com.celebritysystems.entity.repository.CabinRepository;
 import com.celebritysystems.service.impl.CabinServiceImpl;
-import com.celebritysystems.service.impl.ModuleServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,10 +21,10 @@ public class CabinController {
     private CabinRepository cabinRepository;
 
     @PostMapping
-    public ResponseEntity<?> createCabin(@RequestBody Cabin cabinRequest) {
+    public ResponseEntity<?> createCabin(@RequestBody CabinDto cabinRequest) {
         try {
-            Cabin cabin = cabinServiceImpl.createCabin(cabinRequest);
-//                    .orElseThrow(() -> new RuntimeException("Failed to create company"));
+            Cabin cabin = cabinServiceImpl.createCabin(cabinRequest)
+                    .orElseThrow(() -> new RuntimeException("Failed to create company"));
             return ResponseEntity.ok(cabin);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

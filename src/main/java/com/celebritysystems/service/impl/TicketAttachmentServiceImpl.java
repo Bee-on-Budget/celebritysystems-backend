@@ -4,15 +4,13 @@ import com.celebritysystems.dto.TicketAttachmentDTO;
 import com.celebritysystems.dto.CreateTicketAttachmentDTO;
 import com.celebritysystems.entity.Ticket;
 import com.celebritysystems.entity.TicketAttachment;
-import com.celebritysystems.repository.TicketAttachmentRepository;
-import com.celebritysystems.repository.TicketRepository;
+import com.celebritysystems.entity.repository.TicketAttachmentRepository;
+import com.celebritysystems.entity.repository.TicketRepository;
 import com.celebritysystems.service.TicketAttachmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

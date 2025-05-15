@@ -1,4 +1,4 @@
-package com.celebritysystems.repository;
+package com.celebritysystems.entity.repository;
 
 import com.celebritysystems.entity.Cabin;
 import org.springframework.data.jpa.repository.JpaRepository;

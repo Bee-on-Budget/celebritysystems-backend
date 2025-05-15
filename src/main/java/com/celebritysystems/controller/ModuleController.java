@@ -2,7 +2,7 @@ package com.celebritysystems.controller;
 
 import com.celebritysystems.dto.ModuleDto;
 import com.celebritysystems.entity.Module;
-import com.celebritysystems.repository.ModuleRepository;
+import com.celebritysystems.entity.repository.ModuleRepository;
 import com.celebritysystems.service.impl.ModuleServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,10 +22,9 @@ public class ModuleController {
     private ModuleRepository moduleRepository;
 
     @PostMapping
-    public ResponseEntity<?> createModule(@RequestBody Module moduleRequest) {
+    public ResponseEntity<?> createModule(@RequestBody ModuleDto moduleRequest) {
         try {
-            Module module = moduleServiceImpl.createModule(moduleRequest);
-//                    .orElseThrow(() -> new RuntimeException("Failed to create company"));
+            Module module = moduleServiceImpl.createModule(moduleRequest).orElseThrow(() -> new RuntimeException("Failed to create company"));
             return ResponseEntity.ok(module);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());

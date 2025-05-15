@@ -1,7 +1,7 @@
 package com.celebritysystems.controller;
 
 import com.celebritysystems.entity.User;
-import com.celebritysystems.repository.UserRepository;
+import com.celebritysystems.entity.repository.UserRepository;
 import com.celebritysystems.service.UserService;
 import lombok.RequiredArgsConstructor;
 

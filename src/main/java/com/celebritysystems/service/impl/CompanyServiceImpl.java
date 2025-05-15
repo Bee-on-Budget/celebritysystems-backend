@@ -9,8 +9,8 @@ import org.springframework.stereotype.Service;
 import com.celebritysystems.dto.CompanyDto;
 import com.celebritysystems.entity.Company;
 import com.celebritysystems.entity.User;
-import com.celebritysystems.repository.CompanyRepository;
-import com.celebritysystems.repository.UserRepository;
+import com.celebritysystems.entity.repository.CompanyRepository;
+import com.celebritysystems.entity.repository.UserRepository;
 import com.celebritysystems.service.CompanyService;
 
 import jakarta.transaction.Transactional;

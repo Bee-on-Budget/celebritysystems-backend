@@ -48,7 +48,7 @@ public class Screen {
     private Long receivingCardQuantity;
 
     @Column(name = "spare_receiving_card_quantity")
-    private Long SpareReceivingCardQuantity;
+    private Long spareReceivingCardQuantity;
 
     @Column(name = "cable")
     private String cable;
@@ -75,7 +75,7 @@ public class Screen {
     private Long dataCableQuantity;
 
     @Column(name = "spare_data_cable_quantity")
-    private Long SpareDataCableQuantity;
+    private Long spareDataCableQuantity;
 
     @Lob
     @Basic(fetch = FetchType.LAZY)

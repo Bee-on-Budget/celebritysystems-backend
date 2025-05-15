@@ -17,9 +17,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.celebritysystems.dto.CompanyDto;
 import com.celebritysystems.entity.Company;
-import com.celebritysystems.repository.CompanyRepository;
+import com.celebritysystems.entity.repository.CompanyRepository;
 
 
 @RestController
