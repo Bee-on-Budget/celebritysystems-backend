@@ -1,6 +1,7 @@
 package com.celebritysystems.dto;
 
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @Builder
@@ -8,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 public class CreateTicketAttachmentDTO {
     private Long ticketId;
-    private String filePath;
+    private MultipartFile filePath;
     private String note;
     private Long uploadedBy;
 }

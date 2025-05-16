@@ -9,7 +9,9 @@ import com.celebritysystems.entity.repository.TicketRepository;
 import com.celebritysystems.service.TicketAttachmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 @Service
@@ -30,10 +32,12 @@ public class TicketAttachmentServiceImpl implements TicketAttachmentService {
     public TicketAttachmentDTO addAttachment(CreateTicketAttachmentDTO dto) {
         Ticket ticket = ticketRepository.findById(dto.getTicketId())
                 .orElseThrow(() -> new RuntimeException("Ticket not found"));
+
+        byte[] file = toBytes(dto.getFilePath());
         
         TicketAttachment attachment = TicketAttachment.builder()
                 .ticket(ticket) // Set the Ticket object, not the ID
-                .filePath(dto.getFilePath())
+                .filePath(file)
                 .note(dto.getNote())
                 .uploadedAt(LocalDateTime.now())
                 .build();
@@ -49,11 +53,18 @@ public class TicketAttachmentServiceImpl implements TicketAttachmentService {
         return TicketAttachmentDTO.builder()
                 .id(attachment.getId())
                 .ticketId(attachment.getTicketId()) // This will use our new convenience method
-                .filePath(attachment.getFilePath())
+//                .filePath(attachment.getFilePath())
                 .note(attachment.getNote())
                 .uploadedAt(attachment.getUploadedAt())
                 .build();
     }
 
-  
+    private byte[] toBytes(MultipartFile file) {
+        if (file == null || file.isEmpty()) return null;
+        try {
+            return file.getBytes();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read file: " + file.getOriginalFilename(), e);
+        }
+    }
 }

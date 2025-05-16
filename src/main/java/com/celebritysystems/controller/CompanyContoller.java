@@ -37,18 +37,18 @@ public class CompanyContoller {
 
 
      @GetMapping
-    public ResponseEntity<List<Company>> getAllcompanies() {
+    public ResponseEntity<List<Company>> getAllCompanies() {
         return ResponseEntity.ok(companyRepository.findAll());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/id/{id}")
     public ResponseEntity<Company> getCompanyById(@PathVariable Long id) {
         return companyRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/{name}")
+    @GetMapping("/name/{name}")
     public ResponseEntity<Company> getCompanyByName(@PathVariable  String name) {
         return companyRepository.getCompanyByName(name)
                 .map(ResponseEntity::ok)

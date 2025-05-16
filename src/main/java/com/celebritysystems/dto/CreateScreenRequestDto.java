@@ -56,6 +56,8 @@ public class CreateScreenRequestDto {
     private Long moduleId;
     private Long cabinId;
 
+//    private ModuleDto module;
+//    private CabinDto cabin;
 
 
 }

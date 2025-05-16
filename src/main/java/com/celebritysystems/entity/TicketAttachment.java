@@ -21,8 +21,10 @@ public class TicketAttachment {
     @JoinColumn(name = "ticket_id")
     private Ticket ticket;
 
-    @Column(name = "file_path")
-    private String filePath;
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "file_path", columnDefinition = "LONGBLOB")
+    private byte[] filePath;
 
     private String note;
 

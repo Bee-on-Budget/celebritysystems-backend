@@ -21,8 +21,8 @@ public class TicketAttachmentController {
         return ResponseEntity.ok(ticketAttachmentService.getAttachmentById(id));
     }
 
-    @PostMapping
-    public ResponseEntity<TicketAttachmentDTO> addAttachment(@RequestBody CreateTicketAttachmentDTO dto) {
+    @PostMapping(consumes = "multipart/form-data")
+    public ResponseEntity<TicketAttachmentDTO> addAttachment(@ModelAttribute CreateTicketAttachmentDTO dto) {
         return ResponseEntity.ok(ticketAttachmentService.addAttachment(dto));
     }
 

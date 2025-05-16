@@ -1,7 +1,9 @@
 package com.celebritysystems.controller;
 
 import com.celebritysystems.entity.Contract;
+import com.celebritysystems.entity.repository.ContractRepository;
 import com.celebritysystems.service.ContractService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +14,8 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/contracts")
 public class ContractController {
+    @Autowired
+    private ContractRepository contractRepository;
 
     private final ContractService contractService;
 
@@ -32,7 +36,7 @@ public class ContractController {
 
     @GetMapping
     public ResponseEntity<List<Contract>> getAllContracts() {
-        return ResponseEntity.ok(contractService.getContractsByCompany(null)); // Or implement getAll in service
+        return ResponseEntity.ok(contractRepository.findAll()); // Or implement getAll in service
     }
 
     @GetMapping("/company/{companyId}")
