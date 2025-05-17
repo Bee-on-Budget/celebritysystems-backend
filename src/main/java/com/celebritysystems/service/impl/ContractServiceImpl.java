@@ -1,7 +1,9 @@
 package com.celebritysystems.service.impl;
 
 import com.celebritysystems.entity.Contract;
+import com.celebritysystems.entity.Screen;
 import com.celebritysystems.entity.repository.ContractRepository;
+import com.celebritysystems.entity.repository.ScreenRepository;
 import com.celebritysystems.service.ContractService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,12 +15,22 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class ContractServiceImpl implements ContractService {
-    
+
     private final ContractRepository contractRepository;
 
     @Override
     public Contract createContract(Contract contract) {
-        if (contract.getCompanyId() != null && contract.getScreenId() != null 
+//        Optional<Screen> screen = screenRepository.findById(contract.getScreenId());
+        List<Contract> contractCheck = contractRepository.findByScreenId(contract.getScreenId());
+
+        //for loop if the contract expired date > now . the screen with id (x) already have an ongoing contract now.
+        for (Contract existingContract : contractCheck) {
+            if (existingContract.getExpiredAt().isAfter(LocalDateTime.now())) {
+                throw new IllegalStateException("Screen with id " + contract.getScreenId() + " already has an ongoing contract.");
+            }
+        }
+
+        if (contract.getCompanyId() != null && contract.getScreenId() != null
             && contractRepository.existsByCompanyIdAndScreenId(contract.getCompanyId(), contract.getScreenId())) {
             throw new IllegalArgumentException("Active contract already exists for this company-screen combination");
         }
