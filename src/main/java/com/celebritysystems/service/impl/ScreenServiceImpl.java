@@ -1,6 +1,8 @@
 package com.celebritysystems.service.impl;
 
+import com.celebritysystems.dto.CabinDto;
 import com.celebritysystems.dto.CreateScreenRequestDto;
+import com.celebritysystems.dto.ModuleDto;
 import com.celebritysystems.entity.Cabin;
 import com.celebritysystems.entity.Module;
 import com.celebritysystems.entity.Screen;
@@ -23,48 +25,98 @@ public class ScreenServiceImpl implements ScreenService {
     private final CabinRepository cabinRepository;
 
 
+
     @Override
-    public Optional<Screen> createScreen(CreateScreenRequestDto request) {
+//    @Transactional
+    public Optional<Screen> createScreen(CreateScreenRequestDto screenDTO) {
 
-        Module module = moduleRepository.findById(request.getModuleId())
-                .orElseThrow(() -> new IllegalArgumentException("Module not found with ID: " + request.getModuleId()));
+        // Create and save Module
+        Module module = new Module();
+        module.setHeight(screenDTO.getModuleHeight());
+        module.setWidth(screenDTO.getModuleWidth());
+        module.setQuantity(screenDTO.getModuleQuantity());
+//        Module module = mapModuleDtoToEntity(screenDTO.getModule());
+        Module savedModule = moduleRepository.save(module);
 
-        Cabin cabin = cabinRepository.findById(request.getCabinId())
-                .orElseThrow(() -> new IllegalArgumentException("Cabin not found with ID: " + request.getCabinId()));
+        // Create and save Cabin
+        Cabin cabin = new Cabin();
+        cabin.setHeight(screenDTO.getCabinHeight());
+        cabin.setWidth(screenDTO.getCabinWidth());
+        cabin.setQuantity(screenDTO.getCabinQuantity());
+        cabin.setType(screenDTO.getCabinType());
+//        Cabin cabin = mapCabinDtoToEntity(screenDTO.getCabin());
+        Cabin savedCabin = cabinRepository.save(cabin);
 
-        byte[] connectionBytes = toBytes(request.getConnectionFile());
-        byte[] configBytes = toBytes(request.getConfigFile());
-        byte[] versionBytes = toBytes(request.getVersionFile());
-
-        Screen screen = Screen.builder()
-                .name(request.getName())
-                .screenType(request.getScreenType())
-                .location(request.getLocation())
-                .height(request.getHeight())
-                .width(request.getWidth())
-                .powerSupply(request.getPowerSupply())
-                .powerSupplyQuantity(request.getPowerSupplyQuantity())
-                .sparePowerSupplyQuantity(request.getSparePowerSupplyQuantity())
-                .receivingCard(request.getReceivingCard())
-                .receivingCardQuantity(request.getReceivingCardQuantity())
-                .spareReceivingCardQuantity(request.getSpareReceivingCardQuantity())
-                .cable(request.getCable())
-                .cableQuantity(request.getCableQuantity())
-                .spareCableQuantity(request.getSpareCableQuantity())
-                .powerCable(request.getPowerCable())
-                .powerCableQuantity(request.getPowerCableQuantity())
-                .sparePowerCableQuantity(request.getSparePowerCableQuantity())
-                .dataCable(request.getDataCable())
-                .dataCableQuantity(request.getDataCableQuantity())
-                .spareDataCableQuantity(request.getSpareDataCableQuantity())
-                .connection(connectionBytes)
-                .config(configBytes)
-                .version(versionBytes)
-                .module(module)
-                .cabin(cabin)
-                .build();
+        // Create Screen
+        Screen screen = mapScreenDtoToEntity(screenDTO);
+        screen.setModule(savedModule);
+        screen.setCabin(savedCabin);
 
         return Optional.of(screenRepository.save(screen));
+    }
+
+    private Module mapModuleDtoToEntity(ModuleDto dto) {
+        Module module = new Module();
+        module.setHeight(dto.getHeight());
+        module.setWidth(dto.getWidth());
+        module.setQuantity(dto.getQuantity());
+        // Map other fields from ModuleDTO to Module
+        return module;
+    }
+
+    private Cabin mapCabinDtoToEntity(CabinDto dto) {
+        Cabin cabin = new Cabin();
+        cabin.setHeight(dto.getHeight());
+        cabin.setWidth(dto.getWidth());
+        cabin.setQuantity(dto.getQuantity());
+        cabin.setType(dto.getType());
+        // Map other fields from CabinDTO to Cabin
+        return cabin;
+    }
+
+    private Screen mapScreenDtoToEntity(CreateScreenRequestDto dto) {
+        Screen screen = new Screen();
+        // Basic Fields
+        screen.setName(dto.getName());
+        screen.setScreenType(dto.getScreenType());
+        screen.setLocation(dto.getLocation());
+        screen.setHeight(dto.getHeight());
+        screen.setWidth(dto.getWidth());
+
+        // Power Supply Section
+        screen.setPowerSupply(dto.getPowerSupply());
+        screen.setPowerSupplyQuantity(dto.getPowerSupplyQuantity());
+        screen.setSparePowerSupplyQuantity(dto.getSparePowerSupplyQuantity());
+
+        // Receiving Card Section
+        screen.setReceivingCard(dto.getReceivingCard());
+        screen.setReceivingCardQuantity(dto.getReceivingCardQuantity());
+        screen.setSpareReceivingCardQuantity(dto.getSpareReceivingCardQuantity());
+
+        // Cable Section
+        screen.setCable(dto.getCable());
+        screen.setCableQuantity(dto.getCableQuantity());
+        screen.setSpareCableQuantity(dto.getSpareCableQuantity());
+
+        // Power Cable Section
+        screen.setPowerCable(dto.getPowerCable());
+        screen.setPowerCableQuantity(dto.getPowerCableQuantity());
+        screen.setSparePowerCableQuantity(dto.getSparePowerCableQuantity());
+
+        // Data Cable Section
+        screen.setDataCable(dto.getDataCable());
+        screen.setDataCableQuantity(dto.getDataCableQuantity());
+        screen.setSpareDataCableQuantity(dto.getSpareDataCableQuantity());
+
+        // Binary Data Fields
+        screen.setConnection(toBytes(dto.getConnectionFile()));
+        screen.setConfig(toBytes( dto.getConfigFile()));
+        screen.setVersion( toBytes(dto.getVersionFile()));
+
+        // Note: Module and Cabin are handled separately in the service
+        // They will be set after this mapping
+
+        return screen;
     }
 
     private byte[] toBytes(MultipartFile file) {

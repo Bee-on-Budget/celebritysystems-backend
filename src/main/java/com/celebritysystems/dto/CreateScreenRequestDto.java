@@ -53,11 +53,12 @@ public class CreateScreenRequestDto {
     private MultipartFile configFile;
     private MultipartFile versionFile;
 
-    private Long moduleId;
-    private Long cabinId;
+    private Long moduleQuantity;
+    private Double moduleHeight;
+    private Double moduleWidth;
 
-//    private ModuleDto module;
-//    private CabinDto cabin;
-
-
+    private Long cabinQuantity;
+    private Double cabinHeight;
+    private Double cabinWidth;
+    private String cabinType;
 }
