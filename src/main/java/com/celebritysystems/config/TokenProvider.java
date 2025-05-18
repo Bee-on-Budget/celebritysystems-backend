@@ -32,7 +32,8 @@ public class TokenProvider {
                 .setSubject(user.getId().toString())
                 .claim("email", user.getEmail())
                 .claim("username", user.getUsername())
-                .claim("roles", new ArrayList<>(user.getRoles())) // Convert Set to List
+                .claim("role", user.getRole())
+//                .claim("roles", new ArrayList<>(user.getRoles())) // Convert Set to List
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(jwtSecretKey, SignatureAlgorithm.HS512)

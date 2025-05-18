@@ -2,6 +2,7 @@ package com.celebritysystems.entity;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -39,8 +40,9 @@ public class Company {
     @Builder.Default
     private String companyType = "DEFAULT";
     
-    @OneToMany(mappedBy = "id")
-    private List<User> user_id;
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<User> userList;
 
     @Override
     public boolean equals(Object o) {

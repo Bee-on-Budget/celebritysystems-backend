@@ -51,19 +51,17 @@ public class AuthController {
             user.setUsername(registrationDto.getUsername());
             user.setEmail(registrationDto.getEmail());
             user.setPassword(passwordEncoder.encode(registrationDto.getPassword()));
-
-            Set<String> validatedRoles = new HashSet<>();
-            for (String roleStr : registrationDto.getRoles()) {
                 try {
-                    RoleInSystem role = RoleInSystem.valueOf(roleStr.toUpperCase());
-                    validatedRoles.add(role.toString());
+                    RoleInSystem role = RoleInSystem.valueOf(registrationDto.getRole().toUpperCase());
+                    user.setRole(role);
                 } catch (IllegalArgumentException e) {
                     return ResponseEntity.badRequest()
-                            .body("Invalid role: " + roleStr);
+                            .body("Invalid role: " + registrationDto.getRole().toUpperCase());
                 }
-            }
 
-            user.setRoles(validatedRoles);
+
+//            user.setRoles(validatedRoles);
+
 
             User savedUser = userService.save(user);
             
