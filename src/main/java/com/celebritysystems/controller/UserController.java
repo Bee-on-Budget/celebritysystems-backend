@@ -1,14 +1,20 @@
 package com.celebritysystems.controller;
 
+import com.celebritysystems.AuthControllers.AuthController;
+import com.celebritysystems.config.TokenProvider;
 import com.celebritysystems.entity.User;
 import com.celebritysystems.entity.repository.UserRepository;
 import com.celebritysystems.service.UserService;
 import lombok.RequiredArgsConstructor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -17,10 +23,13 @@ import java.util.List;
 public class UserController {
 
     @Autowired
-    private  UserService userService;
-
+    private UserService userService;
     @Autowired
-    private  UserRepository userRepository;
+    private UserRepository userRepository;
+    @Autowired
+    private TokenProvider tokenProvider;
+    private final static Logger logger = LoggerFactory.getLogger(AuthController.class);
+
 
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
@@ -34,17 +43,47 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/username/{username}")  
+    @GetMapping("/username/{username}")
     public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
-    
+
         System.out.println(userRepository.findByUsername("sami"));
         return userService.getUserByUsername(username)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        return ResponseEntity.ok(userService.save(user));
+    public ResponseEntity<?> createUser(@RequestBody User user) {
+        try {
+            if (userService.getUserByEmail(user.getEmail()).isPresent()) {
+                return ResponseEntity
+                        .status(HttpStatus.BAD_REQUEST)
+                        .body("Email already in use");
+            }
+            //TODO
+            //    if (userService.getUserByUsername(registrationDto.getUsername()).isPresent()) {
+            //        return ResponseEntity
+            //            .status(HttpStatus.BAD_REQUEST)
+            //            .body("Username already taken");
+            //    }
+
+            User companyUser = userService.save(user);
+
+
+            // Generate token for immediate login after registration
+            String token = tokenProvider.generateToken(companyUser);
+
+            return ResponseEntity.ok(Collections.singletonMap("token", token));
+
+        } catch (Exception e) {
+            logger.error("Registration error", e);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Registration failed");
+        }
+
+
+//        return ResponseEntity.ok(companyUser);
     }
 
 
