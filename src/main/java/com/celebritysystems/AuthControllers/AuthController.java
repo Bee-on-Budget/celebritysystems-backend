@@ -31,52 +31,52 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody UserRegistrationDto registrationDto) {
-        try {
-            if (userService.getUserByEmail(registrationDto.getEmail()).isPresent()) {
-                return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body("Email already in use");
-            }
-        //TODO
-        //    if (userService.getUserByUsername(registrationDto.getUsername()).isPresent()) {
-        //        return ResponseEntity
-        //            .status(HttpStatus.BAD_REQUEST)
-        //            .body("Username already taken");
-        //    }
-
-            // Create new user
-            User user = new User();
-            user.setUsername(registrationDto.getUsername());
-            user.setEmail(registrationDto.getEmail());
-            user.setPassword(passwordEncoder.encode(registrationDto.getPassword()));
-                try {
-                    RoleInSystem role = RoleInSystem.valueOf(registrationDto.getRole().toUpperCase());
-                    user.setRole(role);
-                } catch (IllegalArgumentException e) {
-                    return ResponseEntity.badRequest()
-                            .body("Invalid role: " + registrationDto.getRole().toUpperCase());
-                }
-
-
-//            user.setRoles(validatedRoles);
-
-
-            User savedUser = userService.save(user);
-            
-            // Generate token for immediate login after registration
-            String token = tokenProvider.generateToken(savedUser);
-            
-            return ResponseEntity.ok(Collections.singletonMap("token", token));
-            
-        } catch (Exception e) {
-            logger.error("Registration error", e);
-            return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Registration failed");
-        }
-    }
+//    @PostMapping("/register")
+//    public ResponseEntity<?> registerUser(@RequestBody UserRegistrationDto registrationDto) {
+//        try {
+//            if (userService.getUserByEmail(registrationDto.getEmail()).isPresent()) {
+//                return ResponseEntity
+//                    .status(HttpStatus.BAD_REQUEST)
+//                    .body("Email already in use");
+//            }
+//        //TODO
+//        //    if (userService.getUserByUsername(registrationDto.getUsername()).isPresent()) {
+//        //        return ResponseEntity
+//        //            .status(HttpStatus.BAD_REQUEST)
+//        //            .body("Username already taken");
+//        //    }
+//
+//            // Create new user
+//            User user = new User();
+//            user.setUsername(registrationDto.getUsername());
+//            user.setEmail(registrationDto.getEmail());
+//            user.setPassword(passwordEncoder.encode(registrationDto.getPassword()));
+//                try {
+//                    RoleInSystem role = RoleInSystem.valueOf(registrationDto.getRole().toUpperCase());
+//                    user.setRole(role);
+//                } catch (IllegalArgumentException e) {
+//                    return ResponseEntity.badRequest()
+//                            .body("Invalid role: " + registrationDto.getRole().toUpperCase());
+//                }
+//
+//
+////            user.setRoles(validatedRoles);
+//
+//
+//            User savedUser = userService.save(user);
+//
+//            // Generate token for immediate login after registration
+//            String token = tokenProvider.generateToken(savedUser);
+//
+//            return ResponseEntity.ok(Collections.singletonMap("token", token));
+//
+//        } catch (Exception e) {
+//            logger.error("Registration error", e);
+//            return ResponseEntity
+//                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                .body("Registration failed");
+//        }
+//    }
 
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody Map<String, String> loginCredentials) {

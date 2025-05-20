@@ -38,7 +38,7 @@ public class UserServiceImpl implements UserService {
         newUser.setEmail(user.getEmail());
         newUser.setPassword(passwordEncoder.encode(user.getPassword()));
         newUser.setCompany(user.getCompany());
-        newUser.setRole(RoleInSystem.COMPANY);
+        newUser.setRole(user.getRole());
         newUser.setCanEdit(user.getCanEdit());
         newUser.setCanRead(user.getCanRead());
         newUser.setFullName(user.getFullName());

@@ -60,12 +60,11 @@ public class UserController {
                         .status(HttpStatus.BAD_REQUEST)
                         .body("Email already in use");
             }
-            //TODO
-            //    if (userService.getUserByUsername(registrationDto.getUsername()).isPresent()) {
-            //        return ResponseEntity
-            //            .status(HttpStatus.BAD_REQUEST)
-            //            .body("Username already taken");
-            //    }
+            if (userService.getUserByUsername(user.getUsername()).isPresent()) {
+                return ResponseEntity
+                        .status(HttpStatus.BAD_REQUEST)
+                        .body("Username already taken");
+            }
 
             User companyUser = userService.save(user);
 
