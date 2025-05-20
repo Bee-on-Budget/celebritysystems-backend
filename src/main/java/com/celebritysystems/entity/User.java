@@ -39,10 +39,10 @@ public class User {
     @Column(name = "role", nullable = false)
     private RoleInSystem role;
 
-    @Column(nullable = false,name = "can_read")
+    @Column(name = "can_read")
     private Boolean canRead;
 
-    @Column(nullable = false,name = "can_edit")
+    @Column(name = "can_edit")
     private Boolean canEdit;
 
     @ManyToOne
