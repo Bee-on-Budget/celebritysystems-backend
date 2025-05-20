@@ -1,4 +1,4 @@
-package com.celebritysystems.entity.repository;
+package com.celebritysystems.repository;
 
 import com.celebritysystems.entity.Ticket;
 import org.springframework.data.jpa.repository.JpaRepository;

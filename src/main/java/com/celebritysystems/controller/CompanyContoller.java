@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.celebritysystems.entity.Company;
-import com.celebritysystems.entity.repository.CompanyRepository;
+import com.celebritysystems.repository.CompanyRepository;
 
 
 @RestController

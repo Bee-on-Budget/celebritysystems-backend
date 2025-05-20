@@ -2,8 +2,7 @@ package com.celebritysystems.service.impl;
 
 import com.celebritysystems.dto.CabinDto;
 import com.celebritysystems.entity.Cabin;
-import com.celebritysystems.entity.Company;
-import com.celebritysystems.entity.repository.CabinRepository;
+import com.celebritysystems.repository.CabinRepository;
 import com.celebritysystems.service.CabinService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -2,7 +2,7 @@ package com.celebritysystems.service.impl;
 
 import com.celebritysystems.entity.User;
 import com.celebritysystems.entity.enums.RoleInSystem;
-import com.celebritysystems.entity.repository.UserRepository;
+import com.celebritysystems.repository.UserRepository;
 import com.celebritysystems.service.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +39,9 @@ public class UserServiceImpl implements UserService {
         newUser.setPassword(passwordEncoder.encode(user.getPassword()));
         newUser.setCompany(user.getCompany());
         newUser.setRole(RoleInSystem.COMPANY);
+        newUser.setCanEdit(user.getCanEdit());
+        newUser.setCanRead(user.getCanRead());
+        newUser.setFullName(user.getFullName());
 
         return userRepository.save(newUser);
     }

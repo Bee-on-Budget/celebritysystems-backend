@@ -1,4 +1,4 @@
-package com.celebritysystems.entity.repository;
+package com.celebritysystems.repository;
 
 import java.util.Optional;
 

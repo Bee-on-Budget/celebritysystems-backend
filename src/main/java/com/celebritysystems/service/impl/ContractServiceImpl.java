@@ -1,9 +1,7 @@
 package com.celebritysystems.service.impl;
 
 import com.celebritysystems.entity.Contract;
-import com.celebritysystems.entity.Screen;
-import com.celebritysystems.entity.repository.ContractRepository;
-import com.celebritysystems.entity.repository.ScreenRepository;
+import com.celebritysystems.repository.ContractRepository;
 import com.celebritysystems.service.ContractService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

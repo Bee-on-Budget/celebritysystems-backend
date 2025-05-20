@@ -2,7 +2,7 @@ package com.celebritysystems.controller;
 
 import com.celebritysystems.dto.ModuleDto;
 import com.celebritysystems.entity.Module;
-import com.celebritysystems.entity.repository.ModuleRepository;
+import com.celebritysystems.repository.ModuleRepository;
 import com.celebritysystems.service.impl.ModuleServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

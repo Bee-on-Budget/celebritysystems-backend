@@ -1,7 +1,7 @@
 package com.celebritysystems.controller;
 
 import com.celebritysystems.entity.Contract;
-import com.celebritysystems.entity.repository.ContractRepository;
+import com.celebritysystems.repository.ContractRepository;
 import com.celebritysystems.service.ContractService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

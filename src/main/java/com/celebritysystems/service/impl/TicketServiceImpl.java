@@ -3,7 +3,7 @@ package com.celebritysystems.service.impl;
 import com.celebritysystems.dto.TicketDTO;
 import com.celebritysystems.dto.CreateTicketDTO;
 import com.celebritysystems.entity.Ticket;
-import com.celebritysystems.entity.repository.TicketRepository;
+import com.celebritysystems.repository.TicketRepository;
 import com.celebritysystems.service.TicketService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

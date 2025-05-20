@@ -3,7 +3,7 @@ package com.celebritysystems.controller;
 import com.celebritysystems.AuthControllers.AuthController;
 import com.celebritysystems.config.TokenProvider;
 import com.celebritysystems.entity.User;
-import com.celebritysystems.entity.repository.UserRepository;
+import com.celebritysystems.repository.UserRepository;
 import com.celebritysystems.service.UserService;
 import lombok.RequiredArgsConstructor;
 

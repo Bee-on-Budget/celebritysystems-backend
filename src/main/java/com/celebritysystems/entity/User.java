@@ -29,20 +29,21 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
 
+    @Column(nullable = false,name = "full_name")
+    private String fullName;
+
     @Column(nullable = false)
     private String password;
-
-
-
-//    @ElementCollection(fetch = FetchType.EAGER)
-//    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
-//    @Column(name = "role")
-//    @Builder.Default
-//    private Set<String> roles = new HashSet<>();
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     private RoleInSystem role;
+
+    @Column(nullable = false,name = "can_read")
+    private Boolean canRead;
+
+    @Column(nullable = false,name = "can_edit")
+    private Boolean canEdit;
 
     @ManyToOne
     @JoinColumn(name ="company_id")

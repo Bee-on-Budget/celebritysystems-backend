@@ -1,10 +1,8 @@
 package com.celebritysystems.service.impl;
 
 import com.celebritysystems.dto.ModuleDto;
-import com.celebritysystems.entity.Cabin;
-import com.celebritysystems.entity.Contract;
 import com.celebritysystems.entity.Module;
-import com.celebritysystems.entity.repository.ModuleRepository;
+import com.celebritysystems.repository.ModuleRepository;
 import com.celebritysystems.service.ModuleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
