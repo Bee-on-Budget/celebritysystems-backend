@@ -10,6 +10,8 @@ public interface CompanyService {
 List<Company> findAll();
 Optional<Company> findById(Long id);
 Optional<Company> findByName(String Name);
+Optional<Company> findByNameIgnoreCase(String name); 
+List<Company> searchByName(String name);
 void assignUser(Long employeeId, Long companyId);
 Optional<Company> createCompany(CompanyDto companyDto);
 void deleteById(Long id);

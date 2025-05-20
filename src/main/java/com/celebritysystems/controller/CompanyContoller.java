@@ -75,4 +75,17 @@ public class CompanyContoller {
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/name/ignore-case/{name}")
+public ResponseEntity<Company> getCompanyByNameIgnoreCase(@PathVariable String name) {
+    return companyServiceImpl.findByNameIgnoreCase(name)
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.notFound().build());
+}
+
+@GetMapping("/search/{name}")
+public ResponseEntity<List<Company>> searchCompaniesByName(@PathVariable String name) {
+    List<Company> companies = companyServiceImpl.searchByName(name);
+    return ResponseEntity.ok(companies);
+}
 }

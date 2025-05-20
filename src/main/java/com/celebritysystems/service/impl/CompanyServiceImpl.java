@@ -70,7 +70,15 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
 
-
+    @Override
+    public Optional<Company> findByNameIgnoreCase(String name) {
+        return companyRepository.findByNameIgnoreCase(name);
+    }
+    
+    @Override
+    public List<Company> searchByName(String name) {
+        return companyRepository.findByNameContainingIgnoreCase(name);
+    }
   
 
     
