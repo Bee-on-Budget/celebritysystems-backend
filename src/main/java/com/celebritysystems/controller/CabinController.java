@@ -3,8 +3,8 @@ package com.celebritysystems.controller;
 import com.celebritysystems.dto.CabinDto;
 import com.celebritysystems.entity.Cabin;
 import com.celebritysystems.repository.CabinRepository;
-import com.celebritysystems.service.impl.CabinServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.celebritysystems.service.CabinService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,17 +13,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/cabin")
+@RequiredArgsConstructor
 public class CabinController {
-    @Autowired
-    private CabinServiceImpl cabinServiceImpl;
+    private final CabinService cabinService;
 
-    @Autowired
-    private CabinRepository cabinRepository;
+    private final CabinRepository cabinRepository;
 
     @PostMapping
     public ResponseEntity<?> createCabin(@RequestBody CabinDto cabinRequest) {
         try {
-            Cabin cabin = cabinServiceImpl.createCabin(cabinRequest)
+            Cabin cabin = cabinService.createCabin(cabinRequest)
                     .orElseThrow(() -> new RuntimeException("Failed to create company"));
             return ResponseEntity.ok(cabin);
         } catch (Exception e) {

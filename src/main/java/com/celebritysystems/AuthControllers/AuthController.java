@@ -1,10 +1,9 @@
 package com.celebritysystems.AuthControllers;
 
 import com.celebritysystems.config.TokenProvider;
-import com.celebritysystems.dto.auth.UserRegistrationDto;
 import com.celebritysystems.entity.User;
-import com.celebritysystems.entity.enums.RoleInSystem;
 import com.celebritysystems.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -13,26 +12,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
     private final UserService userService;
     private final TokenProvider tokenProvider;
     private final PasswordEncoder passwordEncoder;
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
-
-    public AuthController(UserService userService, 
-                        TokenProvider tokenProvider,
-                        PasswordEncoder passwordEncoder) {
-        this.userService = userService;
-        this.tokenProvider = tokenProvider;
-        this.passwordEncoder = passwordEncoder;
-    }
 
 //    @PostMapping("/register")
 //    public ResponseEntity<?> registerUser(@RequestBody UserRegistrationDto registrationDto) {

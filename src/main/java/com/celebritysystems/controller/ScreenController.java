@@ -1,17 +1,11 @@
 package com.celebritysystems.controller;
 
 import com.celebritysystems.dto.CreateScreenRequestDto;
-import com.celebritysystems.entity.Screen;
-import com.celebritysystems.service.impl.ScreenServiceImpl;
-import jakarta.validation.Valid;
+import com.celebritysystems.service.ScreenService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartException;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/screens")
@@ -19,12 +13,12 @@ import java.util.Optional;
 @CrossOrigin
 public class ScreenController {
 
-    private final ScreenServiceImpl screenServiceImpl;
+    private final ScreenService screenService;
 
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<?> createScreen(@ModelAttribute CreateScreenRequestDto request) {
         try {
-            screenServiceImpl.createScreen(request);
+            screenService.createScreen(request);
             return ResponseEntity.ok("Screen created successfully");
         } catch (MultipartException e) {
             return ResponseEntity.badRequest().body("Invalid file upload");

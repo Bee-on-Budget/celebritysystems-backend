@@ -3,12 +3,12 @@ package com.celebritysystems.controller;
 import java.util.List;
 
 import com.celebritysystems.dto.CompanyDto;
-import com.celebritysystems.service.impl.CompanyServiceImpl;
+import com.celebritysystems.service.CompanyService;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestBody;
 import jakarta.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,18 +23,12 @@ import com.celebritysystems.repository.CompanyRepository;
 
 @RestController
 @RequestMapping("/api/company")
-public class CompanyContoller {
+@RequiredArgsConstructor
+public class CompanyController {
 
-    private final CompanyServiceImpl companyServiceImpl;
+    private final CompanyService companyService;
     
-    @Autowired
-    private CompanyRepository companyRepository;
-
-
-    CompanyContoller(CompanyServiceImpl companyServiceImpl) {
-        this.companyServiceImpl = companyServiceImpl;
-    }
-
+    private final CompanyRepository companyRepository;
 
      @GetMapping
     public ResponseEntity<List<Company>> getAllCompanies() {
@@ -57,7 +51,7 @@ public class CompanyContoller {
     @PostMapping
     public ResponseEntity<?> createCompany(@Valid @RequestBody CompanyDto companyDto) {
         try {
-            Company company = companyServiceImpl.createCompany(companyDto)
+            Company company = companyService.createCompany(companyDto)
                 .orElseThrow(() -> new RuntimeException("Failed to create company"));
             return ResponseEntity.ok(company);
         } catch (Exception e) {
@@ -70,7 +64,7 @@ public class CompanyContoller {
     public ResponseEntity<Void> deleteCompany(@PathVariable Long id) {
         return companyRepository.findById(id)
                 .map(company -> {
-                    companyServiceImpl.deleteById(id);
+                    companyService.deleteById(id);
                     return ResponseEntity.ok().<Void>build();
                 })
                 .orElse(ResponseEntity.notFound().build());
@@ -78,14 +72,14 @@ public class CompanyContoller {
 
     @GetMapping("/name/ignore-case/{name}")
 public ResponseEntity<Company> getCompanyByNameIgnoreCase(@PathVariable String name) {
-    return companyServiceImpl.findByNameIgnoreCase(name)
+    return companyService.findByNameIgnoreCase(name)
             .map(ResponseEntity::ok)
             .orElse(ResponseEntity.notFound().build());
 }
 
 @GetMapping("/search/{name}")
 public ResponseEntity<List<Company>> searchCompaniesByName(@PathVariable String name) {
-    List<Company> companies = companyServiceImpl.searchByName(name);
+    List<Company> companies = companyService.searchByName(name);
     return ResponseEntity.ok(companies);
 }
 }

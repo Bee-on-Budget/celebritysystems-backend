@@ -3,6 +3,7 @@ package com.celebritysystems.controller;
 import com.celebritysystems.entity.Contract;
 import com.celebritysystems.repository.ContractRepository;
 import com.celebritysystems.service.ContractService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,15 +14,11 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/contracts")
+@RequiredArgsConstructor
 public class ContractController {
-    @Autowired
-    private ContractRepository contractRepository;
+    private final ContractRepository contractRepository;
 
     private final ContractService contractService;
-
-    public ContractController(ContractService contractService) {
-        this.contractService = contractService;
-    }
 
     @PostMapping
     public ResponseEntity<Contract> createContract(@RequestBody Contract contract) {
