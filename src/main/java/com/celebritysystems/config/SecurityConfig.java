@@ -19,7 +19,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+@EnableMethodSecurity // this if for role//pre.post, note: you should save role on token
 public class SecurityConfig {
 
     private final TokenProvider tokenProvider;
@@ -47,7 +47,7 @@ public class SecurityConfig {
             
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers(
-                    "/api/**",
+                    "/api/auth/**",
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
                     "/actuator/health"
