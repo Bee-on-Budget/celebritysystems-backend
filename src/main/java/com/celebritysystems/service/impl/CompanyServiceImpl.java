@@ -3,7 +3,7 @@ package com.celebritysystems.service.impl;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import com.celebritysystems.dto.CompanyDto;
@@ -16,11 +16,10 @@ import com.celebritysystems.service.CompanyService;
 import jakarta.transaction.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class CompanyServiceImpl implements CompanyService {
-    @Autowired
-    private CompanyRepository companyRepository ;
-    @Autowired 
-    private UserRepository userRepository;
+    private final CompanyRepository companyRepository ;
+    private final UserRepository userRepository;
     
     @Override
     public List<Company> findAll() {

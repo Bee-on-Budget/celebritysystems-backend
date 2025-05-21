@@ -4,15 +4,15 @@ import com.celebritysystems.dto.ModuleDto;
 import com.celebritysystems.entity.Module;
 import com.celebritysystems.repository.ModuleRepository;
 import com.celebritysystems.service.ModuleService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class ModuleServiceImpl implements ModuleService {
-    @Autowired
-    private ModuleRepository moduleRepository;
+    private final ModuleRepository moduleRepository;
     @Override
     public Optional<Module> createModule(ModuleDto moduleRequest) {
         Module module = Module.builder()

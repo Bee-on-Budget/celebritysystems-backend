@@ -1,11 +1,10 @@
 package com.celebritysystems.service.impl;
 
 import com.celebritysystems.entity.User;
-import com.celebritysystems.entity.enums.RoleInSystem;
 import com.celebritysystems.repository.UserRepository;
 import com.celebritysystems.service.UserService;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -13,11 +12,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
 
     @Override
