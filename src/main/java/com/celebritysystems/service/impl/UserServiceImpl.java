@@ -5,6 +5,7 @@ import com.celebritysystems.repository.UserRepository;
 import com.celebritysystems.service.UserService;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

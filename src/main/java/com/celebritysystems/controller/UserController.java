@@ -52,6 +52,7 @@ public class UserController {
 //    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<?> createUser(@RequestBody User user) {
+        System.out.println("helllllllllllllllllllllllllllllllllllllllllo");
         try {
             if (userService.getUserByEmail(user.getEmail()).isPresent()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already in use");
