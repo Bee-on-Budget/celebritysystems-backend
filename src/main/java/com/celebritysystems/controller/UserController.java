@@ -49,7 +49,7 @@ public class UserController {
         return userService.getUserByUsername(username).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")  
     @PostMapping
     public ResponseEntity<?> createUser(@RequestBody User user) {
         System.out.println("helllllllllllllllllllllllllllllllllllllllllo");

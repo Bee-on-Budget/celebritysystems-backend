@@ -54,20 +54,16 @@ public class TokenProvider {
 
     public Set<String> getRolesFromJWT(String token) {
         Claims claims = parseToken(token);
-        Object rolesClaim = claims.get("roles");
         
-        if (rolesClaim instanceof List) {
-            return ((List<?>) rolesClaim).stream()
-                    .filter(Objects::nonNull)  // Fixed: Changed from Object::toString to Objects::nonNull
-                    .map(Object::toString)
-                    .collect(Collectors.toSet());
-        } else if (rolesClaim instanceof String) {
-            return Collections.singleton((String) rolesClaim);
+     
+        String role = claims.get("role", String.class);
+        if (role != null) {
+            role = role.startsWith("ROLE_") ? role : "ROLE_" + role;
+            return Collections.singleton(role);
         }
         
         return Collections.emptySet();
     }
-
     public boolean validateToken(String token) {
         try {
             parseToken(token);
