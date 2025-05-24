@@ -1,10 +1,13 @@
 package com.celebritysystems.entity;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 @ToString
 @Setter
@@ -39,6 +42,12 @@ public class Company {
     @Column(nullable = false)
     @Builder.Default
     private String companyType = "DEFAULT";
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
     
     @OneToMany(mappedBy = "company", cascade = CascadeType.ALL)
     @JsonManagedReference

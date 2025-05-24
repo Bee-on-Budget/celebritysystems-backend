@@ -2,6 +2,8 @@ package com.celebritysystems.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -23,6 +25,12 @@ public class Ticket {
 
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
     @ManyToOne
     @JoinColumn(name = "created_by")
@@ -46,5 +54,5 @@ public class Ticket {
 
     private String status;
 
-    private LocalDateTime createdAt;
+//    private LocalDateTime createdAt;
 }

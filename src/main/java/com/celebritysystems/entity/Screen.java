@@ -4,6 +4,7 @@ import com.celebritysystems.entity.enums.ScreenType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -76,6 +77,12 @@ public class Screen {
 
     @Column(name = "spare_data_cable_quantity")
     private Long spareDataCableQuantity;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
     @Lob
     @Basic(fetch = FetchType.LAZY)

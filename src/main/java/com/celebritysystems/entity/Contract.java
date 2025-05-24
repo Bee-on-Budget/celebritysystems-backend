@@ -2,6 +2,9 @@ package com.celebritysystems.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import java.time.LocalDateTime;
 
 @ToString
@@ -21,8 +24,8 @@ public class Contract {
     @Column(name = "info", nullable = false)
     private String info;
     
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "started_at", nullable = false)
+    private LocalDateTime startContractAt;
     
     @Column(name = "expired_at", nullable = false)
     private LocalDateTime expiredAt;
@@ -32,6 +35,12 @@ public class Contract {
     
     @Column(name = "screen_id")
     private Long screenId;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
     
     @Override
     public boolean equals(Object o) {

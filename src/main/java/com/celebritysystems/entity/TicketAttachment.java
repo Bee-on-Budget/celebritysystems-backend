@@ -2,6 +2,8 @@ package com.celebritysystems.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 @Entity
@@ -33,6 +35,12 @@ public class TicketAttachment {
     private User uploadedBy;
 
     private LocalDateTime uploadedAt;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 
     public Long getTicketId() {
         return this.ticket != null ? this.ticket.getId() : null;
