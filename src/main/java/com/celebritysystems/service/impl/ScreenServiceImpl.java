@@ -43,7 +43,6 @@ public class ScreenServiceImpl implements ScreenService {
         cabin.setHeight(screenDTO.getCabinHeight());
         cabin.setWidth(screenDTO.getCabinWidth());
         cabin.setQuantity(screenDTO.getCabinQuantity());
-        cabin.setType(screenDTO.getCabinType());
 //        Cabin cabin = mapCabinDtoToEntity(screenDTO.getCabin());
         Cabin savedCabin = cabinRepository.save(cabin);
 
@@ -51,6 +50,8 @@ public class ScreenServiceImpl implements ScreenService {
         Screen screen = mapScreenDtoToEntity(screenDTO);
         screen.setModule(savedModule);
         screen.setCabin(savedCabin);
+        Double resolution = screenDTO.getWidth() * screenDTO.getHeight();
+        screen.setResolution(resolution);
 
         return Optional.of(screenRepository.save(screen));
     }
@@ -69,7 +70,6 @@ public class ScreenServiceImpl implements ScreenService {
         cabin.setHeight(dto.getHeight());
         cabin.setWidth(dto.getWidth());
         cabin.setQuantity(dto.getQuantity());
-        cabin.setType(dto.getType());
         // Map other fields from CabinDTO to Cabin
         return cabin;
     }

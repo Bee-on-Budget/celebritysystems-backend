@@ -1,6 +1,5 @@
 package com.celebritysystems.dto;
 
-import com.celebritysystems.entity.Screen;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -49,6 +49,12 @@ public class CreateScreenRequestDto {
 
     private Long spareDataCableQuantity;
 
+    private String media;
+
+    private Long mediaQuantity;
+
+    private Long spareMediaQuantity;
+
     private MultipartFile connectionFile;
     private MultipartFile configFile;
     private MultipartFile versionFile;
@@ -60,5 +66,4 @@ public class CreateScreenRequestDto {
     private Long cabinQuantity;
     private Double cabinHeight;
     private Double cabinWidth;
-    private String cabinType;
 }

@@ -87,6 +87,9 @@ public class Screen {
     @Column(name = "spare_media_quantity")
     private Long spareMediaQuantity;
 
+    @Column(name = "resolution")
+    private Double resolution;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 
