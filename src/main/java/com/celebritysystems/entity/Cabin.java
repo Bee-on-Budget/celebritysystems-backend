@@ -24,8 +24,6 @@ public class Cabin {
 
     private Double width;
 
-    private String type;
-
 //    @OneToOne(mappedBy = "cabin", cascade = CascadeType.ALL)
 //    private Screen screen;
 }
