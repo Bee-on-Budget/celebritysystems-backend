@@ -78,6 +78,15 @@ public class Screen {
     @Column(name = "spare_data_cable_quantity")
     private Long spareDataCableQuantity;
 
+    @Column(name = "media")
+    private String media;
+
+    @Column(name = "media_quantity")
+    private Long mediaQuantity;
+
+    @Column(name = "spare_media_quantity")
+    private Long spareMediaQuantity;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 
