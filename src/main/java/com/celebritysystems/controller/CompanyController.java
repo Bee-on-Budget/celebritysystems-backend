@@ -3,19 +3,15 @@ package com.celebritysystems.controller;
 import java.util.List;
 
 import com.celebritysystems.dto.CompanyDto;
+import com.celebritysystems.dto.statistics.AnnualStats;
+import com.celebritysystems.dto.statistics.MonthlyStats;
 import com.celebritysystems.service.CompanyService;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import com.celebritysystems.entity.Company;
 import com.celebritysystems.repository.CompanyRepository;
@@ -82,4 +78,19 @@ public ResponseEntity<List<Company>> searchCompaniesByName(@PathVariable String 
     List<Company> companies = companyService.searchByName(name);
     return ResponseEntity.ok(companies);
 }
+
+    @GetMapping("/statistic/monthly")
+    public List<MonthlyStats> getMonthlyStats() {
+        return companyService.getMonthlyStats();
+    }
+
+    @GetMapping("/statistic/annual")
+    public List<AnnualStats> getAnnualStats() {
+        return companyService.getAnnualStats();
+    }
+
+    @GetMapping("/statistic/count")
+    public long getCountByMonthAndYear(@RequestParam int month, @RequestParam int year) {
+        return companyService.getCompanyCountByMonthAndYear(month, year);
+    }
 }
