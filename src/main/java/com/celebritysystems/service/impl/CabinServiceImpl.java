@@ -20,7 +20,6 @@ public class CabinServiceImpl implements CabinService {
                 .height(cabinRequest.getHeight())
                 .width(cabinRequest.getWidth())
                 .quantity(cabinRequest.getQuantity())
-                .type(cabinRequest.getType())
                 .build();
 
         return Optional.of(cabinRepository.save(cabin));

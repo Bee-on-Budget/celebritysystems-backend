@@ -2,7 +2,6 @@ package com.celebritysystems.controller;
 
 import com.celebritysystems.AuthControllers.AuthController;
 import com.celebritysystems.config.TokenProvider;
-import com.celebritysystems.dto.statistics.UserRegistrationStatsDTO;
 import com.celebritysystems.entity.User;
 import com.celebritysystems.repository.UserRepository;
 import com.celebritysystems.service.UserService;
@@ -88,8 +87,8 @@ public class UserController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("static/registrations")
-    public List<UserRegistrationStatsDTO> getUserRegistrationStats() {
-        return userService.getUserRegistrationStats();
-    }
+//    @GetMapping("static/registrations")
+//    public List<UserRegistrationStatsDTO> getUserRegistrationStats() {
+//        return userService.getUserRegistrationStats();
+//    }
 } 

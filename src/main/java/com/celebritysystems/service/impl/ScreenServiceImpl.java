@@ -11,10 +11,15 @@ import com.celebritysystems.repository.ModuleRepository;
 import com.celebritysystems.repository.ScreenRepository;
 import com.celebritysystems.service.ScreenService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -54,6 +59,12 @@ public class ScreenServiceImpl implements ScreenService {
         screen.setResolution(resolution);
 
         return Optional.of(screenRepository.save(screen));
+    }
+
+    @Override
+    public Page<Screen> getAllScreens(Integer page) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("id").descending());
+        return screenRepository.findAll(pageable);
     }
 
     private Module mapModuleDtoToEntity(ModuleDto dto) {

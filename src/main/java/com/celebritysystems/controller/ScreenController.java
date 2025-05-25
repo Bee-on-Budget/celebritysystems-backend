@@ -1,8 +1,11 @@
 package com.celebritysystems.controller;
 
 import com.celebritysystems.dto.CreateScreenRequestDto;
+import com.celebritysystems.entity.Screen;
 import com.celebritysystems.service.ScreenService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartException;
@@ -41,4 +44,12 @@ public class ScreenController {
 //        }
 //
 //    }
+
+    @GetMapping()
+    ResponseEntity<Page<Screen>> getAllScreens(@RequestParam(name = "page", defaultValue = "0") Integer page) {
+        Page<Screen> screenPage = screenService.getAllScreens(page);
+//        Page<ConsultationRes> responsePage = consultationPage.map(ConsultationRes::new);
+        return ResponseEntity.ok().body(screenPage);
+
+    }
 }
