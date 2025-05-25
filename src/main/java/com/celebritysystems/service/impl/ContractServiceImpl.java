@@ -33,8 +33,8 @@ public class ContractServiceImpl implements ContractService {
             throw new IllegalArgumentException("Active contract already exists for this company-screen combination");
         }
 
-        if (contract.getCreatedAt() == null) {
-            contract.setCreatedAt(LocalDateTime.now());
+        if (contract.getStartContractAt() == null) {
+            contract.setStartContractAt(LocalDateTime.now());
         }
 
         return contractRepository.save(contract);

@@ -1,5 +1,6 @@
 package com.celebritysystems.service.impl;
 
+import com.celebritysystems.dto.statistics.UserRegistrationStatsDTO;
 import com.celebritysystems.entity.User;
 import com.celebritysystems.repository.UserRepository;
 import com.celebritysystems.service.UserService;
@@ -58,6 +59,18 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> getUserByUsername(String username) {
         return userRepository.findByUsername(username);
+    }
+
+    @Override
+    public List<UserRegistrationStatsDTO> getUserRegistrationStats() {
+        System.out.println("||||||||||||||||||||||||||||||  getUserRegistrationStats  ||||||||||||||||||||||||||||||||||||||");
+//        return userRepository.getUserRegistrationStatsNative().stream()
+//                .map(row -> new UserRegistrationStatsDTO(
+//                        ((java.sql.Date) row[0]).toLocalDate(),
+//                        ((Number) row[1]).longValue()
+//                ))
+//                .toList();
+        return null;
     }
 
 

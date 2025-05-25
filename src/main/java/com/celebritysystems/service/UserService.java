@@ -1,5 +1,6 @@
 package com.celebritysystems.service;
 
+import com.celebritysystems.dto.statistics.UserRegistrationStatsDTO;
 import com.celebritysystems.entity.User;
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -13,4 +14,5 @@ public interface UserService {
     void deleteById(Long id);
     Optional<User> getUserByEmail(String email);
     Optional<User> getUserByUsername(String username);
+    List<UserRegistrationStatsDTO> getUserRegistrationStats();
 }
