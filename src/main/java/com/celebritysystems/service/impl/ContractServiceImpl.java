@@ -18,10 +18,8 @@ public class ContractServiceImpl implements ContractService {
 
     @Override
     public Contract createContract(Contract contract) {
-//        Optional<Screen> screen = screenRepository.findById(contract.getScreenId());
         List<Contract> contractCheck = contractRepository.findByScreenId(contract.getScreenId());
 
-        //for loop if the contract expired date > now . the screen with id (x) already have an ongoing contract now.
         for (Contract existingContract : contractCheck) {
             if (existingContract.getExpiredAt().isAfter(LocalDateTime.now())) {
                 throw new IllegalStateException("Screen with id " + contract.getScreenId() + " already has an ongoing contract.");
@@ -70,6 +68,21 @@ public class ContractServiceImpl implements ContractService {
         }
         if (contractDetails.getExpiredAt() != null) {
             existingContract.setExpiredAt(contractDetails.getExpiredAt());
+        }
+        if (contractDetails.getSupplyType() != null) {
+            existingContract.setSupplyType(contractDetails.getSupplyType());
+        }
+        if (contractDetails.getOperatorType() != null) {
+            existingContract.setOperatorType(contractDetails.getOperatorType());
+        }
+        if (contractDetails.getAccountName() != null) {
+            existingContract.setAccountName(contractDetails.getAccountName());
+        }
+        if (contractDetails.getDurationType() != null) {
+            existingContract.setDurationType(contractDetails.getDurationType());
+        }
+        if (contractDetails.getContractValue() != null) {
+            existingContract.setContractValue(contractDetails.getContractValue());
         }
 
         return contractRepository.save(existingContract);
