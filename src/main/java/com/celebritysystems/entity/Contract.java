@@ -1,15 +1,16 @@
 package com.celebritysystems.entity;
 
+import com.celebritysystems.entity.enums.ContractType;
+import com.celebritysystems.entity.enums.OperatorType;
+import com.celebritysystems.entity.enums.SupplyType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.celebritysystems.entity.enums.ContractType;
-import com.celebritysystems.entity.enums.OperatorType;
-import com.celebritysystems.entity.enums.SupplyType;
-
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
 
 @ToString
 @Setter
@@ -20,25 +21,22 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "contract")
 public class Contract {
- 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     @Column(name = "info", nullable = false)
     private String info;
-    
+
     @Column(name = "started_at", nullable = false)
     private LocalDateTime startContractAt;
-    
+
     @Column(name = "expired_at", nullable = false)
     private LocalDateTime expiredAt;
-    
+
     @Column(name = "company_id")
     private Long companyId;
-    
-    @Column(name = "screen_id")
-    private Long screenId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "supply_type", nullable = false)
@@ -59,21 +57,34 @@ public class Contract {
     private Double contractValue;
 
     @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-    
+
+    // List of screen IDs associated with this contract
+    @ElementCollection
+    @CollectionTable(name = "contract_screens", joinColumns = @JoinColumn(name = "contract_id"))
+    @Column(name = "screen_id")
+    private List<Long> screenIds;
+
+    // List of account permissions (embeddable class expected)
+    @ElementCollection
+    @CollectionTable(name = "contract_account_permissions", joinColumns = @JoinColumn(name = "contract_id"))
+    private List<AccountPermission> accountPermissions;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Contract)) return false;
         Contract contract = (Contract) o;
         return id != null && id.equals(contract.id);
     }
-    
+
     @Override
     public int hashCode() {
-        return getClass().hashCode();
+        return Objects.hashCode(id);
     }
 }
