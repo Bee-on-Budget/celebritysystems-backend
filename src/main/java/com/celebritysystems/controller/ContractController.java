@@ -4,7 +4,6 @@ import com.celebritysystems.entity.Contract;
 import com.celebritysystems.repository.ContractRepository;
 import com.celebritysystems.service.ContractService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +16,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ContractController {
     private final ContractRepository contractRepository;
-
     private final ContractService contractService;
 
     @PostMapping
@@ -33,7 +31,7 @@ public class ContractController {
 
     @GetMapping
     public ResponseEntity<List<Contract>> getAllContracts() {
-        return ResponseEntity.ok(contractRepository.findAll()); // Or implement getAll in service
+        return ResponseEntity.ok(contractRepository.findAll());
     }
 
     @GetMapping("/company/{companyId}")

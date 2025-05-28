@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -18,19 +20,33 @@ public class ContractServiceImpl implements ContractService {
 
     @Override
     public Contract createContract(Contract contract) {
-//        Optional<Screen> screen = screenRepository.findById(contract.getScreenId());
-        List<Contract> contractCheck = contractRepository.findByScreenId(contract.getScreenId());
+        if (contract.getScreenIds() != null) {
+            // Filter out null screenIds to avoid processing invalid entries
+            List<Long> validScreenIds = contract.getScreenIds()
+                                                .stream()
+                                                .filter(Objects::nonNull)
+                                                .collect(Collectors.toList());
 
-        //for loop if the contract expired date > now . the screen with id (x) already have an ongoing contract now.
-        for (Contract existingContract : contractCheck) {
-            if (existingContract.getExpiredAt().isAfter(LocalDateTime.now())) {
-                throw new IllegalStateException("Screen with id " + contract.getScreenId() + " already has an ongoing contract.");
+            if (validScreenIds.isEmpty()) {
+                throw new IllegalArgumentException("Screen IDs must not be null or empty.");
             }
-        }
 
-        if (contract.getCompanyId() != null && contract.getScreenId() != null
-            && contractRepository.existsByCompanyIdAndScreenId(contract.getCompanyId(), contract.getScreenId())) {
-            throw new IllegalArgumentException("Active contract already exists for this company-screen combination");
+            for (Long screenId : validScreenIds) {
+                List<Contract> existingContracts = contractRepository.findByScreenId(screenId);
+                for (Contract existingContract : existingContracts) {
+                    if (existingContract.getExpiredAt().isAfter(LocalDateTime.now())) {
+                        throw new IllegalStateException("Screen with id " + screenId + " already has an ongoing contract.");
+                    }
+                }
+
+                if (contract.getCompanyId() != null &&
+                        contractRepository.existsByCompanyIdAndScreenId(contract.getCompanyId(), screenId)) {
+                    throw new IllegalArgumentException("Active contract already exists for company " + contract.getCompanyId() + " and screen " + screenId);
+                }
+            }
+
+            // Replace screenIds with filtered list
+            contract.setScreenIds(validScreenIds);
         }
 
         if (contract.getStartContractAt() == null) {
@@ -70,6 +86,28 @@ public class ContractServiceImpl implements ContractService {
         }
         if (contractDetails.getExpiredAt() != null) {
             existingContract.setExpiredAt(contractDetails.getExpiredAt());
+        }
+        if (contractDetails.getSupplyType() != null) {
+            existingContract.setSupplyType(contractDetails.getSupplyType());
+        }
+        if (contractDetails.getOperatorType() != null) {
+            existingContract.setOperatorType(contractDetails.getOperatorType());
+        }
+        if (contractDetails.getDurationType() != null) {
+            existingContract.setDurationType(contractDetails.getDurationType());
+        }
+        if (contractDetails.getContractValue() != null) {
+            existingContract.setContractValue(contractDetails.getContractValue());
+        }
+        if (contractDetails.getScreenIds() != null) {
+            List<Long> validScreenIds = contractDetails.getScreenIds()
+                                                       .stream()
+                                                       .filter(Objects::nonNull)
+                                                       .collect(Collectors.toList());
+            existingContract.setScreenIds(validScreenIds);
+        }
+        if (contractDetails.getAccountPermissions() != null) {
+            existingContract.setAccountPermissions(contractDetails.getAccountPermissions());
         }
 
         return contractRepository.save(existingContract);
