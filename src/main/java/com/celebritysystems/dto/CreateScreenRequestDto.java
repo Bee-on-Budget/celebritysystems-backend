@@ -50,9 +50,9 @@ public class CreateScreenRequestDto {
 
     private Long spareDataCableQuantity;
 
-//    private String media;
-//    private Long mediaQuantity;
-//    private Long spareMediaQuantity;
+    private String media;
+    private Long mediaQuantity;
+    private Long spareMediaQuantity;
 
     private String fan;
     private Long fanQuantity;

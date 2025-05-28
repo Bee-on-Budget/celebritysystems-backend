@@ -78,14 +78,14 @@ public class Screen {
     @Column(name = "spare_data_cable_quantity")
     private Long spareDataCableQuantity;
 
-//    @Column(name = "media")
-//    private String media;
-//
-//    @Column(name = "media_quantity")
-//    private Long mediaQuantity;
-//
-//    @Column(name = "spare_media_quantity")
-//    private Long spareMediaQuantity;
+    @Column(name = "media",nullable = true)
+    private String media;
+
+    @Column(name = "media_quantity",nullable = true)
+    private Long mediaQuantity;
+
+    @Column(name = "spare_media_quantity",nullable = true)
+    private Long spareMediaQuantity;
 
     @Column(name = "fan")
     private String fan;
