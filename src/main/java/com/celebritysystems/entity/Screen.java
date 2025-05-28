@@ -1,12 +1,14 @@
 package com.celebritysystems.entity;
 
 import com.celebritysystems.entity.enums.ScreenType;
+import com.celebritysystems.entity.enums.SolutionTypeInScreen;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @ToString
 @Setter
@@ -29,9 +31,7 @@ public class Screen {
 
     private String location;
 
-    private Double height;
-
-    private Double width;
+    private SolutionTypeInScreen solutionType;
 
     @Column(name = "power_supply")
     private String powerSupply;
@@ -78,14 +78,20 @@ public class Screen {
     @Column(name = "spare_data_cable_quantity")
     private Long spareDataCableQuantity;
 
-    @Column(name = "media")
-    private String media;
+//    @Column(name = "media")
+//    private String media;
+//
+//    @Column(name = "media_quantity")
+//    private Long mediaQuantity;
+//
+//    @Column(name = "spare_media_quantity")
+//    private Long spareMediaQuantity;
 
-    @Column(name = "media_quantity")
-    private Long mediaQuantity;
+    @Column(name = "fan")
+    private String fan;
 
-    @Column(name = "spare_media_quantity")
-    private Long spareMediaQuantity;
+    @Column(name = "fan_quantity")
+    private Long fanQuantity;
 
     @Column(name = "resolution")
     private Double resolution;
@@ -110,12 +116,12 @@ public class Screen {
 
 
     @OneToOne
-    @JoinColumn(name = "module_id")
+    @JoinColumn(name = "module_id", nullable = true)
     private Module module;
 
-    @OneToOne
-    @JoinColumn(name = "cabin_id")
-    private Cabin cabin;
+    @OneToMany
+    @JoinColumn(name = "screen_id", nullable = true)
+    private List<Cabin> cabinList;
 
     @Override
     public boolean equals(Object o) {
