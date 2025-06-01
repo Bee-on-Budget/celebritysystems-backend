@@ -18,6 +18,8 @@ public class Module {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "batch_number")
+    private String batchNumber;
 
     @Column(name = "quantity", nullable = false)
     private Long quantity;

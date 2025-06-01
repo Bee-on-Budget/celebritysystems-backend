@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ModuleDto {
+    private String moduleBatchNumber;
     private Long quantity;
 
     private Double height;

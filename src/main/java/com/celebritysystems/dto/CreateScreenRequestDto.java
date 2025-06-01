@@ -1,11 +1,14 @@
 package com.celebritysystems.dto;
 
 import com.celebritysystems.entity.enums.ScreenType;
+import com.celebritysystems.entity.enums.SolutionTypeInScreen;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Data
 @Builder
@@ -14,10 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 public class CreateScreenRequestDto {
     private String name;
     private ScreenType screenType;
+    private SolutionTypeInScreen solutionTypeInScreen;
     private String location;
-    private Double height;
-
-    private Double width;
 
     private String powerSupply;
 
@@ -50,20 +51,22 @@ public class CreateScreenRequestDto {
     private Long spareDataCableQuantity;
 
     private String media;
-
     private Long mediaQuantity;
-
     private Long spareMediaQuantity;
+
+    private String fan;
+    private Long fanQuantity;
 
     private MultipartFile connectionFile;
     private MultipartFile configFile;
     private MultipartFile versionFile;
 
+    private String moduleBatchNumber;
     private Long moduleQuantity;
     private Double moduleHeight;
     private Double moduleWidth;
 
-    private Long cabinQuantity;
-    private Double cabinHeight;
-    private Double cabinWidth;
+//    private List<CabinDto> cabinDtoList;
+    private String cabinDtoListJson; // Will contain the list as JSON string
+
 }

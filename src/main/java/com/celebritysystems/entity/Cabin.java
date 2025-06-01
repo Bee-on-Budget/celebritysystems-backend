@@ -16,6 +16,8 @@ public class Cabin {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "cabin_name")
+    private String cabinName;
 
     @Column(name = "quantity", nullable = false)
     private Long quantity;
@@ -24,6 +26,9 @@ public class Cabin {
 
     private Double width;
 
-//    @OneToOne(mappedBy = "cabin", cascade = CascadeType.ALL)
-//    private Screen screen;
+    //    @OneToOne(mappedBy = "cabin", cascade = CascadeType.ALL)
+//    private Module module;
+    @OneToOne
+    @JoinColumn(name = "module_id")
+    private Module module;
 }
