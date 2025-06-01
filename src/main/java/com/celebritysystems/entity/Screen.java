@@ -87,10 +87,10 @@ public class Screen {
     @Column(name = "spare_media_quantity",nullable = true)
     private Long spareMediaQuantity;
 
-    @Column(name = "fan")
+    @Column(name = "fan",nullable = true)
     private String fan;
 
-    @Column(name = "fan_quantity")
+    @Column(name = "fan_quantity",nullable = true)
     private Long fanQuantity;
 
     @Column(name = "resolution")
