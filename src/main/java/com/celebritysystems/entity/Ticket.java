@@ -1,12 +1,14 @@
 package com.celebritysystems.entity;
 
+
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDateTime;
+import com.celebritysystems.entity.enums.TicketStatus;
 
+import java.time.LocalDateTime;
 @Entity
 @Table(name = "ticket")
 @Getter
@@ -32,27 +34,28 @@ public class Ticket {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by")
     private User createdBy;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assigned_to_worker_id")
     private User assignedToWorker;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assigned_by_supervisor_id")
     private User assignedBySupervisor;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "screen_id")
     private Screen screen;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id")
     private Company company;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private TicketStatus status;
 
-//    private LocalDateTime createdAt;
+    private String attachmentFileName; // ✅ Add this
 }

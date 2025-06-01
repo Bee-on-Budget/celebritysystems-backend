@@ -1,6 +1,7 @@
 package com.celebritysystems.dto;
 
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @Builder
@@ -15,4 +16,5 @@ public class CreateTicketDTO {
     private Long screenId;
     private String status;
     private Long companyId;
+    private MultipartFile file; // Optional, handled separately in TicketAttachment
 }

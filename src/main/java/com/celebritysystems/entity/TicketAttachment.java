@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "ticket_attachment")
 @Getter
@@ -15,33 +16,33 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @ToString
 public class TicketAttachment {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ticket_id")
     private Ticket ticket;
 
     @Lob
     @Basic(fetch = FetchType.LAZY)
-    @Column(name = "file_path", columnDefinition = "LONGBLOB")
-    private byte[] filePath;
+    @Column(name = "file_data", columnDefinition = "LONGBLOB")
+    private byte[] fileData;
 
     private String note;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "uploaded_by")
     private User uploadedBy;
 
-    private LocalDateTime uploadedAt;
-
     @CreationTimestamp
-    private LocalDateTime createdAt;
+    private LocalDateTime uploadedAt;
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
+    @Transient
     public Long getTicketId() {
         return this.ticket != null ? this.ticket.getId() : null;
     }

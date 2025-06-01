@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 @AllArgsConstructor
 public class CreateTicketAttachmentDTO {
     private Long ticketId;
-    private MultipartFile filePath;
+    private MultipartFile filePath;  // Actual file
     private String note;
     private Long uploadedBy;
 }

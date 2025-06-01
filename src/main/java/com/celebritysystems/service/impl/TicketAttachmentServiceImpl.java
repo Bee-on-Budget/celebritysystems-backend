@@ -4,8 +4,10 @@ import com.celebritysystems.dto.TicketAttachmentDTO;
 import com.celebritysystems.dto.CreateTicketAttachmentDTO;
 import com.celebritysystems.entity.Ticket;
 import com.celebritysystems.entity.TicketAttachment;
+import com.celebritysystems.entity.User;
 import com.celebritysystems.repository.TicketAttachmentRepository;
 import com.celebritysystems.repository.TicketRepository;
+import com.celebritysystems.repository.UserRepository;
 import com.celebritysystems.service.TicketAttachmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,13 +21,14 @@ import java.time.LocalDateTime;
 public class TicketAttachmentServiceImpl implements TicketAttachmentService {
 
     private final TicketAttachmentRepository ticketAttachmentRepository;
-    private final TicketRepository ticketRepository; // You'll need this
-
-
+    private final TicketRepository ticketRepository;
+    private final UserRepository userRepository;
 
     @Override
     public TicketAttachmentDTO getAttachmentById(Long id) {
-        return ticketAttachmentRepository.findById(id).map(this::toDTO).orElse(null);
+        return ticketAttachmentRepository.findById(id)
+                .map(this::toDTO)
+                .orElse(null);
     }
 
     @Override
@@ -33,14 +36,18 @@ public class TicketAttachmentServiceImpl implements TicketAttachmentService {
         Ticket ticket = ticketRepository.findById(dto.getTicketId())
                 .orElseThrow(() -> new RuntimeException("Ticket not found"));
 
+        User uploadedBy = userRepository.findById(dto.getUploadedBy())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
         byte[] file = toBytes(dto.getFilePath());
-        
+
         TicketAttachment attachment = TicketAttachment.builder()
-                .ticket(ticket) // Set the Ticket object, not the ID
-                .filePath(file)
+                .ticket(ticket)
+                .fileData(file)
                 .note(dto.getNote())
-                .uploadedAt(LocalDateTime.now())
+                .uploadedBy(uploadedBy)
                 .build();
+
         return toDTO(ticketAttachmentRepository.save(attachment));
     }
 
@@ -52,9 +59,9 @@ public class TicketAttachmentServiceImpl implements TicketAttachmentService {
     private TicketAttachmentDTO toDTO(TicketAttachment attachment) {
         return TicketAttachmentDTO.builder()
                 .id(attachment.getId())
-                .ticketId(attachment.getTicketId()) // This will use our new convenience method
-//                .filePath(attachment.getFilePath())
+                .ticketId(attachment.getTicketId())
                 .note(attachment.getNote())
+                .uploadedBy(attachment.getUploadedBy() != null ? attachment.getUploadedBy().getId() : null)
                 .uploadedAt(attachment.getUploadedAt())
                 .build();
     }

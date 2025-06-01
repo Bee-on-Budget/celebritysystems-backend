@@ -1,7 +1,6 @@
 package com.celebritysystems.dto;
 
 import lombok.*;
-
 import java.time.LocalDateTime;
 
 @Data
@@ -11,7 +10,6 @@ import java.time.LocalDateTime;
 public class TicketAttachmentDTO {
     private Long id;
     private Long ticketId;
-    private String filePath;
     private String note;
     private Long uploadedBy;
     private LocalDateTime uploadedAt;
