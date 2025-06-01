@@ -2,6 +2,7 @@ package com.celebritysystems.controller;
 
 import com.celebritysystems.dto.CabinDto;
 import com.celebritysystems.dto.CreateScreenRequestDto;
+import com.celebritysystems.dto.ModuleDto;
 import com.celebritysystems.entity.Screen;
 import com.celebritysystems.entity.enums.SolutionTypeInScreen;
 import com.celebritysystems.service.ScreenService;
@@ -42,9 +43,18 @@ public class ScreenController {
 
                 System.out.println("cabinDtoList IS ----------------------- " + cabinDtoList);
                 System.out.println("Module is " + cabinDtoList.get(0).getModuleDto());
-                screenService.createScreen(request, cabinDtoList);
+                screenService.createScreen(request, cabinDtoList, null);
             }else {
-                screenService.createScreen(request, null);
+                ObjectMapper objectMapper = new ObjectMapper();
+
+                // Parse the JSON string manually
+                List<ModuleDto> moduleDtoList = objectMapper.readValue(
+                        request.getModuleDtoListJson(),
+                        new TypeReference<List<ModuleDto>>() {}
+                );
+
+                System.out.println("ModuleDtoList IS ----------------------- " + moduleDtoList);
+                screenService.createScreen(request, null, moduleDtoList);
             }
             /////////////////////////////////////////////////////
             return ResponseEntity.ok("Screen created successfully");

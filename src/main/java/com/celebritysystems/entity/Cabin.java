@@ -29,6 +29,6 @@ public class Cabin {
     //    @OneToOne(mappedBy = "cabin", cascade = CascadeType.ALL)
 //    private Module module;
     @OneToOne
-    @JoinColumn(name = "module_id")
+    @JoinColumn(name = "module_id",nullable = true)
     private Module module;
 }

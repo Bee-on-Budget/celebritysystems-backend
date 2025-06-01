@@ -61,12 +61,14 @@ public class CreateScreenRequestDto {
     private MultipartFile configFile;
     private MultipartFile versionFile;
 
-    private String moduleBatchNumber;
-    private Long moduleQuantity;
-    private Double moduleHeight;
-    private Double moduleWidth;
+//    private String moduleBatchNumber;
+//    private Long moduleQuantity;
+//    private Double moduleHeight;
+//    private Double moduleWidth;
+    private String moduleDtoListJson; // Will contain the list as JSON string
 
-//    private List<CabinDto> cabinDtoList;
+
+    //    private List<CabinDto> cabinDtoList;
     private String cabinDtoListJson; // Will contain the list as JSON string
 
 }

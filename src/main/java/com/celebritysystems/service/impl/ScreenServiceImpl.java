@@ -32,30 +32,29 @@ public class ScreenServiceImpl implements ScreenService {
     private final CabinRepository cabinRepository;
 
 
-
     @Override
 //    @Transactional
-    public Optional<Screen> createScreen(CreateScreenRequestDto screenDTO, List<CabinDto> cabinDtoList) {
-        //TODO: First save module, then save screen, then save cabins after you get your screen_id;
-
-        // Create and save Module
-        Module module = new Module();
-        module.setHeight(screenDTO.getModuleHeight());
-        module.setWidth(screenDTO.getModuleWidth());
-        module.setQuantity(screenDTO.getModuleQuantity());
-        module.setBatchNumber(screenDTO.getModuleBatchNumber());
-//        Module module = mapModuleDtoToEntity(screenDTO.getModule());
-        Module savedModule = moduleRepository.save(module);
-        System.out.println("______________________________________________________________________________________");
-        System.out.println("Module in DB is: " + savedModule);
-        System.out.println("______________________________________________________________________________________");
-
-
+    public Optional<Screen> createScreen(CreateScreenRequestDto screenDTO, List<CabinDto> cabinDtoList, List<ModuleDto> moduleDtoList) {
         // Create Screen
         Screen screen = mapScreenDtoToEntity(screenDTO);
-        screen.setModule(savedModule);
+
+        if (screenDTO.getSolutionTypeInScreen() == SolutionTypeInScreen.MODULE_SOLUTION) {
+            List<Module> moduleList = new ArrayList<>();
+
+            for (ModuleDto dto : moduleDtoList) {
+                Module module = new Module();
+                module.setQuantity(dto.getQuantity());
+                module.setBatchNumber(dto.getModuleBatchNumber());
+                module.setHeight(dto.getHeight());
+                module.setWidth(dto.getWidth());
+
+                moduleList.add(module);
+            }
+            screen.setModuleList(moduleRepository.saveAll(moduleList));
+        }
+
         /////////////////////////////////////
-        if(screenDTO.getSolutionTypeInScreen() == SolutionTypeInScreen.CABINET_SOLUTION){
+        if (screenDTO.getSolutionTypeInScreen() == SolutionTypeInScreen.CABINET_SOLUTION) {
             List<Cabin> cabinets = new ArrayList<>();
 
             for (CabinDto dto : cabinDtoList) {
@@ -64,6 +63,10 @@ public class ScreenServiceImpl implements ScreenService {
                 cabinet.setQuantity(dto.getQuantity());
                 cabinet.setHeight(dto.getHeight());
                 cabinet.setWidth(dto.getWidth());
+                if (dto.getModuleDto() == null) {
+                    cabinets.add(cabinet);
+                    continue;
+                }
 
                 Module tempModule = new Module();
                 tempModule.setBatchNumber(dto.getModuleDto().getModuleBatchNumber());
@@ -78,26 +81,11 @@ public class ScreenServiceImpl implements ScreenService {
             screen.setCabinList(cabinRepository.saveAll(cabinets));
         }
         ////////////////////////////////////
-//        screen.setCabinList(cabinRepository.saveAll(cabinets));
-
-        System.out.println("screen:::::::::::::" + screen);
-
         Screen savedScreen = screenRepository.save(screen);
-        System.out.println("savedScreen:::::::::::::" + screen);
 
         //TODO
-//        screen.setCabinList(savedCabin);
 //        Double resolution = screenDTO.getWidth() * screenDTO.getHeight();
 //        screen.setResolution(resolution);
-
-        // Create and save Cabin
-//        Cabin cabin = new Cabin();
-//        cabin.setHeight(screenDTO.getCabinHeight());
-//        cabin.setWidth(screenDTO.getCabinWidth());
-//        cabin.setQuantity(screenDTO.getCabinQuantity());
-//        Cabin cabin = mapCabinDtoToEntity(screenDTO.getCabin());
-//        Cabin savedCabin = cabinRepository.save(cabin);
-
         return Optional.of(savedScreen);
     }
 
@@ -132,8 +120,6 @@ public class ScreenServiceImpl implements ScreenService {
         screen.setScreenType(dto.getScreenType());
         screen.setSolutionType(dto.getSolutionTypeInScreen());
         screen.setLocation(dto.getLocation());
-//        screen.setHeight(dto.getHeight());
-//        screen.setWidth(dto.getWidth());
 
         // Power Supply Section
         screen.setPowerSupply(dto.getPowerSupply());
@@ -166,12 +152,16 @@ public class ScreenServiceImpl implements ScreenService {
 
         // Binary Data Fields
         screen.setConnection(toBytes(dto.getConnectionFile()));
-        screen.setConfig(toBytes( dto.getConfigFile()));
-        screen.setVersion( toBytes(dto.getVersionFile()));
+        screen.setConfig(toBytes(dto.getConfigFile()));
+        screen.setVersion(toBytes(dto.getVersionFile()));
+
+        // Media Fields
+        screen.setMedia(dto.getMedia());
+        screen.setMediaQuantity(dto.getMediaQuantity());
+        screen.setSpareMediaQuantity(dto.getSpareMediaQuantity());
 
         // Note: Module and Cabin are handled separately in the service
         // They will be set after this mapping
-
         return screen;
     }
 
@@ -183,5 +173,5 @@ public class ScreenServiceImpl implements ScreenService {
             throw new RuntimeException("Failed to read file: " + file.getOriginalFilename(), e);
         }
     }
-    }
+}
 

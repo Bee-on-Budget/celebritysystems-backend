@@ -115,9 +115,9 @@ public class Screen {
     private byte[] version;
 
 
-    @OneToOne
-    @JoinColumn(name = "module_id", nullable = true)
-    private Module module;
+    @OneToMany
+    @JoinColumn(name = "screen_id", nullable = true)
+    private List<Module> moduleList;
 
     @OneToMany
     @JoinColumn(name = "screen_id", nullable = true)
