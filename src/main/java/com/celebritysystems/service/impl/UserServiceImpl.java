@@ -1,6 +1,7 @@
 package com.celebritysystems.service.impl;
 
 import com.celebritysystems.entity.User;
+import com.celebritysystems.entity.enums.RoleInSystem;
 import com.celebritysystems.repository.UserRepository;
 import com.celebritysystems.service.UserService;
 
@@ -58,6 +59,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> getUserByUsername(String username) {
         return userRepository.findByUsername(username);
+    }
+
+    @Override
+    public Optional<List<User>> getUsersByRole(RoleInSystem role) {
+        return userRepository.findAllByRole(role);
     }
 
 //    @Override

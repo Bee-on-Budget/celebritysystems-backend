@@ -3,6 +3,7 @@ package com.celebritysystems.controller;
 import com.celebritysystems.AuthControllers.AuthController;
 import com.celebritysystems.config.TokenProvider;
 import com.celebritysystems.entity.User;
+import com.celebritysystems.entity.enums.RoleInSystem;
 import com.celebritysystems.repository.UserRepository;
 import com.celebritysystems.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -85,6 +86,11 @@ public class UserController {
             userService.deleteById(id);
             return ResponseEntity.ok().<Void>build();
         }).orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/roles/{role}")
+    public ResponseEntity<List<User>> getUsersByRole(@PathVariable RoleInSystem role) {
+        return userService.getUsersByRole(role).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
 //    @GetMapping("static/registrations")
