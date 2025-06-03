@@ -40,6 +40,7 @@ public class ScreenServiceImpl implements ScreenService {
 
         if (screenDTO.getSolutionTypeInScreen() == SolutionTypeInScreen.MODULE_SOLUTION) {
             List<Module> moduleList = new ArrayList<>();
+            double resolution = 0;
 
             for (ModuleDto dto : moduleDtoList) {
                 Module module = new Module();
@@ -48,14 +49,19 @@ public class ScreenServiceImpl implements ScreenService {
                 module.setHeight(dto.getHeight());
                 module.setWidth(dto.getWidth());
 
+                // Calculate and add to resolution
+                resolution += dto.getHeight() * dto.getWidth() * dto.getQuantity();
+
                 moduleList.add(module);
             }
             screen.setModuleList(moduleRepository.saveAll(moduleList));
+            screen.setResolution(resolution);
         }
 
         /////////////////////////////////////
         if (screenDTO.getSolutionTypeInScreen() == SolutionTypeInScreen.CABINET_SOLUTION) {
             List<Cabin> cabinets = new ArrayList<>();
+            double resolution = 0;
 
             for (CabinDto dto : cabinDtoList) {
                 Cabin cabinet = new Cabin();
@@ -63,6 +69,10 @@ public class ScreenServiceImpl implements ScreenService {
                 cabinet.setQuantity(dto.getQuantity());
                 cabinet.setHeight(dto.getHeight());
                 cabinet.setWidth(dto.getWidth());
+
+                //Calculate resolution from Cabinets
+                resolution += dto.getHeight() * dto.getWidth() * dto.getQuantity();
+
                 if (dto.getModuleDto() == null) {
                     cabinets.add(cabinet);
                     continue;
@@ -79,13 +89,11 @@ public class ScreenServiceImpl implements ScreenService {
                 cabinets.add(cabinet);
             }
             screen.setCabinList(cabinRepository.saveAll(cabinets));
+            screen.setResolution(resolution);
         }
         ////////////////////////////////////
         Screen savedScreen = screenRepository.save(screen);
 
-        //TODO
-//        Double resolution = screenDTO.getWidth() * screenDTO.getHeight();
-//        screen.setResolution(resolution);
         return Optional.of(savedScreen);
     }
 
