@@ -30,71 +30,101 @@ public class UserController {
     private UserRepository userRepository;
     @Autowired
     private TokenProvider tokenProvider;
-    private final static Logger logger = LoggerFactory.getLogger(AuthController.class);
 
+    private final static Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(userService.findAll());
+        logger.info("Fetching all users");
+        List<User> users = userService.findAll();
+        logger.debug("Found {} users", users.size());
+        return ResponseEntity.ok(users);
     }
 
     @GetMapping("/id/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        return userService.findById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        logger.info("Fetching user by id: {}", id);
+        return userService.findById(id)
+                .map(user -> {
+                    logger.debug("User found: {}", user.getUsername());
+                    return ResponseEntity.ok(user);
+                })
+                .orElseGet(() -> {
+                    logger.warn("User not found with id: {}", id);
+                    return ResponseEntity.notFound().build();
+                });
     }
 
     @GetMapping("/username/{username}")
     public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
-
-        System.out.println(userRepository.findByUsername("sami"));
-        return userService.getUserByUsername(username).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        logger.info("Fetching user by username: {}", username);
+        logger.debug("Debug: Testing repository call for 'sami': {}", userRepository.findByUsername("sami"));
+        return userService.getUserByUsername(username)
+                .map(user -> {
+                    logger.debug("User found: {}", user.getUsername());
+                    return ResponseEntity.ok(user);
+                })
+                .orElseGet(() -> {
+                    logger.warn("User not found with username: {}", username);
+                    return ResponseEntity.notFound().build();
+                });
     }
 
-    @PreAuthorize("hasRole('ADMIN')")  
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<?> createUser(@RequestBody User user) {
-        System.out.println("helllllllllllllllllllllllllllllllllllllllllo");
+        logger.info("Attempt to create user with username: {} and email: {}", user.getUsername(), user.getEmail());
         try {
             if (userService.getUserByEmail(user.getEmail()).isPresent()) {
+                logger.warn("Email already in use: {}", user.getEmail());
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email already in use");
             }
             if (userService.getUserByUsername(user.getUsername()).isPresent()) {
+                logger.warn("Username already taken: {}", user.getUsername());
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username already taken");
             }
 
             User companyUser = userService.save(user);
-
+            logger.info("User created successfully with username: {}", companyUser.getUsername());
 
             // Generate token for immediate login after registration
             String token = tokenProvider.generateToken(companyUser);
+            logger.debug("Generated token for user: {}", companyUser.getUsername());
 
             return ResponseEntity.ok(Collections.singletonMap("token", token));
-
         } catch (Exception e) {
-            logger.error("Registration error", e);
+            logger.error("Registration error for user: {}", user.getUsername(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Registration failed");
         }
-
-
-//        return ResponseEntity.ok(companyUser);
     }
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        return userService.findById(id).map(user -> {
-            userService.deleteById(id);
-            return ResponseEntity.ok().<Void>build();
-        }).orElse(ResponseEntity.notFound().build());
+        logger.info("Request to delete user with id: {}", id);
+        return userService.findById(id)
+                .map(user -> {
+                    userService.deleteById(id);
+                    logger.info("User deleted with id: {}", id);
+                    return ResponseEntity.ok().<Void>build();
+                })
+                .orElseGet(() -> {
+                    logger.warn("User not found for deletion with id: {}", id);
+                    return ResponseEntity.notFound().build();
+                });
     }
 
     @GetMapping("/roles/{role}")
     public ResponseEntity<List<User>> getUsersByRole(@PathVariable RoleInSystem role) {
-        return userService.getUsersByRole(role).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        logger.info("Fetching users with role: {}", role);
+        return userService.getUsersByRole(role)
+                .map(users -> {
+                    logger.debug("Found {} users with role {}", users.size(), role);
+                    return ResponseEntity.ok(users);
+                })
+                .orElseGet(() -> {
+                    logger.warn("No users found with role: {}", role);
+                    return ResponseEntity.notFound().build();
+                });
     }
 
-//    @GetMapping("static/registrations")
-//    public List<UserRegistrationStatsDTO> getUserRegistrationStats() {
-//        return userService.getUserRegistrationStats();
-//    }
-} 
+}
