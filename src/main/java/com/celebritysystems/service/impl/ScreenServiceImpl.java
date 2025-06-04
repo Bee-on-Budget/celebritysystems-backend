@@ -1,8 +1,6 @@
 package com.celebritysystems.service.impl;
 
-import com.celebritysystems.dto.CabinDto;
-import com.celebritysystems.dto.CreateScreenRequestDto;
-import com.celebritysystems.dto.ModuleDto;
+import com.celebritysystems.dto.*;
 import com.celebritysystems.entity.Cabin;
 import com.celebritysystems.entity.Module;
 import com.celebritysystems.entity.Screen;
@@ -98,9 +96,22 @@ public class ScreenServiceImpl implements ScreenService {
     }
 
     @Override
-    public Page<Screen> getAllScreens(Integer page) {
+    public PaginatedResponse<ScreenResponse> getAllScreens(Integer page) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by("id").descending());
-        return screenRepository.findAll(pageable);
+
+        Page<Screen> screenPage = screenRepository.findAll(pageable);
+        List<ScreenResponse> content = screenPage.getContent().stream().map(screen -> new ScreenResponse(screen)).toList();
+
+        PaginatedResponse<ScreenResponse> response = new PaginatedResponse<>();
+        response.setContent(content);
+        response.setPageNumber(screenPage.getNumber());
+        response.setPageSize(screenPage.getSize());
+        response.setTotalElements(screenPage.getTotalElements());
+        response.setTotalPages(screenPage.getTotalPages());
+        response.setHasNext(screenPage.hasNext());
+        response.setHasPrevious(screenPage.hasPrevious());
+
+        return response;
     }
 
     private Module mapModuleDtoToEntity(ModuleDto dto) {

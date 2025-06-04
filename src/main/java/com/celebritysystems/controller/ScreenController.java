@@ -1,8 +1,6 @@
 package com.celebritysystems.controller;
 
-import com.celebritysystems.dto.CabinDto;
-import com.celebritysystems.dto.CreateScreenRequestDto;
-import com.celebritysystems.dto.ModuleDto;
+import com.celebritysystems.dto.*;
 import com.celebritysystems.entity.Screen;
 import com.celebritysystems.entity.enums.SolutionTypeInScreen;
 import com.celebritysystems.service.ScreenService;
@@ -67,8 +65,8 @@ public class ScreenController {
 
 
     @GetMapping()
-    ResponseEntity<Page<Screen>> getAllScreens(@RequestParam(name = "page", defaultValue = "0") Integer page) {
-        Page<Screen> screenPage = screenService.getAllScreens(page);
+    ResponseEntity<PaginatedResponse<ScreenResponse>> getAllScreens(@RequestParam(name = "page", defaultValue = "0") Integer page) {
+        PaginatedResponse<ScreenResponse> screenPage = screenService.getAllScreens(page);
 //        Page<ConsultationRes> responsePage = consultationPage.map(ConsultationRes::new);
         return ResponseEntity.ok().body(screenPage);
 
