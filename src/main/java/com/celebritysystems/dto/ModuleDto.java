@@ -13,6 +13,9 @@ public class ModuleDto {
     private String moduleBatchNumber;
     private Long quantity;
 
+    private Long heightQuantity;
+    private Long widthQuantity;
+
     private Double height;
 
     private Double width;

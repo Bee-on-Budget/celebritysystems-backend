@@ -24,46 +24,6 @@ public class ScreenController {
 
     private final ScreenService screenService;
 
-//    @PostMapping(consumes = "multipart/form-data")
-//    public ResponseEntity<?> createScreen(@ModelAttribute CreateScreenRequestDto request) throws JsonProcessingException {
-//        try {
-//            System.out.println("**********************************************************************************");
-//            System.out.println(request);
-//            System.out.println("**********************************************************************************");
-//            //////////////////////////////////////////////////////
-//            if(request.getSolutionTypeInScreen() == SolutionTypeInScreen.CABINET_SOLUTION){
-//                ObjectMapper objectMapper = new ObjectMapper();
-//
-//                // Parse the JSON string manually
-//                List<CabinDto> cabinDtoList = objectMapper.readValue(
-//                        request.getCabinDtoListJson(),
-//                        new TypeReference<List<CabinDto>>() {}
-//                );
-//
-//                System.out.println("cabinDtoList IS ----------------------- " + cabinDtoList);
-//                System.out.println("Module is " + cabinDtoList.get(0).getModuleDto());
-//                screenService.createScreen(request, cabinDtoList, null);
-//            }else {
-//                ObjectMapper objectMapper = new ObjectMapper();
-//
-//                // Parse the JSON string manually
-//                List<ModuleDto> moduleDtoList = objectMapper.readValue(
-//                        request.getModuleDtoListJson(),
-//                        new TypeReference<List<ModuleDto>>() {}
-//                );
-//
-//                System.out.println("ModuleDtoList IS ----------------------- " + moduleDtoList);
-//                screenService.createScreen(request, null, moduleDtoList);
-//            }
-//            /////////////////////////////////////////////////////
-//            return ResponseEntity.ok("Screen created successfully");
-//        } catch (MultipartException e) {
-//            return ResponseEntity.badRequest().body("Invalid file upload");
-//        } catch (Exception e) {
-//            return ResponseEntity.status(500).body("Error creating screen: " + e.getMessage());
-//        }
-//    }
-
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<?> createScreen(@ModelAttribute CreateScreenRequestDto request) {
         try {

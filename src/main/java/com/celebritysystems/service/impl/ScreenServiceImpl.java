@@ -39,16 +39,22 @@ public class ScreenServiceImpl implements ScreenService {
         if (screenDTO.getSolutionTypeInScreen() == SolutionTypeInScreen.MODULE_SOLUTION) {
             List<Module> moduleList = new ArrayList<>();
             double resolution = 0;
+            double heightResolution = 0;
+            double widthResolution = 0;
 
             for (ModuleDto dto : moduleDtoList) {
                 Module module = new Module();
                 module.setQuantity(dto.getQuantity());
                 module.setBatchNumber(dto.getModuleBatchNumber());
+                module.setHeightQuantity(dto.getHeightQuantity());
+                module.setWidthQuantity(dto.getWidthQuantity());
                 module.setHeight(dto.getHeight());
                 module.setWidth(dto.getWidth());
 
                 // Calculate and add to resolution
-                resolution += dto.getHeight() * dto.getWidth() * dto.getQuantity();
+                heightResolution += dto.getHeight() * dto.getHeightQuantity();
+                widthResolution += dto.getWidth() * dto.getWidthQuantity();
+//                resolution += dto.getHeight() * dto.getHeightQuantity() * dto.getWidth() * dto.getWidthQuantity();
 
                 moduleList.add(module);
             }
@@ -60,16 +66,22 @@ public class ScreenServiceImpl implements ScreenService {
         if (screenDTO.getSolutionTypeInScreen() == SolutionTypeInScreen.CABINET_SOLUTION) {
             List<Cabin> cabinets = new ArrayList<>();
             double resolution = 0;
+            double heightResolution = 0;
+            double widthResolution = 0;
 
             for (CabinDto dto : cabinDtoList) {
                 Cabin cabinet = new Cabin();
                 cabinet.setCabinName(dto.getCabinetName());
                 cabinet.setQuantity(dto.getQuantity());
+                cabinet.setHeightQuantity(dto.getHeightQuantity());
+                cabinet.setWidthQuantity(dto.getWidthQuantity());
                 cabinet.setHeight(dto.getHeight());
                 cabinet.setWidth(dto.getWidth());
 
                 //Calculate resolution from Cabinets
-                resolution += dto.getHeight() * dto.getWidth() * dto.getQuantity();
+                heightResolution += dto.getHeight() * dto.getHeightQuantity();
+                widthResolution += dto.getWidth() * dto.getWidthQuantity();
+//                resolution += dto.getHeight() * dto.getHeightQuantity() * dto.getWidth() * dto.getWidthQuantity();
 
                 if (dto.getModuleDto() == null) {
                     cabinets.add(cabinet);
@@ -78,6 +90,8 @@ public class ScreenServiceImpl implements ScreenService {
 
                 Module tempModule = new Module();
                 tempModule.setBatchNumber(dto.getModuleDto().getModuleBatchNumber());
+                tempModule.setHeightQuantity(dto.getHeightQuantity());
+                tempModule.setWidthQuantity(dto.getWidthQuantity());
                 tempModule.setWidth(dto.getModuleDto().getWidth());
                 tempModule.setHeight(dto.getModuleDto().getHeight());
                 tempModule.setQuantity(dto.getModuleDto().getQuantity());
@@ -87,6 +101,7 @@ public class ScreenServiceImpl implements ScreenService {
                 cabinets.add(cabinet);
             }
             screen.setCabinList(cabinRepository.saveAll(cabinets));
+            resolution = heightResolution * widthResolution;
             screen.setResolution(resolution);
         }
         ////////////////////////////////////
@@ -112,24 +127,6 @@ public class ScreenServiceImpl implements ScreenService {
         response.setHasPrevious(screenPage.hasPrevious());
 
         return response;
-    }
-
-    private Module mapModuleDtoToEntity(ModuleDto dto) {
-        Module module = new Module();
-        module.setHeight(dto.getHeight());
-        module.setWidth(dto.getWidth());
-        module.setQuantity(dto.getQuantity());
-        // Map other fields from ModuleDTO to Module
-        return module;
-    }
-
-    private Cabin mapCabinDtoToEntity(CabinDto dto) {
-        Cabin cabin = new Cabin();
-        cabin.setHeight(dto.getHeight());
-        cabin.setWidth(dto.getWidth());
-        cabin.setQuantity(dto.getQuantity());
-        // Map other fields from CabinDTO to Cabin
-        return cabin;
     }
 
     private Screen mapScreenDtoToEntity(CreateScreenRequestDto dto) {

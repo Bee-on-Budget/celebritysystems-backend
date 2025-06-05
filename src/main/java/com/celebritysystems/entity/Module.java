@@ -21,8 +21,14 @@ public class Module {
     @Column(name = "batch_number")
     private String batchNumber;
 
-    @Column(name = "quantity", nullable = false)
+    @Column(name = "quantity", nullable = true)
     private Long quantity;
+
+    @Column(name = "height_quantity", nullable = false)
+    private Long heightQuantity;
+
+    @Column(name = "width_quantity", nullable = false)
+    private Long widthQuantity;
 
     private Double height;
 

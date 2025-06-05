@@ -14,6 +14,9 @@ public class CabinDto {
     private String cabinetName;
     private Long quantity;
 
+    private Long heightQuantity;
+    private Long widthQuantity;
+
     private Double height;
 
     private Double width;
