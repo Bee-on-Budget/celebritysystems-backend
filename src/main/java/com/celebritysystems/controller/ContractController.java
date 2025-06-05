@@ -1,5 +1,6 @@
 package com.celebritysystems.controller;
 
+import com.celebritysystems.dto.CreateContractDTO;
 import com.celebritysystems.entity.Contract;
 import com.celebritysystems.repository.ContractRepository;
 import com.celebritysystems.service.ContractService;
@@ -19,8 +20,8 @@ public class ContractController {
     private final ContractService contractService;
 
     @PostMapping
-    public ResponseEntity<Contract> createContract(@RequestBody Contract contract) {
-        Contract createdContract = contractService.createContract(contract);
+    public ResponseEntity<Contract> createContract(@RequestBody CreateContractDTO dto) {
+        Contract createdContract = contractService.createContractFromDTO(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdContract);
     }
 

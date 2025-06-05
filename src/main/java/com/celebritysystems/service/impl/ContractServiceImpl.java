@@ -1,6 +1,12 @@
 package com.celebritysystems.service.impl;
 
+import com.celebritysystems.dto.AccountPermissionDTO;
+import com.celebritysystems.dto.CreateContractDTO;
+import com.celebritysystems.entity.AccountPermission;
 import com.celebritysystems.entity.Contract;
+import com.celebritysystems.entity.enums.ContractType;
+import com.celebritysystems.entity.enums.OperatorType;
+import com.celebritysystems.entity.enums.SupplyType;
 import com.celebritysystems.repository.ContractRepository;
 import com.celebritysystems.service.ContractService;
 import lombok.RequiredArgsConstructor;
@@ -8,8 +14,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,11 +27,10 @@ public class ContractServiceImpl implements ContractService {
     @Override
     public Contract createContract(Contract contract) {
         if (contract.getScreenIds() != null) {
-            // Filter out null screenIds to avoid processing invalid entries
             List<Long> validScreenIds = contract.getScreenIds()
-                                                .stream()
-                                                .filter(Objects::nonNull)
-                                                .collect(Collectors.toList());
+                    .stream()
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
 
             if (validScreenIds.isEmpty()) {
                 throw new IllegalArgumentException("Screen IDs must not be null or empty.");
@@ -45,7 +50,6 @@ public class ContractServiceImpl implements ContractService {
                 }
             }
 
-            // Replace screenIds with filtered list
             contract.setScreenIds(validScreenIds);
         }
 
@@ -54,6 +58,45 @@ public class ContractServiceImpl implements ContractService {
         }
 
         return contractRepository.save(contract);
+    }
+
+    @Override
+    public Contract createContractFromDTO(CreateContractDTO dto) {
+        List<AccountPermission> permissions = dto.getAccountPermissions() != null
+                ? dto.getAccountPermissions().stream()
+                    .map(this::mapToEntity)
+                    .distinct() // Ensures only unique entries
+                    .collect(Collectors.toList())
+                : List.of();
+    
+        List<Long> screenIds = dto.getScreenIds() != null
+                ? dto.getScreenIds().stream().filter(Objects::nonNull).distinct().collect(Collectors.toList())
+                : List.of();
+    
+        Contract contract = Contract.builder()
+                .info(dto.getInfo())
+                .startContractAt(dto.getStartContractAt())
+                .expiredAt(dto.getExpiredAt())
+                .companyId(dto.getCompanyId())
+                .supplyType(SupplyType.valueOf(dto.getSupplyType().toUpperCase()))
+                .operatorType(OperatorType.valueOf(dto.getOperatorType().toUpperCase()))
+                .accountName(dto.getAccountName())
+                .durationType(ContractType.valueOf(dto.getDurationType().toUpperCase()))
+                .contractValue(dto.getContractValue())
+                .screenIds(screenIds)
+                .accountPermissions(permissions)
+                .build();
+    
+        return createContract(contract);
+    }
+    
+
+    private AccountPermission mapToEntity(AccountPermissionDTO dto) {
+        AccountPermission entity = new AccountPermission();
+        entity.setName(dto.getName());
+        entity.setCanEdit(dto.isCanEdit());
+        entity.setCanRead(dto.isCanRead());
+        return entity;
     }
 
     @Override
@@ -101,9 +144,9 @@ public class ContractServiceImpl implements ContractService {
         }
         if (contractDetails.getScreenIds() != null) {
             List<Long> validScreenIds = contractDetails.getScreenIds()
-                                                       .stream()
-                                                       .filter(Objects::nonNull)
-                                                       .collect(Collectors.toList());
+                    .stream()
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
             existingContract.setScreenIds(validScreenIds);
         }
         if (contractDetails.getAccountPermissions() != null) {

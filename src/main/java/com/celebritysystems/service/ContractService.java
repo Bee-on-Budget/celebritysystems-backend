@@ -1,11 +1,14 @@
 package com.celebritysystems.service;
 
+import com.celebritysystems.dto.CreateContractDTO;
 import com.celebritysystems.entity.Contract;
+
 import java.util.List;
 import java.util.Optional;
 
 public interface ContractService {
     Contract createContract(Contract contract);
+    Contract createContractFromDTO(CreateContractDTO dto);
     Contract getContractById(Long id);
     List<Contract> getContractsByCompany(Long companyId);
     List<Contract> getContractsByScreen(Long screenId);
