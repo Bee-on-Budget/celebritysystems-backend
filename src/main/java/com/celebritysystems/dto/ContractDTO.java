@@ -20,8 +20,6 @@ public class ContractDTO {
     private String accountName;
     private ContractType durationType;
     private Double contractValue;
-
     private List<Long> screenIds;
     private List<AccountPermissionDTO> accountPermissions;
-    
 }

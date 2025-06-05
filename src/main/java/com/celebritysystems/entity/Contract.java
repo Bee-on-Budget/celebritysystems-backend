@@ -64,13 +64,11 @@ public class Contract {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // List of screen IDs associated with this contract
     @ElementCollection
     @CollectionTable(name = "contract_screens", joinColumns = @JoinColumn(name = "contract_id"))
     @Column(name = "screen_id")
     private List<Long> screenIds;
 
-    // List of account permissions (embeddable class expected)
     @ElementCollection
     @CollectionTable(name = "contract_account_permissions", joinColumns = @JoinColumn(name = "contract_id"))
     private List<AccountPermission> accountPermissions;
