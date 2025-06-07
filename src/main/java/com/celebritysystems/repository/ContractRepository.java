@@ -24,4 +24,15 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
     Optional<Contract> findFirstByScreenIdOrderByCreatedAtDesc(@Param("screenId") Long screenId);
 
     List<Contract> findByExpiredAtBetween(LocalDateTime startDate, LocalDateTime endDate);
+
+    @Query(value = "SELECT COUNT(*) FROM contract WHERE MONTH(created_at) = :month AND YEAR(created_at) = :year", nativeQuery = true)
+    long countByMonthAndYear(@Param("month") int month, @Param("year") int year);
+
+    @Query(value = "SELECT YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as total " +
+            "FROM contract GROUP BY year, month ORDER BY year, month", nativeQuery = true)
+    List<Object[]> getMonthlyContractRegistrationStats();
+
+    @Query(value = "SELECT YEAR(created_at) as year, COUNT(*) as total " +
+            "FROM contract GROUP BY year ORDER BY year", nativeQuery = true)
+    List<Object[]> getAnnualContractRegistrationStats();
 }

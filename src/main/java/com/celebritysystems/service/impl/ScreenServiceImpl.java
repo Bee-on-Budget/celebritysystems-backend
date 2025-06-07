@@ -1,6 +1,8 @@
 package com.celebritysystems.service.impl;
 
 import com.celebritysystems.dto.*;
+import com.celebritysystems.dto.statistics.AnnualStats;
+import com.celebritysystems.dto.statistics.MonthlyStats;
 import com.celebritysystems.entity.Cabin;
 import com.celebritysystems.entity.Module;
 import com.celebritysystems.entity.Screen;
@@ -179,6 +181,32 @@ public class ScreenServiceImpl implements ScreenService {
         // Note: Module and Cabin are handled separately in the service
         // They will be set after this mapping
         return screen;
+    }
+
+    @Override
+    public long getScreenCountByMonthAndYear(int month, int year) {
+        return screenRepository.countByMonthAndYear(month, year);
+    }
+
+    @Override
+    public List<MonthlyStats> getMonthlyScreenStats() {
+        return screenRepository.getMonthlyScreenRegistrationStats()
+                .stream()
+                .map(record -> new MonthlyStats(
+                        ((Number) record[0]).intValue(),
+                        ((Number) record[1]).intValue(),
+                        ((Number) record[2]).longValue()))
+                .toList();
+    }
+
+    @Override
+    public List<AnnualStats> getAnnualScreenStats() {
+        return screenRepository.getAnnualScreenRegistrationStats()
+                .stream()
+                .map(record -> new AnnualStats(
+                        ((Number) record[0]).intValue(),
+                        ((Number) record[1]).longValue()))
+                .toList();
     }
 
     private byte[] toBytes(MultipartFile file) {

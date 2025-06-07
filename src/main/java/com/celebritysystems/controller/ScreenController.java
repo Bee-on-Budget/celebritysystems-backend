@@ -1,6 +1,8 @@
 package com.celebritysystems.controller;
 
 import com.celebritysystems.dto.*;
+import com.celebritysystems.dto.statistics.AnnualStats;
+import com.celebritysystems.dto.statistics.MonthlyStats;
 import com.celebritysystems.entity.Screen;
 import com.celebritysystems.entity.enums.SolutionTypeInScreen;
 import com.celebritysystems.service.ScreenService;
@@ -64,5 +66,23 @@ public class ScreenController {
 //        Page<ConsultationRes> responsePage = consultationPage.map(ConsultationRes::new);
         return ResponseEntity.ok().body(screenPage);
 
+    }
+
+    @GetMapping("/statistic/monthly")
+    public List<MonthlyStats> getMonthlyScreenStats() {
+        log.info("Fetching monthly screen statistics");
+        return screenService.getMonthlyScreenStats();
+    }
+
+    @GetMapping("/statistic/annual")
+    public List<AnnualStats> getAnnualScreenStats() {
+        log.info("Fetching annual screen statistics");
+        return screenService.getAnnualScreenStats();
+    }
+
+    @GetMapping("/statistic/count")
+    public long getCountByMonthAndYear(@RequestParam int month, @RequestParam int year) {
+        log.info("Getting count of screens for month {} and year {}", month, year);
+        return screenService.getScreenCountByMonthAndYear(month, year);
     }
 }

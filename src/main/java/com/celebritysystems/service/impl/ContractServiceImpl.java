@@ -2,6 +2,8 @@ package com.celebritysystems.service.impl;
 
 import com.celebritysystems.dto.AccountPermissionDTO;
 import com.celebritysystems.dto.CreateContractDTO;
+import com.celebritysystems.dto.statistics.AnnualStats;
+import com.celebritysystems.dto.statistics.MonthlyStats;
 import com.celebritysystems.entity.AccountPermission;
 import com.celebritysystems.entity.Contract;
 import com.celebritysystems.entity.enums.ContractType;
@@ -167,5 +169,31 @@ public class ContractServiceImpl implements ContractService {
     @Override
     public boolean contractExistsForCompanyAndScreen(Long companyId, Long screenId) {
         return contractRepository.existsByCompanyIdAndScreenId(companyId, screenId);
+    }
+
+    @Override
+    public long getContractCountByMonthAndYear(int month, int year) {
+        return contractRepository.countByMonthAndYear(month, year);
+    }
+
+    @Override
+    public List<MonthlyStats> getMonthlyContractStats() {
+        return contractRepository.getMonthlyContractRegistrationStats()
+                .stream()
+                .map(record -> new MonthlyStats(
+                        ((Number) record[0]).intValue(),
+                        ((Number) record[1]).intValue(),
+                        ((Number) record[2]).longValue()))
+                .toList();
+    }
+
+    @Override
+    public List<AnnualStats> getAnnualContractStats() {
+        return contractRepository.getAnnualContractRegistrationStats()
+                .stream()
+                .map(record -> new AnnualStats(
+                        ((Number) record[0]).intValue(),
+                        ((Number) record[1]).longValue()))
+                .toList();
     }
 }
