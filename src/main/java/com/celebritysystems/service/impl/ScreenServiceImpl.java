@@ -209,6 +209,13 @@ public class ScreenServiceImpl implements ScreenService {
                 .toList();
     }
 
+    @Override
+    public Optional<ScreenResponse> getScreenById(Long screenId) {
+        Optional<Screen> screen = screenRepository.findById(screenId);
+        ScreenResponse screenResponse = (ScreenResponse) screen.stream().map(screenTemp -> new ScreenResponse(screenTemp));
+        return Optional.of(screenResponse);
+    }
+
     private byte[] toBytes(MultipartFile file) {
         if (file == null || file.isEmpty()) return null;
         try {

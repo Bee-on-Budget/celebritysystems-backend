@@ -3,6 +3,7 @@ package com.celebritysystems.controller;
 import com.celebritysystems.dto.*;
 import com.celebritysystems.dto.statistics.AnnualStats;
 import com.celebritysystems.dto.statistics.MonthlyStats;
+import com.celebritysystems.entity.Company;
 import com.celebritysystems.entity.Screen;
 import com.celebritysystems.entity.enums.SolutionTypeInScreen;
 import com.celebritysystems.service.ScreenService;
@@ -84,5 +85,16 @@ public class ScreenController {
     public long getCountByMonthAndYear(@RequestParam int month, @RequestParam int year) {
         log.info("Getting count of screens for month {} and year {}", month, year);
         return screenService.getScreenCountByMonthAndYear(month, year);
+    }
+
+    @GetMapping("/screen_id/{id}")
+    public ResponseEntity<ScreenResponse> getScreenById(@PathVariable Long id) {
+        log.info("Fetching screen by ID: {}", id);
+        return screenService.getScreenById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> {
+                    log.warn("Screen with ID {} not found", id);
+                    return ResponseEntity.notFound().build();
+                });
     }
 }
