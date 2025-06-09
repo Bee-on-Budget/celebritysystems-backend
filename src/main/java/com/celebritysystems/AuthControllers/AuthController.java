@@ -74,34 +74,39 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody Map<String, String> loginCredentials) {
-        try {
-            String email = loginCredentials.get("email");
-            String password = loginCredentials.get("password");
+        String email = loginCredentials.get("email");
+        String password = loginCredentials.get("password");
 
+        logger.info("Login attempt received for email: {}", email);
+
+        try {
             Optional<User> optionalUser = userService.getUserByEmail(email);
 
             if (optionalUser.isEmpty()) {
+                logger.warn("Login failed for email: {} - User not found", email);
                 return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("Invalid credentials");
+                        .status(HttpStatus.UNAUTHORIZED)
+                        .body("Invalid credentials");
             }
 
             User user = optionalUser.get();
-            
+
             if (!passwordEncoder.matches(password, user.getPassword())) {
+                logger.warn("Login failed for email: {} - Incorrect password", email);
                 return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
-                    .body("Invalid credentials");
+                        .status(HttpStatus.UNAUTHORIZED)
+                        .body("Invalid credentials");
             }
 
             String token = tokenProvider.generateToken(user);
+            logger.info("Login successful for email: {}", email);
             return ResponseEntity.ok(Collections.singletonMap("token", token));
-            
+
         } catch (Exception e) {
-            logger.error("Login error", e);
+            logger.error("Login error for email: {}", email, e);
             return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Login failed");
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Login failed");
         }
     }
 
