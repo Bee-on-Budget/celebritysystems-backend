@@ -1,5 +1,6 @@
 package com.celebritysystems.controller;
 
+import com.celebritysystems.dto.ContractResponseDTO;
 import com.celebritysystems.dto.CreateContractDTO;
 import com.celebritysystems.dto.statistics.AnnualStats;
 import com.celebritysystems.dto.statistics.MonthlyStats;
@@ -93,4 +94,9 @@ public class ContractController {
         log.info("Getting count of contract for month {} and year {}", month, year);
         return contractService.getContractCountByMonthAndYear(month, year);
     }
+    @GetMapping("/with-names")
+public ResponseEntity<List<ContractResponseDTO>> getAllContractsWithNames() {
+    return ResponseEntity.ok(contractService.getAllContractsWithNames());
+}
+
 }

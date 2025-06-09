@@ -1,5 +1,6 @@
 package com.celebritysystems.service;
 
+import com.celebritysystems.dto.ContractResponseDTO;
 import com.celebritysystems.dto.CreateContractDTO;
 import com.celebritysystems.dto.statistics.AnnualStats;
 import com.celebritysystems.dto.statistics.MonthlyStats;
@@ -21,4 +22,6 @@ public interface ContractService {
     long getContractCountByMonthAndYear(int month, int year);
     List<MonthlyStats> getMonthlyContractStats();
     List<AnnualStats> getAnnualContractStats();
+        public List<ContractResponseDTO> getAllContractsWithNames() ;
+
 }

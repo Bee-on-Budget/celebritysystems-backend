@@ -1,7 +1,9 @@
 package com.celebritysystems.service.impl;
 
 import com.celebritysystems.dto.AccountPermissionDTO;
+import com.celebritysystems.dto.ContractResponseDTO;
 import com.celebritysystems.dto.CreateContractDTO;
+import com.celebritysystems.dto.ScreenResponse;
 import com.celebritysystems.dto.statistics.AnnualStats;
 import com.celebritysystems.dto.statistics.MonthlyStats;
 import com.celebritysystems.entity.AccountPermission;
@@ -9,6 +11,7 @@ import com.celebritysystems.entity.Contract;
 import com.celebritysystems.entity.enums.ContractType;
 import com.celebritysystems.entity.enums.OperatorType;
 import com.celebritysystems.entity.enums.SupplyType;
+import com.celebritysystems.repository.CompanyRepository;
 import com.celebritysystems.repository.ContractRepository;
 import com.celebritysystems.service.ContractService;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +28,8 @@ import java.util.stream.Collectors;
 public class ContractServiceImpl implements ContractService {
 
     private final ContractRepository contractRepository;
-
+private final CompanyRepository companyRepository;
+private final ScreenServiceImpl screenService;
     @Override
     public Contract createContract(Contract contract) {
         if (contract.getScreenIds() != null) {
@@ -196,4 +200,58 @@ public class ContractServiceImpl implements ContractService {
                         ((Number) record[1]).longValue()))
                 .toList();
     }
+    @Override
+    public List<ContractResponseDTO> getAllContractsWithNames() {
+        List<Contract> contracts = contractRepository.findAll();
+    
+        return contracts.stream().map(contract -> {
+            ContractResponseDTO dto = new ContractResponseDTO();
+            dto.setId(contract.getId());
+            dto.setInfo(contract.getInfo());
+            dto.setStartContractAt(contract.getStartContractAt());
+            dto.setExpiredAt(contract.getExpiredAt());
+            dto.setAccountName(contract.getAccountName());
+            dto.setContractValue(contract.getContractValue());
+    
+            // Convert enums to String safely
+            dto.setDurationType(contract.getDurationType() != null ? contract.getDurationType().name() : null);
+            dto.setOperatorType(contract.getOperatorType() != null ? contract.getOperatorType().name() : null);
+            dto.setSupplyType(contract.getSupplyType() != null ? contract.getSupplyType().name() : null);
+    
+            dto.setCreatedAt(contract.getCreatedAt());
+            dto.setUpdatedAt(contract.getUpdatedAt());
+    
+            // Map AccountPermission -> AccountPermissionDTO
+            List<AccountPermissionDTO> permissionDTOs = contract.getAccountPermissions() != null
+                    ? contract.getAccountPermissions().stream()
+                        .map(permission -> {
+                            AccountPermissionDTO dtoPermission = new AccountPermissionDTO();
+                            dtoPermission.setName(permission.getName());
+                            dtoPermission.setCanRead(permission.isCanRead());
+                            dtoPermission.setCanEdit(permission.isCanEdit());
+                            return dtoPermission;
+                        }).collect(Collectors.toList())
+                    : List.of();
+    
+            dto.setAccountPermissions(permissionDTOs);
+    
+            // Fetch company name
+            companyRepository.findById(contract.getCompanyId())
+                    .ifPresent(company -> dto.setCompanyName(company.getName()));
+    
+            // Fetch screen names
+            List<String> screenNames = contract.getScreenIds() != null
+                    ? contract.getScreenIds().stream()
+                        .map(screenId -> screenService.getScreenById(screenId)
+                                .map(ScreenResponse::getName)
+                                .orElse("Unknown"))
+                        .collect(Collectors.toList())
+                    : List.of();
+    
+            dto.setScreenNames(screenNames);
+    
+            return dto;
+        }).collect(Collectors.toList());
+    }
+    
 }

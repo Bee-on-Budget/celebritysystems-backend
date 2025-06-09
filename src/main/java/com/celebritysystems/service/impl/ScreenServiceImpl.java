@@ -31,6 +31,13 @@ public class ScreenServiceImpl implements ScreenService {
     private final ModuleRepository moduleRepository;
     private final CabinRepository cabinRepository;
 
+    private ScreenResponse mapToResponse(Screen screen) {
+        ScreenResponse response = new ScreenResponse();
+        response.setId(screen.getId());
+        response.setName(screen.getName());
+        // Map other fields if needed
+        return response;
+    }
 
     @Override
 //    @Transactional
@@ -210,11 +217,17 @@ public class ScreenServiceImpl implements ScreenService {
     }
 
     @Override
-    public Optional<ScreenResponse> getScreenById(Long screenId) {
-        Optional<Screen> screen = screenRepository.findById(screenId);
-        ScreenResponse screenResponse = (ScreenResponse) screen.stream().map(screenTemp -> new ScreenResponse(screenTemp));
-        return Optional.of(screenResponse);
+    public Optional<ScreenResponse> getScreenById(Long id) {
+        return screenRepository.findById(id)
+                .map(screen -> {
+                    ScreenResponse screenResponse = new ScreenResponse();
+                    screenResponse.setId(screen.getId());
+                    screenResponse.setName(screen.getName());
+                    screenResponse.setLocation(screen.getLocation());
+                    return screenResponse;
+                });
     }
+    
 
     private byte[] toBytes(MultipartFile file) {
         if (file == null || file.isEmpty()) return null;

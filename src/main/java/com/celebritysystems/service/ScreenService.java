@@ -15,5 +15,8 @@ public interface ScreenService {
     long getScreenCountByMonthAndYear(int month, int year);
     List<MonthlyStats> getMonthlyScreenStats();
     List<AnnualStats> getAnnualScreenStats();
-    Optional<ScreenResponse> getScreenById(Long screenId);
-}
+    // Optional<ScreenResponse> getScreenById(Long screenId) ;
+    // Optional<ScreenResponse> getScreenById(Long id);
+    public Optional<ScreenResponse> getScreenById(Long id) ;
+
+}  
