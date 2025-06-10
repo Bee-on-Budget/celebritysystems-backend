@@ -227,7 +227,12 @@ public class ScreenServiceImpl implements ScreenService {
                     return screenResponse;
                 });
     }
-    
+
+    @Override
+    public List<Screen> searchScreenByName(String name) {
+        return screenRepository.findByNameContainingIgnoreCase(name);
+    }
+
 
     private byte[] toBytes(MultipartFile file) {
         if (file == null || file.isEmpty()) return null;

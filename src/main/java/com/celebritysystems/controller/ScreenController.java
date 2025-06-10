@@ -97,4 +97,12 @@ public class ScreenController {
                     return ResponseEntity.notFound().build();
                 });
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Screen>> searchScreensByName(@RequestParam("name") String name) {
+        log.info("Searching for screens with name containing: {}", name);
+        List<Screen> screens =  screenService.searchScreenByName(name);
+        log.info("Found {} screens matching: {}", screens.size(), name);
+        return ResponseEntity.ok(screens);
+    }
 }

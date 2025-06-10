@@ -18,4 +18,6 @@ public interface ScreenRepository extends JpaRepository<Screen, Long> {
     @Query(value = "SELECT YEAR(created_at) as year, COUNT(*) as total " +
             "FROM screen GROUP BY year ORDER BY year", nativeQuery = true)
     List<Object[]> getAnnualScreenRegistrationStats();
+
+    List<Screen> findByNameContainingIgnoreCase(String name);
 }

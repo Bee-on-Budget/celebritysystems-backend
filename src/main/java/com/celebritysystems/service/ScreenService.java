@@ -18,5 +18,6 @@ public interface ScreenService {
     // Optional<ScreenResponse> getScreenById(Long screenId) ;
     // Optional<ScreenResponse> getScreenById(Long id);
     public Optional<ScreenResponse> getScreenById(Long id) ;
+     List<Screen> searchScreenByName(String name);
 
 }  
