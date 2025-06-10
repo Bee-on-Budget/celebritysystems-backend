@@ -2,6 +2,7 @@ package com.celebritysystems.controller;
 
 import com.celebritysystems.dto.TicketDTO;
 import com.celebritysystems.dto.CreateTicketDTO;
+import com.celebritysystems.dto.TicketResponseDTO;
 import com.celebritysystems.service.TicketService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -24,10 +25,10 @@ public class TicketController {
     private final TicketService ticketService;
 
     @GetMapping
-    public ResponseEntity<List<TicketDTO>> getAllTickets() {
+    public ResponseEntity<List<TicketResponseDTO>> getAllTickets() {
         log.info("Received request to get all tickets");
         try {
-            List<TicketDTO> tickets = ticketService.getAllTickets();
+            List<TicketResponseDTO> tickets = ticketService.getAllTickets();
             log.info("Successfully retrieved {} tickets", tickets.size());
             return ResponseEntity.ok(tickets);
         } catch (Exception e) {

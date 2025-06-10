@@ -2,13 +2,13 @@ package com.celebritysystems.service.impl;
 
 import com.celebritysystems.dto.TicketDTO;
 import com.celebritysystems.dto.CreateTicketDTO;
+import com.celebritysystems.dto.TicketResponseDTO;
 import com.celebritysystems.entity.*;
 import com.celebritysystems.entity.enums.TicketStatus;
 import com.celebritysystems.repository.*;
 import com.celebritysystems.service.TicketService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -25,9 +25,10 @@ public class TicketServiceImpl implements TicketService {
     private final CompanyRepository companyRepository;
 
     @Override
-    public List<TicketDTO> getAllTickets() {
-        return ticketRepository.findAll().stream()
-                .map(this::toDTO)
+    public List<TicketResponseDTO> getAllTickets() {
+        return ticketRepository.findAll()
+                .stream()
+                .map(this::toTicketResponseDto)
                 .collect(Collectors.toList());
     }
 
@@ -102,6 +103,28 @@ public class TicketServiceImpl implements TicketService {
                 .assignedBySupervisor(assignedBy)
                 .screen(screen)
                 .company(company)
+                .build();
+    }
+
+    private TicketResponseDTO toTicketResponseDto(Ticket ticket) {
+        return TicketResponseDTO.builder()
+                .id(ticket.getId())
+                .title(ticket.getTitle())
+                .description(ticket.getDescription())
+                .createdBy(ticket.getCreatedBy() != null ? ticket.getCreatedBy().getId() : null)
+
+                .assignedToWorkerName(ticket.getAssignedToWorker() != null
+                        ? ticket.getAssignedToWorker().getFullName() : null)
+
+                .assignedBySupervisorName(ticket.getAssignedBySupervisor() != null
+                        ? ticket.getAssignedBySupervisor().getFullName() : null)
+
+                .screenName(ticket.getScreen() != null ? ticket.getScreen().getName() : null)
+                .companyName(ticket.getCompany() != null ? ticket.getCompany().getName() : null)
+
+                .status(ticket.getStatus().name())
+                .createdAt(ticket.getCreatedAt())
+                .attachmentFileName(ticket.getAttachmentFileName())
                 .build();
     }
 }
