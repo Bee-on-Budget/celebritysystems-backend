@@ -38,10 +38,10 @@ public class TicketController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TicketDTO> getTicketById(@PathVariable Long id) {
+    public ResponseEntity<TicketResponseDTO> getTicketById(@PathVariable Long id) {
         log.info("Received request to get ticket by ID: {}", id);
         try {
-            TicketDTO ticket = ticketService.getTicketById(id);
+            TicketResponseDTO ticket = ticketService.getTicketById(id);
             if (ticket != null) {
                 log.info("Successfully retrieved ticket with ID: {}", id);
                 return ResponseEntity.ok(ticket);

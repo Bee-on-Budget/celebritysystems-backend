@@ -33,9 +33,9 @@ public class TicketServiceImpl implements TicketService {
     }
 
     @Override
-    public TicketDTO getTicketById(Long id) {
+    public TicketResponseDTO getTicketById(Long id) {
         return ticketRepository.findById(id)
-                .map(this::toDTO)
+                .map(this::toTicketResponseDto)
                 .orElse(null);
     }
 
