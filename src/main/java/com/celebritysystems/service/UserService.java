@@ -14,5 +14,6 @@ public interface UserService {
     Optional<User> getUserByEmail(String email);
     Optional<User> getUserByUsername(String username);
     Optional<List<User>> getUsersByRole(RoleInSystem role);
+    User updateUser(Long id, User user);
 //    List<UserRegistrationStatsDTO> getUserRegistrationStats();
 }

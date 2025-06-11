@@ -97,7 +97,22 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Registration failed");
         }
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/id/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody User user) {
+        logger.info("Attempt to update user with id: {}", id);
+        try {
+            User updatedUser = userService.updateUser(id, user);
+            logger.info("User updated successfully with id: {}", id);
+            return ResponseEntity.ok(updatedUser);
+        } catch (RuntimeException e) {
+            logger.error("Error updating user with id: {}", id, e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            logger.error("Unexpected error updating user with id: {}", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating user");
+        }
+    }
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         logger.info("Request to delete user with id: {}", id);

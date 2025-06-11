@@ -24,7 +24,21 @@ public class UserServiceImpl implements UserService {
     public List<User> findAll() {
         return userRepository.findAll();
     }
-
+    @Override
+    public User updateUser(Long id, User user) {
+        return userRepository.findById(id)
+                .map(existingUser -> {
+                    // Update only the fields that should be editable
+                    existingUser.setFullName(user.getFullName());
+                    existingUser.setEmail(user.getEmail());
+                    existingUser.setRole(user.getRole());
+                    existingUser.setCanEdit(user.getCanEdit());
+                    existingUser.setCanRead(user.getCanRead());
+                    // Note: We're not updating password or username here
+                    return userRepository.save(existingUser);
+                })
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+    }
     @Override
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
