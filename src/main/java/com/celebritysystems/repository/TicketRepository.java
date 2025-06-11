@@ -22,4 +22,6 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     List<Ticket> findByCreatedAtAfter(java.time.LocalDateTime dateTime);
 
     List<Ticket> findByCompanyIdAndStatus(Long companyId, String status);
+    List<Ticket> findByAssignedToWorker_Username(String username);
+
 }

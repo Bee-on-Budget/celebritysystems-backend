@@ -105,7 +105,14 @@ public class TicketServiceImpl implements TicketService {
                 .company(company)
                 .build();
     }
-
+    @Override
+    public List<TicketResponseDTO> getTicketsByWorkerName(String workerName) {
+        List<Ticket> tickets = ticketRepository.findByAssignedToWorker_Username(workerName);
+        return tickets.stream()
+                .map(this::toTicketResponseDto)
+                .collect(Collectors.toList());
+    }
+    
     private TicketResponseDTO toTicketResponseDto(Ticket ticket) {
         return TicketResponseDTO.builder()
                 .id(ticket.getId())

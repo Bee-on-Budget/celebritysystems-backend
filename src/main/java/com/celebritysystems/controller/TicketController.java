@@ -36,7 +36,21 @@ public class TicketController {
             return ResponseEntity.internalServerError().build();
         }
     }
-
+    @GetMapping("/worker/{username}")
+    public ResponseEntity<List<TicketResponseDTO>> getTicketsByWorkerName(@PathVariable String username) {
+        try {
+            List<TicketResponseDTO> tickets = ticketService.getTicketsByWorkerName(username);
+            if (tickets.isEmpty()) {
+                log.warn("No tickets found for worker: {}", username);
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(tickets);
+        } catch (Exception e) {
+            log.error("Failed to get tickets for worker {}: {}", username, e.getMessage(), e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+    
     @GetMapping("/{id}")
     public ResponseEntity<TicketResponseDTO> getTicketById(@PathVariable Long id) {
         log.info("Received request to get ticket by ID: {}", id);

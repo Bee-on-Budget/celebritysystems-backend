@@ -12,4 +12,6 @@ public interface TicketService {
     TicketDTO createTicket(CreateTicketDTO ticketDTO) ;
     TicketDTO updateTicket(Long id, CreateTicketDTO updatedTicketDTO);
     void deleteTicket(Long id);
+    List<TicketResponseDTO> getTicketsByWorkerName(String workerName);
+
 }
