@@ -13,5 +13,8 @@ public interface TicketService {
     TicketDTO updateTicket(Long id, CreateTicketDTO updatedTicketDTO);
     void deleteTicket(Long id);
     List<TicketResponseDTO> getTicketsByWorkerName(String workerName);
+    long countTicketsAssignedToWorker(String username);
 
+    long countTicketsCompletedByWorker(String username);
+    
 }

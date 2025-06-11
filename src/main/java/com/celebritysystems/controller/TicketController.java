@@ -14,7 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartException;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -68,6 +70,20 @@ public class TicketController {
             return ResponseEntity.internalServerError().build();
         }
     }
+@GetMapping("/worker/{username}/count")
+public ResponseEntity<?> getTicketCountsForWorker(@PathVariable String username) {
+    try {
+        long assignedCount = ticketService.countTicketsAssignedToWorker(username);
+        long completedCount = ticketService.countTicketsCompletedByWorker(username);
+        Map<String, Long> response = new HashMap<>();
+        response.put("assignedCount", assignedCount);
+        response.put("completedCount", completedCount);
+        return ResponseEntity.ok(response);
+    } catch (Exception e) {
+        log.error("Failed to get ticket counts for worker {}: {}", username, e.getMessage(), e);
+        return ResponseEntity.internalServerError().build();
+    }
+}
 
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<?> createTicket(@Valid @ModelAttribute CreateTicketDTO ticketDTO) {

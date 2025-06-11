@@ -112,7 +112,16 @@ public class TicketServiceImpl implements TicketService {
                 .map(this::toTicketResponseDto)
                 .collect(Collectors.toList());
     }
-    
+    @Override
+public long countTicketsAssignedToWorker(String username) {
+    return ticketRepository.countByAssignedToWorker_Username(username);
+}
+
+@Override
+public long countTicketsCompletedByWorker(String username) {
+    return ticketRepository.countByAssignedToWorker_UsernameAndStatus(username, TicketStatus.CLOSED);
+}
+
     private TicketResponseDTO toTicketResponseDto(Ticket ticket) {
         return TicketResponseDTO.builder()
                 .id(ticket.getId())

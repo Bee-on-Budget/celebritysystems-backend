@@ -1,6 +1,8 @@
 package com.celebritysystems.repository;
 
 import com.celebritysystems.entity.Ticket;
+import com.celebritysystems.entity.enums.TicketStatus;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -23,5 +25,8 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     List<Ticket> findByCompanyIdAndStatus(Long companyId, String status);
     List<Ticket> findByAssignedToWorker_Username(String username);
+long countByAssignedToWorker_Username(String username);
+
+long countByAssignedToWorker_UsernameAndStatus(String username, TicketStatus status);
 
 }
