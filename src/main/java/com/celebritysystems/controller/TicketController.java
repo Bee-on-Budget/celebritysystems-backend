@@ -40,6 +40,7 @@ public class TicketController {
     }
     @GetMapping("/worker/{username}")
     public ResponseEntity<List<TicketResponseDTO>> getTicketsByWorkerName(@PathVariable String username) {
+        log.info("Received request to getTicketsByWorkerName with username: {}", username);
         try {
             List<TicketResponseDTO> tickets = ticketService.getTicketsByWorkerName(username);
             if (tickets.isEmpty()) {
