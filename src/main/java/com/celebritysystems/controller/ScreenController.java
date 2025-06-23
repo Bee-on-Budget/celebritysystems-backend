@@ -3,7 +3,6 @@ package com.celebritysystems.controller;
 import com.celebritysystems.dto.*;
 import com.celebritysystems.dto.statistics.AnnualStats;
 import com.celebritysystems.dto.statistics.MonthlyStats;
-import com.celebritysystems.entity.Company;
 import com.celebritysystems.entity.Screen;
 import com.celebritysystems.entity.enums.SolutionTypeInScreen;
 import com.celebritysystems.service.ScreenService;
@@ -104,5 +103,17 @@ public class ScreenController {
         List<Screen> screens =  screenService.searchScreenByName(name);
         log.info("Found {} screens matching: {}", screens.size(), name);
         return ResponseEntity.ok(screens);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteScreen(@PathVariable Long id) {
+        log.info("Deleting screen with id: {}", id);
+        try {
+            screenService.deleteScreen(id);
+            return ResponseEntity.ok("Screen deleted successfully");
+        } catch (Exception e) {
+            log.error("Error deleting screen with id: {}", id, e);
+            return ResponseEntity.status(500).body("Error deleting screen: " + e.getMessage());
+        }
     }
 }
