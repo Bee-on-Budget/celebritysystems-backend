@@ -47,7 +47,7 @@ public class ScreenServiceImpl implements ScreenService {
 
         if (screenDTO.getSolutionTypeInScreen() == SolutionTypeInScreen.MODULE_SOLUTION) {
             List<Module> moduleList = new ArrayList<>();
-            double resolution = 0;
+            double resolution;
             double heightResolution = 0;
             double widthResolution = 0;
 
@@ -63,18 +63,18 @@ public class ScreenServiceImpl implements ScreenService {
                 // Calculate and add to resolution
                 heightResolution += dto.getHeight() * dto.getHeightQuantity();
                 widthResolution += dto.getWidth() * dto.getWidthQuantity();
-//                resolution += dto.getHeight() * dto.getHeightQuantity() * dto.getWidth() * dto.getWidthQuantity();
 
                 moduleList.add(module);
             }
             screen.setModuleList(moduleRepository.saveAll(moduleList));
+            resolution = heightResolution * widthResolution;
             screen.setResolution(resolution);
         }
 
         /////////////////////////////////////
         if (screenDTO.getSolutionTypeInScreen() == SolutionTypeInScreen.CABINET_SOLUTION) {
             List<Cabin> cabinets = new ArrayList<>();
-            double resolution = 0;
+            double resolution;
             double heightResolution = 0;
             double widthResolution = 0;
 
@@ -90,7 +90,6 @@ public class ScreenServiceImpl implements ScreenService {
                 //Calculate resolution from Cabinets
                 heightResolution += dto.getHeight() * dto.getHeightQuantity();
                 widthResolution += dto.getWidth() * dto.getWidthQuantity();
-//                resolution += dto.getHeight() * dto.getHeightQuantity() * dto.getWidth() * dto.getWidthQuantity();
 
                 if (dto.getModuleDto() == null) {
                     cabinets.add(cabinet);
