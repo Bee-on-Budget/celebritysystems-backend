@@ -16,5 +16,6 @@ public interface TicketService {
     long countTicketsAssignedToWorker(String username);
 
     long countTicketsCompletedByWorker(String username);
+    Long getTicketsCount();
     
 }

@@ -122,6 +122,11 @@ public long countTicketsCompletedByWorker(String username) {
     return ticketRepository.countByAssignedToWorker_UsernameAndStatus(username, TicketStatus.CLOSED);
 }
 
+    @Override
+    public Long getTicketsCount() {
+        return ticketRepository.count();
+    }
+
     private TicketResponseDTO toTicketResponseDto(Ticket ticket) {
         return TicketResponseDTO.builder()
                 .id(ticket.getId())
