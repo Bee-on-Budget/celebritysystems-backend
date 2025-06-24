@@ -71,6 +71,11 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
+    public Long getCompaniesCount() {
+        return companyRepository.count();
+    }
+
+    @Override
     public void assignUser(Long employeeId, Long companyId) {
         User user = userRepository.findById(employeeId).orElseThrow(() -> new RuntimeException("User Not Found !"));
         Company company = companyRepository.findById(companyId).orElseThrow(() -> new RuntimeException("User Not Found !"));

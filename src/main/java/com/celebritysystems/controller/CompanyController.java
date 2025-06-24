@@ -134,6 +134,12 @@ public class CompanyController {
         return companyService.getCompanyCountByMonthAndYear(month, year);
     }
 
+    @GetMapping("statistic/count")
+    public ResponseEntity<Long> getCompaniesCount() {
+        Long count = companyService.getCompaniesCount();
+        return ResponseEntity.ok(count);
+    }
+
     @Data
     @NoArgsConstructor
     @AllArgsConstructor

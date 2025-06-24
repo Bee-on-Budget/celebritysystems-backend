@@ -27,4 +27,5 @@ public interface CompanyService {
     long getCompanyCountByMonthAndYear(int month, int year);
     List<MonthlyStats> getMonthlyStats();
     List<AnnualStats> getAnnualStats();
+    Long getCompaniesCount();
 }
