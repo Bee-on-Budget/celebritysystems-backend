@@ -116,4 +116,10 @@ public class ScreenController {
             return ResponseEntity.status(500).body("Error deleting screen: " + e.getMessage());
         }
     }
+
+    @GetMapping("statistic/count")
+    public ResponseEntity<Long> getScreensCount() {
+        Long count = screenService.getScreensCount();
+        return ResponseEntity.ok(count);
+    }
 }

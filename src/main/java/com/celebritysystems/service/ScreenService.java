@@ -27,4 +27,6 @@ public interface ScreenService {
     List<Screen> searchScreenByName(String name);
 
     void deleteScreen(Long id);
+
+    Long getScreensCount();
 }

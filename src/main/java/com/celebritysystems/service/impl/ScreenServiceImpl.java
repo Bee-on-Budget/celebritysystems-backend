@@ -241,6 +241,11 @@ public class ScreenServiceImpl implements ScreenService {
         screenRepository.deleteById(id);
     }
 
+    @Override
+    public Long getScreensCount() {
+        return screenRepository.count();
+    }
+
     private byte[] toBytes(MultipartFile file) {
         if (file == null || file.isEmpty()) return null;
         try {
