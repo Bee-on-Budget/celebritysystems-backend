@@ -117,7 +117,7 @@ public class ScreenController {
         }
     }
 
-    @GetMapping("statistic/count")
+    @GetMapping("statistic/total")
     public ResponseEntity<Long> getScreensCount() {
         Long count = screenService.getScreensCount();
         return ResponseEntity.ok(count);

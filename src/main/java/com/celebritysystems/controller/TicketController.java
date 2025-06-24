@@ -159,7 +159,7 @@ public ResponseEntity<?> getTicketCountsForWorker(@PathVariable String username)
         }
     }
 
-    @GetMapping("statistic/count")
+    @GetMapping("statistic/total")
     public ResponseEntity<Long> getTicketsCount() {
         Long count = ticketService.getTicketsCount();
         return ResponseEntity.ok(count);
