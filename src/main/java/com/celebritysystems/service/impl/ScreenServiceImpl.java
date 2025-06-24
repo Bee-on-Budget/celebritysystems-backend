@@ -232,6 +232,14 @@ public class ScreenServiceImpl implements ScreenService {
         return screenRepository.findByNameContainingIgnoreCase(name);
     }
 
+    @Override
+    public void deleteScreen(Long id) {
+        if (!screenRepository.existsById(id)) {
+            // Or throw a custom exception
+            throw new RuntimeException("Screen not found with id: " + id);
+        }
+        screenRepository.deleteById(id);
+    }
 
     private byte[] toBytes(MultipartFile file) {
         if (file == null || file.isEmpty()) return null;
