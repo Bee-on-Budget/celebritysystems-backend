@@ -9,6 +9,8 @@ import com.celebritysystems.entity.Contract;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+
 public interface ContractService {
     Contract createContract(Contract contract);
     Contract createContractFromDTO(CreateContractDTO dto);
@@ -23,5 +25,6 @@ public interface ContractService {
     List<MonthlyStats> getMonthlyContractStats();
     List<AnnualStats> getAnnualContractStats();
         public List<ContractResponseDTO> getAllContractsWithNames() ;
-
+        Page<Contract> findAllPaginated(int page, int size);
+        Page<ContractResponseDTO> getAllContractsWithNamesPaginated(int page, int size);
 }

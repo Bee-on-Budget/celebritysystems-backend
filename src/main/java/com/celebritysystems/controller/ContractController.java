@@ -9,6 +9,8 @@ import com.celebritysystems.repository.ContractRepository;
 import com.celebritysystems.service.ContractService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -98,5 +100,18 @@ public class ContractController {
 public ResponseEntity<List<ContractResponseDTO>> getAllContractsWithNames() {
     return ResponseEntity.ok(contractService.getAllContractsWithNames());
 }
+@GetMapping("/paginated")
+public ResponseEntity<Page<Contract>> getAllContractsPaginated(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size) {
+    log.info("Fetching contracts page {} with size {}", page, size);
+    return ResponseEntity.ok(contractService.findAllPaginated(page, size));
+}
 
+@GetMapping("/with-names/paginated")
+public ResponseEntity<Page<ContractResponseDTO>> getAllContractsWithNamesPaginated(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size) {
+    return ResponseEntity.ok(contractService.getAllContractsWithNamesPaginated(page, size));
+}
 }

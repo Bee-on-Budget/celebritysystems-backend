@@ -6,6 +6,8 @@ import com.celebritysystems.dto.TicketResponseDTO;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+
 public interface TicketService {
     List<TicketResponseDTO> getAllTickets();
     TicketResponseDTO getTicketById(Long id);
@@ -14,7 +16,7 @@ public interface TicketService {
     void deleteTicket(Long id);
     List<TicketResponseDTO> getTicketsByWorkerName(String workerName);
     long countTicketsAssignedToWorker(String username);
-
+    Page<TicketResponseDTO> getAllTicketsPaginated(int page, int size);
     long countTicketsCompletedByWorker(String username);
     Long getTicketsCount();
     

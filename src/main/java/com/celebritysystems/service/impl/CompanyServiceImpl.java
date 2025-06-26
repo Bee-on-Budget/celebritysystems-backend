@@ -6,6 +6,10 @@ import java.util.Optional;
 import com.celebritysystems.dto.statistics.AnnualStats;
 import com.celebritysystems.dto.statistics.MonthlyStats;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.celebritysystems.dto.CompanyDto;
@@ -74,6 +78,11 @@ public class CompanyServiceImpl implements CompanyService {
     public Long getCompaniesCount() {
         return companyRepository.count();
     }
+    @Override
+public Page<Company> findAllPaginated(int page, int size) {
+    Pageable pageable = PageRequest.of(page, size);
+    return companyRepository.findAll(pageable);
+}
 
     @Override
     public void assignUser(Long employeeId, Long companyId) {

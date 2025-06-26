@@ -15,6 +15,11 @@ import com.celebritysystems.repository.CompanyRepository;
 import com.celebritysystems.repository.ContractRepository;
 import com.celebritysystems.service.ContractService;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -253,5 +258,65 @@ private final ScreenServiceImpl screenService;
             return dto;
         }).collect(Collectors.toList());
     }
+    @Override
+public Page<Contract> findAllPaginated(int page, int size) {
+    Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+    return contractRepository.findAll(pageable);
+}
+
+@Override
+public Page<ContractResponseDTO> getAllContractsWithNamesPaginated(int page, int size) {
+    Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+    Page<Contract> contracts = contractRepository.findAll(pageable);
+    
+    return contracts.map(contract -> {
+        ContractResponseDTO dto = new ContractResponseDTO();
+        dto.setId(contract.getId());
+        dto.setInfo(contract.getInfo());
+        dto.setStartContractAt(contract.getStartContractAt());
+        dto.setExpiredAt(contract.getExpiredAt());
+        dto.setAccountName(contract.getAccountName());
+        dto.setContractValue(contract.getContractValue());
+        
+        // Convert enums to String safely
+        dto.setDurationType(contract.getDurationType() != null ? contract.getDurationType().name() : null);
+        dto.setOperatorType(contract.getOperatorType() != null ? contract.getOperatorType().name() : null);
+        dto.setSupplyType(contract.getSupplyType() != null ? contract.getSupplyType().name() : null);
+        
+        dto.setCreatedAt(contract.getCreatedAt());
+        dto.setUpdatedAt(contract.getUpdatedAt());
+        
+        // Map AccountPermission -> AccountPermissionDTO
+        List<AccountPermissionDTO> permissionDTOs = contract.getAccountPermissions() != null
+                ? contract.getAccountPermissions().stream()
+                    .map(permission -> {
+                        AccountPermissionDTO dtoPermission = new AccountPermissionDTO();
+                        dtoPermission.setName(permission.getName());
+                        dtoPermission.setCanRead(permission.isCanRead());
+                        dtoPermission.setCanEdit(permission.isCanEdit());
+                        return dtoPermission;
+                    }).collect(Collectors.toList())
+                : List.of();
+        
+        dto.setAccountPermissions(permissionDTOs);
+        
+        // Fetch company name
+        companyRepository.findById(contract.getCompanyId())
+                .ifPresent(company -> dto.setCompanyName(company.getName()));
+        
+        // Fetch screen names
+        List<String> screenNames = contract.getScreenIds() != null
+                ? contract.getScreenIds().stream()
+                    .map(screenId -> screenService.getScreenById(screenId)
+                            .map(ScreenResponse::getName)
+                            .orElse("Unknown"))
+                    .collect(Collectors.toList())
+                : List.of();
+        
+        dto.setScreenNames(screenNames);
+        
+        return dto;
+    });
+}
     
 }

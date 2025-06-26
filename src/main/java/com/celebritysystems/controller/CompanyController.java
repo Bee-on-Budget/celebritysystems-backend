@@ -12,6 +12,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -139,6 +141,13 @@ public class CompanyController {
         Long count = companyService.getCompaniesCount();
         return ResponseEntity.ok(count);
     }
+    @GetMapping("/paginated")
+public ResponseEntity<Page<Company>> getAllCompaniesPaginated(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size) {
+    log.info("Fetching companies page {} with size {}", page, size);
+    return ResponseEntity.ok(companyService.findAllPaginated(page, size));
+}
 
     @Data
     @NoArgsConstructor
