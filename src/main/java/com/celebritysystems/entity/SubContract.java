@@ -2,6 +2,7 @@ package com.celebritysystems.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
 
@@ -30,7 +31,7 @@ public class SubContract {
     @JoinColumn(name = "contract_id", nullable = false)
     private Contract contract;
 
-    @Column(name = "created_at", nullable = false)
+    @CreationTimestamp
     private LocalDate createdAt;
 
     @Column(name = "expired_at", nullable = false)

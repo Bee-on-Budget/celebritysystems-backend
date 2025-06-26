@@ -1,0 +1,59 @@
+package com.celebritysystems.controller;
+
+import com.celebritysystems.dto.CabinDto;
+import com.celebritysystems.dto.CreateScreenRequestDto;
+import com.celebritysystems.dto.ModuleDto;
+import com.celebritysystems.dto.subcontract.SubContractRequestDTO;
+import com.celebritysystems.entity.SubContract;
+import com.celebritysystems.entity.enums.SolutionTypeInScreen;
+import com.celebritysystems.service.SubContractService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartException;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/subcontract")
+@RequiredArgsConstructor
+@CrossOrigin
+@Slf4j
+public class SubContractController {
+    private SubContractService subContractService;
+
+    @Autowired
+    public SubContractController(SubContractService subContractService) {
+        this.subContractService = subContractService;
+    }
+
+    @PostMapping()
+    public ResponseEntity<?> createSubContract(@RequestBody SubContractRequestDTO request) {
+        try {
+            log.info("Received SubContract request: {}", request);
+            subContractService.createSubContract(request);
+            return ResponseEntity.ok("SubContract created successfully");
+
+        } catch (Exception e) {
+            log.error("Error creating SubContract", e);
+            return ResponseEntity.status(500).body("Error creating SubContract: " + e.getMessage());
+        }
+    }
+
+    @GetMapping()
+    public ResponseEntity<?> getSubContracts() {
+        try {
+            log.info("Received SubContract request");
+            List<SubContract> subContractList = subContractService.getSubContracts();
+            return ResponseEntity.ok(subContractList);
+
+        } catch (MultipartException e) {
+            return ResponseEntity.badRequest().body("Invalid file upload");
+        } catch (Exception e) {
+            log.error("Error viewing SubContract", e);
+            return ResponseEntity.status(500).body("Error viewing SubContract: " + e.getMessage());
+        }
+    }
+}
