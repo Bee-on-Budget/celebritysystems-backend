@@ -3,6 +3,8 @@ package com.celebritysystems.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+
 import com.celebritysystems.dto.CompanyDto;
 import com.celebritysystems.dto.statistics.AnnualStats;
 import com.celebritysystems.dto.statistics.MonthlyStats;
@@ -28,4 +30,5 @@ public interface CompanyService {
     List<MonthlyStats> getMonthlyStats();
     List<AnnualStats> getAnnualStats();
     Long getCompaniesCount();
+    Page<Company> findAllPaginated(int page, int size);
 }

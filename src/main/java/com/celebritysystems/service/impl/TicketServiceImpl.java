@@ -8,6 +8,10 @@ import com.celebritysystems.entity.enums.TicketStatus;
 import com.celebritysystems.repository.*;
 import com.celebritysystems.service.TicketService;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -121,6 +125,13 @@ public long countTicketsAssignedToWorker(String username) {
 public long countTicketsCompletedByWorker(String username) {
     return ticketRepository.countByAssignedToWorker_UsernameAndStatus(username, TicketStatus.CLOSED);
 }
+@Override
+public Page<TicketResponseDTO> getAllTicketsPaginated(int page, int size) {
+    Pageable pageable = PageRequest.of(page, size);
+    Page<Ticket> tickets = ticketRepository.findAll(pageable);
+    return tickets.map(this::toTicketResponseDto);
+}
+
 
     @Override
     public Long getTicketsCount() {

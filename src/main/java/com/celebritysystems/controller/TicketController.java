@@ -10,6 +10,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartException;
@@ -164,6 +166,14 @@ public ResponseEntity<?> getTicketCountsForWorker(@PathVariable String username)
         Long count = ticketService.getTicketsCount();
         return ResponseEntity.ok(count);
     }
+    @GetMapping("/paginated")
+    public ResponseEntity<Page<TicketResponseDTO>> getAllTicketsPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        log.info("Fetching tickets page {} with size {}", page, size);
+        return ResponseEntity.ok(ticketService.getAllTicketsPaginated(page, size));
+    }
+    
 
     @Data
     @NoArgsConstructor 
