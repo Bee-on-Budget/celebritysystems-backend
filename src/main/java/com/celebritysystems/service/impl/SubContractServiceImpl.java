@@ -37,6 +37,7 @@ public class SubContractServiceImpl implements SubContractService {
                 .mainCompany(mainCompany)
                 .controllerCompany(controllerCompany)
                 .contract(contract)
+                .createdAt(request.getCreatedAt())
                 .expiredAt(request.getExpiredAt())
                 .build();
 

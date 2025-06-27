@@ -15,5 +15,6 @@ public class SubContractRequestDTO {
     private Long mainCompanyId;
     private Long controllerCompanyId;
     private Long contractId;
+    private LocalDate createdAt;
     private LocalDate expiredAt;
 }
