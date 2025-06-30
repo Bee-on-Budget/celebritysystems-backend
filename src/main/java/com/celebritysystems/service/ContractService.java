@@ -24,6 +24,8 @@ public interface ContractService {
     long getContractCountByMonthAndYear(int month, int year);
     List<MonthlyStats> getMonthlyContractStats();
     List<AnnualStats> getAnnualContractStats();
+    List<Contract> getContractsByCompanyName(String companyName);
+
         public List<ContractResponseDTO> getAllContractsWithNames() ;
         Page<Contract> findAllPaginated(int page, int size);
         Page<ContractResponseDTO> getAllContractsWithNamesPaginated(int page, int size);

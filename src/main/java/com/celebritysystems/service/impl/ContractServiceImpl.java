@@ -130,7 +130,10 @@ private final ScreenServiceImpl screenService;
     public Optional<Contract> getCurrentContractForScreen(Long screenId) {
         return contractRepository.findFirstByScreenIdOrderByCreatedAtDesc(screenId);
     }
-
+    @Override
+    public List<Contract> getContractsByCompanyName(String companyName) {
+        return contractRepository.findByCompanyNameContainingIgnoreCase(companyName);
+    }
     @Override
     public Contract updateContract(Long id, Contract contractDetails) {
         Contract existingContract = getContractById(id);

@@ -31,7 +31,9 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
     @Query(value = "SELECT YEAR(created_at) as year, MONTH(created_at) as month, COUNT(*) as total " +
             "FROM contract GROUP BY year, month ORDER BY year, month", nativeQuery = true)
     List<Object[]> getMonthlyContractRegistrationStats();
-
+    @Query("SELECT c FROM Contract c JOIN Company comp ON c.companyId = comp.id WHERE LOWER(comp.name) LIKE LOWER(CONCAT('%', :companyName, '%'))")
+    List<Contract> findByCompanyNameContainingIgnoreCase(@Param("companyName") String companyName);
+    
     @Query(value = "SELECT YEAR(created_at) as year, COUNT(*) as total " +
             "FROM contract GROUP BY year ORDER BY year", nativeQuery = true)
     List<Object[]> getAnnualContractRegistrationStats();

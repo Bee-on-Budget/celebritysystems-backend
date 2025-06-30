@@ -114,4 +114,10 @@ public ResponseEntity<Page<ContractResponseDTO>> getAllContractsWithNamesPaginat
         @RequestParam(defaultValue = "10") int size) {
     return ResponseEntity.ok(contractService.getAllContractsWithNamesPaginated(page, size));
 }
+@GetMapping("/search/company")
+public ResponseEntity<List<Contract>> getContractsByCompanyName(@RequestParam String companyName) {
+    log.info("Searching contracts by company name: {}", companyName);
+    return ResponseEntity.ok(contractService.getContractsByCompanyName(companyName));
+}
+
 }
