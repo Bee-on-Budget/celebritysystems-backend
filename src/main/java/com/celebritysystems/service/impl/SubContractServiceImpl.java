@@ -1,14 +1,21 @@
 package com.celebritysystems.service.impl;
 
+import com.celebritysystems.dto.PaginatedResponse;
+import com.celebritysystems.dto.ScreenResponse;
 import com.celebritysystems.dto.subcontract.SubContractRequestDTO;
 import com.celebritysystems.entity.Company;
 import com.celebritysystems.entity.Contract;
+import com.celebritysystems.entity.Screen;
 import com.celebritysystems.entity.SubContract;
 import com.celebritysystems.repository.CompanyRepository;
 import com.celebritysystems.repository.ContractRepository;
 import com.celebritysystems.repository.SubContractRepository;
 import com.celebritysystems.service.SubContractService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -45,7 +52,21 @@ public class SubContractServiceImpl implements SubContractService {
     }
 
     @Override
-    public List<SubContract> getSubContracts() {
-        return subContractRepository.findAll();
+    public PaginatedResponse<SubContract> getSubContracts(Integer page) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by("id").descending());
+
+        Page<SubContract> subContractPage = subContractRepository.findAll(pageable);
+        List<SubContract> subContractList = subContractPage.stream().toList();
+
+        PaginatedResponse<SubContract> response = new PaginatedResponse<>();
+        response.setContent(subContractList);
+        response.setPageNumber(subContractPage.getNumber());
+        response.setPageSize(subContractPage.getSize());
+        response.setTotalElements(subContractPage.getTotalElements());
+        response.setTotalPages(subContractPage.getTotalPages());
+        response.setHasNext(subContractPage.hasNext());
+        response.setHasPrevious(subContractPage.hasPrevious());
+
+        return response;
     }
 }

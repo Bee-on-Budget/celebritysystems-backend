@@ -1,8 +1,6 @@
 package com.celebritysystems.controller;
 
-import com.celebritysystems.dto.CabinDto;
-import com.celebritysystems.dto.CreateScreenRequestDto;
-import com.celebritysystems.dto.ModuleDto;
+import com.celebritysystems.dto.*;
 import com.celebritysystems.dto.subcontract.SubContractRequestDTO;
 import com.celebritysystems.entity.SubContract;
 import com.celebritysystems.entity.enums.SolutionTypeInScreen;
@@ -10,6 +8,7 @@ import com.celebritysystems.service.SubContractService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartException;
@@ -43,10 +42,10 @@ public class SubContractController {
     }
 
     @GetMapping()
-    public ResponseEntity<?> getSubContracts() {
+    public ResponseEntity<?> getSubContracts(@RequestParam(name = "page", defaultValue = "0") Integer page) {
         try {
             log.info("Received SubContract request");
-            List<SubContract> subContractList = subContractService.getSubContracts();
+            PaginatedResponse<SubContract> subContractList = subContractService.getSubContracts(page);
             return ResponseEntity.ok(subContractList);
 
         } catch (MultipartException e) {
