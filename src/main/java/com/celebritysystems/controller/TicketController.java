@@ -47,7 +47,7 @@ public class TicketController {
             List<TicketResponseDTO> tickets = ticketService.getTicketsByWorkerName(username);
             if (tickets.isEmpty()) {
                 log.warn("No tickets found for worker: {}", username);
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.ok().build();
             }
             return ResponseEntity.ok(tickets);
         } catch (Exception e) {
