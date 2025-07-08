@@ -33,6 +33,14 @@ public class SubContractServiceImpl implements SubContractService {
         this.companyRepository = companyRepository;
         this.contractRepository = contractRepository;
     }
+    @Override
+public void deleteSubContract(Long id) {
+    if (!subContractRepository.existsById(id)) {
+        throw new RuntimeException("SubContract not found with id: " + id);
+    }
+    subContractRepository.deleteById(id);
+}
+
 
     @Override
     public void createSubContract(SubContractRequestDTO request) {

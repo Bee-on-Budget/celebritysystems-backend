@@ -10,5 +10,7 @@ import java.util.List;
 public interface SubContractService {
     void createSubContract(SubContractRequestDTO request);
 
+    void deleteSubContract(Long id);
+
     PaginatedResponse<SubContract> getSubContracts(Integer page);
 }
