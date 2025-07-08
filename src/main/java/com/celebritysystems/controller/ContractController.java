@@ -56,7 +56,7 @@ public class ContractController {
     public ResponseEntity<Contract> getCurrentContractForScreen(@PathVariable Long screenId) {
         Optional<Contract> contract = contractService.getCurrentContractForScreen(screenId);
         return contract.map(ResponseEntity::ok)
-                      .orElse(ResponseEntity.notFound().build());
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{id}")
@@ -96,28 +96,36 @@ public class ContractController {
         log.info("Getting count of contract for month {} and year {}", month, year);
         return contractService.getContractCountByMonthAndYear(month, year);
     }
-    @GetMapping("/with-names")
-public ResponseEntity<List<ContractResponseDTO>> getAllContractsWithNames() {
-    return ResponseEntity.ok(contractService.getAllContractsWithNames());
-}
-@GetMapping("/paginated")
-public ResponseEntity<Page<Contract>> getAllContractsPaginated(
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size) {
-    log.info("Fetching contracts page {} with size {}", page, size);
-    return ResponseEntity.ok(contractService.findAllPaginated(page, size));
-}
 
-@GetMapping("/with-names/paginated")
-public ResponseEntity<Page<ContractResponseDTO>> getAllContractsWithNamesPaginated(
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size) {
-    return ResponseEntity.ok(contractService.getAllContractsWithNamesPaginated(page, size));
-}
-@GetMapping("/search/company")
-public ResponseEntity<List<Contract>> getContractsByCompanyName(@RequestParam String companyName) {
-    log.info("Searching contracts by company name: {}", companyName);
-    return ResponseEntity.ok(contractService.getContractsByCompanyName(companyName));
-}
+    @GetMapping("/total-value")
+    public ResponseEntity<Double> getTotalContractValue() {
+        return ResponseEntity.ok(contractService.getTotalContractValue());
+    }
+
+    @GetMapping("/with-names")
+    public ResponseEntity<List<ContractResponseDTO>> getAllContractsWithNames() {
+        return ResponseEntity.ok(contractService.getAllContractsWithNames());
+    }
+
+    @GetMapping("/paginated")
+    public ResponseEntity<Page<Contract>> getAllContractsPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        log.info("Fetching contracts page {} with size {}", page, size);
+        return ResponseEntity.ok(contractService.findAllPaginated(page, size));
+    }
+
+    @GetMapping("/with-names/paginated")
+    public ResponseEntity<Page<ContractResponseDTO>> getAllContractsWithNamesPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(contractService.getAllContractsWithNamesPaginated(page, size));
+    }
+
+    @GetMapping("/search/company")
+    public ResponseEntity<List<Contract>> getContractsByCompanyName(@RequestParam String companyName) {
+        log.info("Searching contracts by company name: {}", companyName);
+        return ResponseEntity.ok(contractService.getContractsByCompanyName(companyName));
+    }
 
 }
