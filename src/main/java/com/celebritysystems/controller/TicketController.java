@@ -117,6 +117,18 @@ public ResponseEntity<?> getTicketCountsForWorker(@PathVariable String username)
             );
         }
     }
+    @GetMapping("/statistic/status-counts")
+public ResponseEntity<Map<String, Long>> getTicketCountsByStatus() {
+    log.info("Received request to get ticket counts by status");
+    try {
+        Map<String, Long> statusCounts = ticketService.getTicketCountByStatus();
+        log.info("Successfully retrieved ticket counts by status");
+        return ResponseEntity.ok(statusCounts);
+    } catch (Exception e) {
+        log.error("Failed to retrieve ticket counts by status: {}", e.getMessage(), e);
+        return ResponseEntity.internalServerError().build();
+    }
+}
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateTicket(@PathVariable Long id, @Valid @RequestBody CreateTicketDTO ticketDTO) {

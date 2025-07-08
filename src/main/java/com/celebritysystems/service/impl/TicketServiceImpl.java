@@ -16,7 +16,10 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -159,4 +162,30 @@ public Page<TicketResponseDTO> getAllTicketsPaginated(int page, int size) {
                 .attachmentFileName(ticket.getAttachmentFileName())
                 .build();
     }
+@Override
+public Map<String, Long> getTicketCountByStatus() {
+    LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
+    Map<String, Long> statusCounts = new HashMap<>();
+    
+    // Initialize with all possible statuses at 0
+    Arrays.stream(TicketStatus.values())
+          .forEach(status -> statusCounts.put(status.name(), 0L));
+    
+    // Add "NULL" status for tickets with no status
+    statusCounts.put("NULL", 0L);
+    
+    // Get counts from last 30 days (excluding NULL statuses)
+    List<Object[]> results = ticketRepository.countTicketsGroupByStatusSinceDate(thirtyDaysAgo);
+    for (Object[] result : results) {
+        TicketStatus status = (TicketStatus) result[0];
+        Long count = (Long) result[1];
+        statusCounts.put(status.name(), count);
+    }
+    
+    // Count NULL status tickets separately
+    Long nullStatusCount = ticketRepository.countByStatusIsNullAndCreatedAtAfter(thirtyDaysAgo);
+    statusCounts.put("NULL", nullStatusCount);
+    
+    return statusCounts;
+}
 }
