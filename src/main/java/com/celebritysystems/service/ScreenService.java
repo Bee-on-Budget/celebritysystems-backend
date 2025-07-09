@@ -19,6 +19,7 @@ public interface ScreenService {
     List<MonthlyStats> getMonthlyScreenStats();
 
     List<AnnualStats> getAnnualScreenStats();
+    List<ScreenResponse> getScreensWithoutContracts();
 
     // Optional<ScreenResponse> getScreenById(Long screenId) ;
     // Optional<ScreenResponse> getScreenById(Long id);

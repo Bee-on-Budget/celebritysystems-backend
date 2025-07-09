@@ -38,6 +38,8 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
         @Query("SELECT SUM(c.contractValue) FROM Contract c")
         Double sumAllContractValues();
 
+     @Query("SELECT DISTINCT screenId FROM Contract c JOIN c.screenIds screenId WHERE c.expiredAt > CURRENT_TIMESTAMP")
+List<Long> findActiveContractScreenIds();
         @Query(value = "SELECT YEAR(created_at) as year, COUNT(*) as total " +
                         "FROM contract GROUP BY year ORDER BY year", nativeQuery = true)
         List<Object[]> getAnnualContractRegistrationStats();

@@ -50,7 +50,12 @@ public class ScreenController {
             return ResponseEntity.status(500).body("Error creating screen: " + e.getMessage());
         }
     }
-
+@GetMapping("/without-contracts")
+public ResponseEntity<List<ScreenResponse>> getScreensWithoutContracts() {
+    log.info("Fetching screens without active contracts");
+    List<ScreenResponse> screens = screenService.getScreensWithoutContracts();
+    return ResponseEntity.ok(screens);
+}
     private List<CabinDto> parseCabinList(String json) throws JsonProcessingException {
         return new ObjectMapper().readValue(json, new TypeReference<>() {});
     }

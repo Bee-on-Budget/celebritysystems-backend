@@ -8,6 +8,7 @@ import com.celebritysystems.entity.Module;
 import com.celebritysystems.entity.Screen;
 import com.celebritysystems.entity.enums.SolutionTypeInScreen;
 import com.celebritysystems.repository.CabinRepository;
+import com.celebritysystems.repository.ContractRepository;
 import com.celebritysystems.repository.ModuleRepository;
 import com.celebritysystems.repository.ScreenRepository;
 import com.celebritysystems.service.ScreenService;
@@ -23,6 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +32,7 @@ public class ScreenServiceImpl implements ScreenService {
     private final ScreenRepository screenRepository;
     private final ModuleRepository moduleRepository;
     private final CabinRepository cabinRepository;
-
+ private final ContractRepository contractRepository;
     private ScreenResponse mapToResponse(Screen screen) {
         ScreenResponse response = new ScreenResponse();
         response.setId(screen.getId());
@@ -254,5 +256,26 @@ public class ScreenServiceImpl implements ScreenService {
             throw new RuntimeException("Failed to read file: " + file.getOriginalFilename(), e);
         }
     }
+    @Override
+public List<ScreenResponse> getScreensWithoutContracts() {
+    // Get all screens
+    List<Screen> allScreens = screenRepository.findAll();
+    
+    // Get all screens that are in active contracts
+    List<Long> screensInContracts = contractRepository.findActiveContractScreenIds();
+    
+    // Filter screens that are not in active contracts
+    return allScreens.stream()
+            .filter(screen -> !screensInContracts.contains(screen.getId()))
+            .map(screen -> {
+                ScreenResponse response = new ScreenResponse();
+                response.setId(screen.getId());
+                response.setName(screen.getName());
+                response.setLocation(screen.getLocation());
+                // Set other fields as needed
+                return response;
+            })
+            .collect(Collectors.toList());
+}
 }
 
