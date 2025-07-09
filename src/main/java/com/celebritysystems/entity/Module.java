@@ -34,6 +34,12 @@ public class Module {
 
     private Double width;
 
+    @Column(name = "is_height", nullable = true)
+    private Boolean isHeight;
+
+    @Column(name = "is_width", nullable = true)
+    private Boolean isWidth;
+
 //    @OneToOne(mappedBy = "module", cascade = CascadeType.ALL)
 //    private Screen screen;
 }

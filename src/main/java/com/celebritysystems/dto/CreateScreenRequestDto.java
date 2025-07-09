@@ -20,6 +20,9 @@ public class CreateScreenRequestDto {
     private SolutionTypeInScreen solutionTypeInScreen;
     private String location;
 
+    private Double pixelScreen;
+    private String description;
+
     private String powerSupply;
 
     private Long powerSupplyQuantity;
@@ -53,6 +56,10 @@ public class CreateScreenRequestDto {
     private String media;
     private Long mediaQuantity;
     private Long spareMediaQuantity;
+
+    private String hub;
+    private Long hubQuantity;
+    private Long spareHubQuantity;
 
     private String fan;
     private Long fanQuantity;

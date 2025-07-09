@@ -17,6 +17,8 @@ public class ModuleDto {
     private Long widthQuantity;
 
     private Double height;
-
     private Double width;
+
+    private Boolean isHeight = false;
+    private Boolean isWidth = false;
 }

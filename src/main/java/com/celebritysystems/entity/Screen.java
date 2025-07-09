@@ -33,6 +33,10 @@ public class Screen {
 
     private SolutionTypeInScreen solutionType;
 
+    private Double pixelScreen;
+
+    private String description;
+
     @Column(name = "power_supply")
     private String powerSupply;
 
@@ -92,6 +96,15 @@ public class Screen {
 
     @Column(name = "fan_quantity",nullable = true)
     private Long fanQuantity;
+
+    @Column(name = "hub",nullable = true)
+    private String hub;
+
+    @Column(name = "hub_quantity",nullable = true)
+    private Long hubQuantity;
+
+    @Column(name = "spare_hub_quantity",nullable = true)
+    private Long spareHubQuantity;
 
     @Column(name = "resolution")
     private Double resolution;
