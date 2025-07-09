@@ -63,8 +63,12 @@ public class ScreenServiceImpl implements ScreenService {
                 module.setWidth(dto.getWidth());
 
                 // Calculate and add to resolution
-                heightResolution += dto.getHeight() * dto.getHeightQuantity();
-                widthResolution += dto.getWidth() * dto.getWidthQuantity();
+                if(dto.getIsHeight().equals(Boolean.TRUE)){
+                    heightResolution += dto.getHeight() * dto.getHeightQuantity();
+                }
+                if(dto.getIsWidth().equals(Boolean.FALSE)){
+                    widthResolution += dto.getWidth() * dto.getWidthQuantity();
+                }
 
                 moduleList.add(module);
             }
@@ -90,8 +94,12 @@ public class ScreenServiceImpl implements ScreenService {
                 cabinet.setWidth(dto.getWidth());
 
                 //Calculate resolution from Cabinets
-                heightResolution += dto.getHeight() * dto.getHeightQuantity();
-                widthResolution += dto.getWidth() * dto.getWidthQuantity();
+                if(dto.getIsHeight().equals(Boolean.TRUE)){
+                    heightResolution += dto.getHeight() * dto.getHeightQuantity();
+                }
+                if(dto.getIsWidth().equals(Boolean.FALSE)){
+                    widthResolution += dto.getWidth() * dto.getWidthQuantity();
+                }
 
                 if (dto.getModuleDto() == null) {
                     cabinets.add(cabinet);
@@ -146,6 +154,8 @@ public class ScreenServiceImpl implements ScreenService {
         screen.setScreenType(dto.getScreenType());
         screen.setSolutionType(dto.getSolutionTypeInScreen());
         screen.setLocation(dto.getLocation());
+        screen.setDescription(dto.getDescription());
+        screen.setPixelScreen(dto.getPixelScreen());
 
         // Power Supply Section
         screen.setPowerSupply(dto.getPowerSupply());
@@ -175,6 +185,11 @@ public class ScreenServiceImpl implements ScreenService {
         // Fan section
         screen.setFan(dto.getFan());
         screen.setFanQuantity(dto.getFanQuantity());
+
+        // Hub Section
+        screen.setHub(dto.getHub());
+        screen.setHubQuantity(dto.getHubQuantity());
+        screen.setSpareHubQuantity(dto.getSpareHubQuantity());
 
         // Binary Data Fields
         screen.setConnection(toBytes(dto.getConnectionFile()));
