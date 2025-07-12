@@ -31,6 +31,10 @@ public class ScreenResponse {
 
     private SolutionTypeInScreen solutionType;
 
+    private Double pixelScreen;
+
+    private String description;
+
     private String powerSupply;
 
     private Long powerSupplyQuantity;
@@ -68,9 +72,13 @@ public class ScreenResponse {
     private Long spareMediaQuantity;
 
     private String fan;
-
     private Long fanQuantity;
 
+    private String hub;
+
+    private Long hubQuantity;
+
+    private Long spareHubQuantity;
     private Double resolution;
 
     private LocalDateTime createdAt;
@@ -85,6 +93,8 @@ public class ScreenResponse {
         this.screenType = screen.getScreenType();
         this.location = screen.getLocation();
         this.solutionType = screen.getSolutionType();
+        this.pixelScreen = screen.getPixelScreen();
+        this.description = screen.getDescription();
         this.powerSupply = screen.getPowerSupply();
         this.powerSupplyQuantity = screen.getPowerSupplyQuantity();
         this.sparePowerSupplyQuantity = screen.getSparePowerSupplyQuantity();
@@ -105,6 +115,9 @@ public class ScreenResponse {
         this.spareMediaQuantity = screen.getSpareMediaQuantity();
         this.fan = screen.getFan();
         this.fanQuantity = screen.getFanQuantity();
+        this.hub = screen.getHub();
+        this.hubQuantity = screen.getHubQuantity();
+        this.spareHubQuantity = screen.getSpareHubQuantity();
         this.resolution = screen.getResolution();
         this.createdAt = screen.getCreatedAt();
         this.moduleList = screen.getModuleList();
