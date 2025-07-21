@@ -84,14 +84,17 @@ public class ScreenServiceImpl implements ScreenService {
             double heightResolution = 0;
             double widthResolution = 0;
 
-            for (CabinDto dto : cabinDtoList) {
-                Cabin cabinet = new Cabin();
-                cabinet.setCabinName(dto.getCabinetName());
-                cabinet.setQuantity(dto.getQuantity());
-                cabinet.setHeightQuantity(dto.getHeightQuantity());
-                cabinet.setWidthQuantity(dto.getWidthQuantity());
-                cabinet.setHeight(dto.getHeight());
-                cabinet.setWidth(dto.getWidth());
+for (CabinDto dto : cabinDtoList) {
+    Cabin cabinet = new Cabin();
+    cabinet.setCabinName(dto.getCabinetName());
+    cabinet.setQuantity(dto.getQuantity());
+    cabinet.setHeightQuantity(dto.getHeightQuantity());
+    cabinet.setWidthQuantity(dto.getWidthQuantity());
+    cabinet.setHeight(dto.getHeight());
+    cabinet.setWidth(dto.getWidth());
+    
+    cabinet.setIsHeight(dto.getIsHeight());
+    cabinet.setIsWidth(dto.getIsWidth());
 
                 //Calculate resolution from Cabinets
                 if(dto.getIsHeight().equals(Boolean.TRUE)){

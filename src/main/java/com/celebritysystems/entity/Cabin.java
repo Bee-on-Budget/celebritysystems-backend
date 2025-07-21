@@ -32,11 +32,11 @@ public class Cabin {
 
     private Double width;
 
-    @Column(name = "is_height", nullable = true)
-    private Boolean isHeight;
-
-    @Column(name = "is_width", nullable = true)
-    private Boolean isWidth;
+    @Column(name = "is_height", nullable = true, columnDefinition = "TINYINT(1)")
+    private Boolean isHeight;  
+    
+    @Column(name = "is_width", nullable = true, columnDefinition = "TINYINT(1)")
+    private Boolean isWidth;  
 
     //    @OneToOne(mappedBy = "cabin", cascade = CascadeType.ALL)
 //    private Module module;
