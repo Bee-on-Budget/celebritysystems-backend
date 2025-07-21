@@ -22,4 +22,7 @@ public class TicketResponseDTO {
     private String status;
     private LocalDateTime createdAt;
     private String attachmentFileName;
+
+    private String screenType;
+    private String location;
 }

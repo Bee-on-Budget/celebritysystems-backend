@@ -160,6 +160,8 @@ public Page<TicketResponseDTO> getAllTicketsPaginated(int page, int size) {
                 .status(ticket.getStatus().name())
                 .createdAt(ticket.getCreatedAt())
                 .attachmentFileName(ticket.getAttachmentFileName())
+                .location(ticket.getScreen().getLocation())
+                .screenType(ticket.getScreen().getScreenType().toString())
                 .build();
     }
 @Override
