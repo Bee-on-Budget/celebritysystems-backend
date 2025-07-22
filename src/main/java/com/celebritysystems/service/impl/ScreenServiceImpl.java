@@ -13,6 +13,7 @@ import com.celebritysystems.repository.ModuleRepository;
 import com.celebritysystems.repository.ScreenRepository;
 import com.celebritysystems.service.ScreenService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ScreenServiceImpl implements ScreenService {
     private final ScreenRepository screenRepository;
     private final ModuleRepository moduleRepository;
@@ -48,6 +50,8 @@ public class ScreenServiceImpl implements ScreenService {
         Screen screen = mapScreenDtoToEntity(screenDTO);
 
         if (screenDTO.getSolutionTypeInScreen() == SolutionTypeInScreen.MODULE_SOLUTION) {
+            log.info("I am in : {  if (screenDTO.getSolutionTypeInScreen() == SolutionTypeInScreen.MODULE_SOLUTION) }");
+
             List<Module> moduleList = new ArrayList<>();
             double resolution;
             double heightResolution = 0;
@@ -64,9 +68,13 @@ public class ScreenServiceImpl implements ScreenService {
 
                 // Calculate and add to resolution
                 if(dto.getIsHeight().equals(Boolean.TRUE)){
+                    log.info("I Have a TRUE State }");
+
                     heightResolution += dto.getHeight() * dto.getHeightQuantity();
                 }
-                if(dto.getIsWidth().equals(Boolean.FALSE)){
+                if(dto.getIsWidth().equals(Boolean.TRUE)){
+                    log.info("I Have a False State }");
+
                     widthResolution += dto.getWidth() * dto.getWidthQuantity();
                 }
 

@@ -31,6 +31,7 @@ public class Screen {
 
     private String location;
 
+    @Enumerated(EnumType.STRING)
     private SolutionTypeInScreen solutionType;
 
     private Double pixelScreen;

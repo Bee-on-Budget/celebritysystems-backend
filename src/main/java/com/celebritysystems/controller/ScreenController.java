@@ -30,12 +30,16 @@ public class ScreenController {
     public ResponseEntity<?> createScreen(@ModelAttribute CreateScreenRequestDto request) {
         try {
             log.info("Received createScreen request: {}", request);
+            log.info("Solution Type in request: {}", request.getSolutionTypeInScreen());
 
             if (request.getSolutionTypeInScreen() == SolutionTypeInScreen.CABINET_SOLUTION) {
+                log.info("You are in if so solution Type is: {}", request.getSolutionTypeInScreen());
+
                 List<CabinDto> cabinDtoList = parseCabinList(request.getCabinDtoListJson());
                 log.debug("Parsed cabinDtoList: {}", cabinDtoList);
                 screenService.createScreen(request, cabinDtoList, null);
             } else {
+                log.info("You are is else so solution Type is: {}", request.getSolutionTypeInScreen());
                 List<ModuleDto> moduleDtoList = parseModuleList(request.getModuleDtoListJson());
                 log.debug("Parsed moduleDtoList: {}", moduleDtoList);
                 screenService.createScreen(request, null, moduleDtoList);
