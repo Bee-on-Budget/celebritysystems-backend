@@ -134,9 +134,11 @@ private final ScreenServiceImpl screenService;
     public List<Contract> getContractsByCompanyName(String companyName) {
         return contractRepository.findByCompanyNameContainingIgnoreCase(companyName);
     }
-    @Override
+    
+@Override
 public double getTotalContractValue() {
-    return contractRepository.sumAllContractValues();
+    Double result = contractRepository.sumAllContractValues();
+    return result != null ? result : 0.0;
 }
     @Override
     public Contract updateContract(Long id, Contract contractDetails) {
