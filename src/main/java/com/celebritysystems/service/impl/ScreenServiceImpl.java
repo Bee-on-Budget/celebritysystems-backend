@@ -108,7 +108,7 @@ for (CabinDto dto : cabinDtoList) {
                 if(dto.getIsHeight().equals(Boolean.TRUE)){
                     heightResolution += dto.getHeight() * dto.getHeightQuantity();
                 }
-                if(dto.getIsWidth().equals(Boolean.FALSE)){
+                if(dto.getIsWidth().equals(Boolean.TRUE)){
                     widthResolution += dto.getWidth() * dto.getWidthQuantity();
                 }
 
