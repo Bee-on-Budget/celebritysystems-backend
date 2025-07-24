@@ -36,6 +36,7 @@ public class Screen {
 
     private String pixelScreen;
 
+    @Column(length = 1000)
     private String description;
 
     @Column(name = "power_supply")
