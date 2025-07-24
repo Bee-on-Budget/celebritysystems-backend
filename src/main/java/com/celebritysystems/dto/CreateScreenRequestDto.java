@@ -20,7 +20,7 @@ public class CreateScreenRequestDto {
     private SolutionTypeInScreen solutionTypeInScreen;
     private String location;
 
-    private Double pixelScreen;
+    private String pixelScreen;
     private String description;
 
     private String powerSupply;

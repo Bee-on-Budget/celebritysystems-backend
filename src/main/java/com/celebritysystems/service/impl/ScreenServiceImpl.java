@@ -166,7 +166,7 @@ for (CabinDto dto : cabinDtoList) {
         screen.setSolutionType(dto.getSolutionTypeInScreen());
         screen.setLocation(dto.getLocation());
         screen.setDescription(dto.getDescription());
-        screen.setPixelScreen(dto.getPixelScreen());
+        screen.setPixelScreen(dto.getPixelScreen().toString());
 
         // Power Supply Section
         screen.setPowerSupply(dto.getPowerSupply());

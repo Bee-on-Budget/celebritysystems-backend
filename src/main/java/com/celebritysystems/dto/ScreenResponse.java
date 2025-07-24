@@ -31,7 +31,7 @@ public class ScreenResponse {
 
     private SolutionTypeInScreen solutionType;
 
-    private Double pixelScreen;
+    private String pixelScreen;
 
     private String description;
 
