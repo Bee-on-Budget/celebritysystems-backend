@@ -185,6 +185,22 @@ public ResponseEntity<Map<String, Long>> getTicketCountsByStatus() {
         log.info("Fetching tickets page {} with size {}", page, size);
         return ResponseEntity.ok(ticketService.getAllTicketsPaginated(page, size));
     }
+
+    @GetMapping("/company/{companyId}")
+    public ResponseEntity<List<TicketResponseDTO>> getTicketsByCompanyId(@PathVariable Long companyId) {
+        log.info("Received request to getTicketsByCompanyId with Id: {}", companyId);
+        try {
+            List<TicketResponseDTO> tickets = ticketService.getTicketsByCompanyId(companyId);
+            if (tickets.isEmpty()) {
+                log.warn("No tickets found for company with id: {}", companyId);
+                return ResponseEntity.ok().build();
+            }
+            return ResponseEntity.ok(tickets);
+        } catch (Exception e) {
+            log.error("Failed to get tickets for company id {}: {}", companyId, e.getMessage(), e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
     
 
     @Data

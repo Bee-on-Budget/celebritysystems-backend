@@ -190,4 +190,12 @@ public Map<String, Long> getTicketCountByStatus() {
     
     return statusCounts;
 }
+
+    @Override
+    public List<TicketResponseDTO> getTicketsByCompanyId(Long companyId) {
+        List<Ticket> tickets = ticketRepository.findByCompanyId(companyId);
+        return tickets.stream()
+                .map(this::toTicketResponseDto)
+                .collect(Collectors.toList());
+    }
 }

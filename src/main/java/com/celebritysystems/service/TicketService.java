@@ -21,5 +21,6 @@ public interface TicketService {
     long countTicketsCompletedByWorker(String username);
     Long getTicketsCount();
     Map<String, Long> getTicketCountByStatus();
-    
+
+    List<TicketResponseDTO> getTicketsByCompanyId(Long companyId);
 }
