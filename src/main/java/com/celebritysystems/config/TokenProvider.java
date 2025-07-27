@@ -28,14 +28,19 @@ public class TokenProvider {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
 
-        return Jwts.builder()
+        JwtBuilder jwtBuilder = Jwts.builder()
                 .setSubject(user.getId().toString())
                 .claim("email", user.getEmail())
                 .claim("username", user.getUsername())
                 .claim("role", user.getRole())
-//                .claim("roles", new ArrayList<>(user.getRoles())) // Convert Set to List
                 .setIssuedAt(now)
-                .setExpiration(expiryDate)
+                .setExpiration(expiryDate);
+
+        if (user.getCompany() != null) {
+            jwtBuilder.claim("companyId", user.getCompany().getId());
+        }
+
+        return jwtBuilder
                 .signWith(jwtSecretKey, SignatureAlgorithm.HS512)
                 .compact();
     }
@@ -52,10 +57,23 @@ public class TokenProvider {
         return parseToken(token).get("username", String.class);
     }
 
+    // New method to get company ID from JWT
+    public Long getCompanyIdFromJWT(String token) {
+        Claims claims = parseToken(token);
+        Object companyId = claims.get("companyId");
+        if (companyId != null) {
+            if (companyId instanceof Number) {
+                return ((Number) companyId).longValue();
+            } else if (companyId instanceof String) {
+                return Long.parseLong((String) companyId);
+            }
+        }
+        return null;
+    }
+
     public Set<String> getRolesFromJWT(String token) {
         Claims claims = parseToken(token);
         
-     
         String role = claims.get("role", String.class);
         if (role != null) {
             role = role.startsWith("ROLE_") ? role : "ROLE_" + role;
@@ -64,6 +82,7 @@ public class TokenProvider {
         
         return Collections.emptySet();
     }
+
     public boolean validateToken(String token) {
         try {
             parseToken(token);
