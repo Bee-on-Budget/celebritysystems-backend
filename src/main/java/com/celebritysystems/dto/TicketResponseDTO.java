@@ -25,4 +25,6 @@ public class TicketResponseDTO {
 
     private String screenType;
     private String location;
+    private WorkerReportResponseDTO workerReport;
+
 }

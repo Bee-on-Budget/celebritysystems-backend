@@ -3,6 +3,7 @@ package com.celebritysystems.service;
 import com.celebritysystems.dto.TicketDTO;
 import com.celebritysystems.dto.CreateTicketDTO;
 import com.celebritysystems.dto.TicketResponseDTO;
+import com.celebritysystems.dto.WorkerReportResponseDTO;
 
 import java.util.List;
 import java.util.Map;
