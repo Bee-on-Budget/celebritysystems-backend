@@ -62,7 +62,7 @@ public class TicketController {
             return ResponseEntity.internalServerError().build();
         }
     }
-    
+
     @GetMapping("/{id}")
     public ResponseEntity<TicketResponseDTO> getTicketById(@PathVariable Long id) {
         log.info("Received request to get ticket by ID: {}", id);
@@ -103,28 +103,25 @@ public class TicketController {
         log.info("Received request to create new ticket");
         try {
             log.debug("Ticket creation payload: {}", ticketDTO.toString());
-            
+
             TicketDTO createdTicket = ticketService.createTicket(ticketDTO);
             log.info("Successfully created ticket with ID: {}", createdTicket.getId());
-            
+
             return ResponseEntity.ok(createdTicket);
         } catch (MultipartException e) {
             log.error("Multipart file processing error: {}", e.getMessage(), e);
             return ResponseEntity.badRequest().body(
-                new ErrorResponse("FILE_PROCESSING_ERROR", 
-                "Error processing file upload: " + e.getMessage())
-            );
+                    new ErrorResponse("FILE_PROCESSING_ERROR",
+                            "Error processing file upload: " + e.getMessage()));
         } catch (IllegalArgumentException e) {
             log.error("Validation error in ticket creation: {}", e.getMessage(), e);
             return ResponseEntity.badRequest().body(
-                new ErrorResponse("VALIDATION_ERROR", e.getMessage())
-            );
+                    new ErrorResponse("VALIDATION_ERROR", e.getMessage()));
         } catch (Exception e) {
             log.error("Unexpected error during ticket creation: {}", e.getMessage(), e);
             return ResponseEntity.internalServerError().body(
-                new ErrorResponse("INTERNAL_SERVER_ERROR", 
-                "An unexpected error occurred: " + e.getMessage())
-            );
+                    new ErrorResponse("INTERNAL_SERVER_ERROR",
+                            "An unexpected error occurred: " + e.getMessage()));
         }
     }
 
@@ -146,22 +143,20 @@ public class TicketController {
         log.info("Received request to update ticket with ID: {}", id);
         try {
             log.debug("Ticket update payload for ID {}: {}", id, ticketDTO.toString());
-            
+
             TicketDTO updatedTicket = ticketService.updateTicket(id, ticketDTO);
             log.info("Successfully updated ticket with ID: {}", id);
-            
+
             return ResponseEntity.ok(updatedTicket);
         } catch (IllegalArgumentException e) {
             log.error("Validation error in ticket update: {}", e.getMessage(), e);
             return ResponseEntity.badRequest().body(
-                new ErrorResponse("VALIDATION_ERROR", e.getMessage())
-            );
+                    new ErrorResponse("VALIDATION_ERROR", e.getMessage()));
         } catch (Exception e) {
             log.error("Unexpected error during ticket update: {}", e.getMessage(), e);
             return ResponseEntity.internalServerError().body(
-                new ErrorResponse("INTERNAL_SERVER_ERROR", 
-                "An unexpected error occurred: " + e.getMessage())
-            );
+                    new ErrorResponse("INTERNAL_SERVER_ERROR",
+                            "An unexpected error occurred: " + e.getMessage()));
         }
     }
 
@@ -178,9 +173,8 @@ public class TicketController {
         } catch (Exception e) {
             log.error("Unexpected error during ticket deletion: {}", e.getMessage(), e);
             return ResponseEntity.internalServerError().body(
-                new ErrorResponse("INTERNAL_SERVER_ERROR", 
-                "An unexpected error occurred: " + e.getMessage())
-            );
+                    new ErrorResponse("INTERNAL_SERVER_ERROR",
+                            "An unexpected error occurred: " + e.getMessage()));
         }
     }
 
@@ -232,7 +226,7 @@ public class TicketController {
 
     @PostMapping("/{ticketId}/worker-report")
     public ResponseEntity<?> createWorkerReport(
-            @PathVariable Long ticketId, 
+            @PathVariable Long ticketId,
             @Valid @RequestBody WorkerReportDTO workerReportDTO) {
         log.info("Received request to create worker report for ticket ID: {}", ticketId);
         try {
@@ -242,14 +236,12 @@ public class TicketController {
         } catch (IllegalArgumentException e) {
             log.error("Validation error in worker report creation: {}", e.getMessage(), e);
             return ResponseEntity.badRequest().body(
-                new ErrorResponse("VALIDATION_ERROR", e.getMessage())
-            );
+                    new ErrorResponse("VALIDATION_ERROR", e.getMessage()));
         } catch (Exception e) {
             log.error("Unexpected error during worker report creation: {}", e.getMessage(), e);
             return ResponseEntity.internalServerError().body(
-                new ErrorResponse("INTERNAL_SERVER_ERROR", 
-                "An unexpected error occurred: " + e.getMessage())
-            );
+                    new ErrorResponse("INTERNAL_SERVER_ERROR",
+                            "An unexpected error occurred: " + e.getMessage()));
         }
     }
 
@@ -268,15 +260,14 @@ public class TicketController {
         } catch (Exception e) {
             log.error("Failed to retrieve worker report for ticket ID {}: {}", ticketId, e.getMessage(), e);
             return ResponseEntity.internalServerError().body(
-                new ErrorResponse("INTERNAL_SERVER_ERROR", 
-                "An unexpected error occurred: " + e.getMessage())
-            );
+                    new ErrorResponse("INTERNAL_SERVER_ERROR",
+                            "An unexpected error occurred: " + e.getMessage()));
         }
     }
 
     @PutMapping("/{ticketId}/worker-report")
     public ResponseEntity<?> updateWorkerReport(
-            @PathVariable Long ticketId, 
+            @PathVariable Long ticketId,
             @Valid @RequestBody WorkerReportDTO workerReportDTO) {
         log.info("Received request to update worker report for ticket ID: {}", ticketId);
         try {
@@ -286,14 +277,12 @@ public class TicketController {
         } catch (IllegalArgumentException e) {
             log.error("Validation error in worker report update: {}", e.getMessage(), e);
             return ResponseEntity.badRequest().body(
-                new ErrorResponse("VALIDATION_ERROR", e.getMessage())
-            );
+                    new ErrorResponse("VALIDATION_ERROR", e.getMessage()));
         } catch (Exception e) {
             log.error("Unexpected error during worker report update: {}", e.getMessage(), e);
             return ResponseEntity.internalServerError().body(
-                new ErrorResponse("INTERNAL_SERVER_ERROR", 
-                "An unexpected error occurred: " + e.getMessage())
-            );
+                    new ErrorResponse("INTERNAL_SERVER_ERROR",
+                            "An unexpected error occurred: " + e.getMessage()));
         }
     }
 
@@ -310,16 +299,27 @@ public class TicketController {
         } catch (Exception e) {
             log.error("Unexpected error during worker report deletion: {}", e.getMessage(), e);
             return ResponseEntity.internalServerError().body(
-                new ErrorResponse("INTERNAL_SERVER_ERROR", 
-                "An unexpected error occurred: " + e.getMessage())
-            );
+                    new ErrorResponse("INTERNAL_SERVER_ERROR",
+                            "An unexpected error occurred: " + e.getMessage()));
         }
     }
 
+    @GetMapping("/pending")
+    public ResponseEntity<List<TicketResponseDTO>> getPendingTickets() {
+        log.info("Received request to get all pending tickets");
+        try {
+            List<TicketResponseDTO> pendingTickets = ticketService.getPendingTickets();
+            log.info("Successfully retrieved {} pending tickets", pendingTickets.size());
+            return ResponseEntity.ok(pendingTickets);
+        } catch (Exception e) {
+            log.error("Failed to retrieve pending tickets: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
     // ==================== ERROR RESPONSE CLASS ====================
 
     @Data
-    @NoArgsConstructor 
+    @NoArgsConstructor
     @AllArgsConstructor
     private static class ErrorResponse {
         private String errorCode;

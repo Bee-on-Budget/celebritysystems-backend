@@ -27,13 +27,20 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     List<Ticket> findByCreatedAtAfter(java.time.LocalDateTime dateTime);
 
     List<Ticket> findByCompanyIdAndStatus(Long companyId, String status);
+
     List<Ticket> findByAssignedToWorker_Username(String username);
+
     long countByStatusIsNullAndCreatedAtAfter(LocalDateTime date);
-long countByAssignedToWorker_Username(String username);
-  @Query("SELECT t.status, COUNT(t) FROM Ticket t " +
-           "WHERE t.createdAt >= :date AND t.status IS NOT NULL " +
-           "GROUP BY t.status")
+
+    long countByAssignedToWorker_Username(String username);
+
+    @Query("SELECT t.status, COUNT(t) FROM Ticket t " +
+            "WHERE t.createdAt >= :date AND t.status IS NOT NULL " +
+            "GROUP BY t.status")
     List<Object[]> countTicketsGroupByStatusSinceDate(@Param("date") LocalDateTime date);
-long countByAssignedToWorker_UsernameAndStatus(String username, TicketStatus status);
+
+    long countByAssignedToWorker_UsernameAndStatus(String username, TicketStatus status);
+
+    List<Ticket> findByAssignedToWorkerIsNullAndAssignedBySupervisorIsNull();
 
 }

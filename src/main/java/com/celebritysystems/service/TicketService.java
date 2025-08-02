@@ -12,16 +12,28 @@ import org.springframework.data.domain.Page;
 
 public interface TicketService {
     List<TicketResponseDTO> getAllTickets();
+
     TicketResponseDTO getTicketById(Long id);
-    TicketDTO createTicket(CreateTicketDTO ticketDTO) ;
+
+    TicketDTO createTicket(CreateTicketDTO ticketDTO);
+
     TicketDTO updateTicket(Long id, CreateTicketDTO updatedTicketDTO);
+
     void deleteTicket(Long id);
+
     List<TicketResponseDTO> getTicketsByWorkerName(String workerName);
+
     long countTicketsAssignedToWorker(String username);
+
     Page<TicketResponseDTO> getAllTicketsPaginated(int page, int size);
+
     long countTicketsCompletedByWorker(String username);
+
     Long getTicketsCount();
+
     Map<String, Long> getTicketCountByStatus();
+
+    List<TicketResponseDTO> getPendingTickets();
 
     List<TicketResponseDTO> getTicketsByCompanyId(Long companyId);
 }

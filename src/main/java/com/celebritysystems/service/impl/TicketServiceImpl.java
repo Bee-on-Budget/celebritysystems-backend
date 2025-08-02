@@ -71,35 +71,36 @@ public class TicketServiceImpl implements TicketService {
         return ticketRepository.findById(id).map(ticket -> {
             ticket.setTitle(updatedTicketDTO.getTitle());
             ticket.setDescription(updatedTicketDTO.getDescription());
-            
+
             if (updatedTicketDTO.getStatus() != null) {
                 ticket.setStatus(TicketStatus.valueOf(updatedTicketDTO.getStatus()));
             }
-            
+
             // Update assigned worker if provided
             if (updatedTicketDTO.getAssignedToWorkerId() != null) {
                 User assignedWorker = userRepository.findById(updatedTicketDTO.getAssignedToWorkerId()).orElse(null);
                 ticket.setAssignedToWorker(assignedWorker);
             }
-            
+
             // Update assigned supervisor if provided
             if (updatedTicketDTO.getAssignedBySupervisorId() != null) {
-                User assignedSupervisor = userRepository.findById(updatedTicketDTO.getAssignedBySupervisorId()).orElse(null);
+                User assignedSupervisor = userRepository.findById(updatedTicketDTO.getAssignedBySupervisorId())
+                        .orElse(null);
                 ticket.setAssignedBySupervisor(assignedSupervisor);
             }
-            
+
             // Update screen if provided
             if (updatedTicketDTO.getScreenId() != null) {
                 Screen screen = screenRepository.findById(updatedTicketDTO.getScreenId()).orElse(null);
                 ticket.setScreen(screen);
             }
-            
+
             // Update company if provided
             if (updatedTicketDTO.getCompanyId() != null) {
                 Company company = companyRepository.findById(updatedTicketDTO.getCompanyId()).orElse(null);
                 ticket.setCompany(company);
             }
-            
+
             return toDTO(ticketRepository.save(ticket));
         }).orElseThrow(() -> new IllegalArgumentException("Ticket not found with ID: " + id));
     }
@@ -146,14 +147,14 @@ public class TicketServiceImpl implements TicketService {
     public Map<String, Long> getTicketCountByStatus() {
         LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
         Map<String, Long> statusCounts = new HashMap<>();
-        
+
         // Initialize with all possible statuses at 0
         Arrays.stream(TicketStatus.values())
-              .forEach(status -> statusCounts.put(status.name(), 0L));
-        
+                .forEach(status -> statusCounts.put(status.name(), 0L));
+
         // Add "NULL" status for tickets with no status
         statusCounts.put("NULL", 0L);
-        
+
         // Get counts from last 30 days (excluding NULL statuses)
         List<Object[]> results = ticketRepository.countTicketsGroupByStatusSinceDate(thirtyDaysAgo);
         for (Object[] result : results) {
@@ -161,11 +162,11 @@ public class TicketServiceImpl implements TicketService {
             Long count = (Long) result[1];
             statusCounts.put(status.name(), count);
         }
-        
+
         // Count NULL status tickets separately
         Long nullStatusCount = ticketRepository.countByStatusIsNullAndCreatedAtAfter(thirtyDaysAgo);
         statusCounts.put("NULL", nullStatusCount);
-        
+
         return statusCounts;
     }
 
@@ -184,7 +185,8 @@ public class TicketServiceImpl implements TicketService {
                 .description(ticket.getDescription())
                 .createdBy(ticket.getCreatedBy() != null ? ticket.getCreatedBy().getId() : null)
                 .assignedToWorkerId(ticket.getAssignedToWorker() != null ? ticket.getAssignedToWorker().getId() : null)
-                .assignedBySupervisorId(ticket.getAssignedBySupervisor() != null ? ticket.getAssignedBySupervisor().getId() : null)
+                .assignedBySupervisorId(
+                        ticket.getAssignedBySupervisor() != null ? ticket.getAssignedBySupervisor().getId() : null)
                 .screenId(ticket.getScreen() != null ? ticket.getScreen().getId() : null)
                 .status(ticket.getStatus() != null ? ticket.getStatus().name() : null)
                 .createdAt(ticket.getCreatedAt())
@@ -195,10 +197,15 @@ public class TicketServiceImpl implements TicketService {
 
     private Ticket toEntity(CreateTicketDTO dto) {
         User createdBy = dto.getCreatedBy() != null ? userRepository.findById(dto.getCreatedBy()).orElse(null) : null;
-        User assignedTo = dto.getAssignedToWorkerId() != null ? userRepository.findById(dto.getAssignedToWorkerId()).orElse(null) : null;
-        User assignedBy = dto.getAssignedBySupervisorId() != null ? userRepository.findById(dto.getAssignedBySupervisorId()).orElse(null) : null;
+        User assignedTo = dto.getAssignedToWorkerId() != null
+                ? userRepository.findById(dto.getAssignedToWorkerId()).orElse(null)
+                : null;
+        User assignedBy = dto.getAssignedBySupervisorId() != null
+                ? userRepository.findById(dto.getAssignedBySupervisorId()).orElse(null)
+                : null;
         Screen screen = dto.getScreenId() != null ? screenRepository.findById(dto.getScreenId()).orElse(null) : null;
-        Company company = dto.getCompanyId() != null ? companyRepository.findById(dto.getCompanyId()).orElse(null) : null;
+        Company company = dto.getCompanyId() != null ? companyRepository.findById(dto.getCompanyId()).orElse(null)
+                : null;
 
         return Ticket.builder()
                 .title(dto.getTitle())
@@ -219,7 +226,8 @@ public class TicketServiceImpl implements TicketService {
             workerReport = workerReportService.getWorkerReportByTicketId(ticket.getId());
         } catch (Exception e) {
             // Log warning but don't fail the ticket retrieval
-            // log.warn("Failed to retrieve worker report for ticket {}: {}", ticket.getId(), e.getMessage());
+            // log.warn("Failed to retrieve worker report for ticket {}: {}",
+            // ticket.getId(), e.getMessage());
         }
 
         return TicketResponseDTO.builder()
@@ -228,9 +236,11 @@ public class TicketServiceImpl implements TicketService {
                 .description(ticket.getDescription())
                 .createdBy(ticket.getCreatedBy() != null ? ticket.getCreatedBy().getId() : null)
                 .assignedToWorkerName(ticket.getAssignedToWorker() != null
-                        ? ticket.getAssignedToWorker().getFullName() : null)
+                        ? ticket.getAssignedToWorker().getFullName()
+                        : null)
                 .assignedBySupervisorName(ticket.getAssignedBySupervisor() != null
-                        ? ticket.getAssignedBySupervisor().getFullName() : null)
+                        ? ticket.getAssignedBySupervisor().getFullName()
+                        : null)
                 .screenName(ticket.getScreen() != null ? ticket.getScreen().getName() : null)
                 .companyName(ticket.getCompany() != null ? ticket.getCompany().getName() : null)
                 .status(ticket.getStatus() != null ? ticket.getStatus().name() : null)
@@ -242,5 +252,12 @@ public class TicketServiceImpl implements TicketService {
                 .build();
     }
 
+    @Override
+    public List<TicketResponseDTO> getPendingTickets() {
+        List<Ticket> pendingTickets = ticketRepository.findByAssignedToWorkerIsNullAndAssignedBySupervisorIsNull();
+        return pendingTickets.stream()
+                .map(this::toTicketResponseDto)
+                .collect(Collectors.toList());
+    }
 
 }
