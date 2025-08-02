@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -78,6 +79,25 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<List<User>> getUsersByRole(RoleInSystem role) {
         return userRepository.findAllByRole(role);
+    }
+      
+    @Override
+    @Transactional
+    public boolean resetPassword(Long userId, String newPassword) {
+        
+        if (newPassword == null || newPassword.trim().isEmpty()) {
+            return false;
+        }
+        
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            user.setPassword(passwordEncoder.encode(newPassword));
+            userRepository.save(user);
+            return true;
+        } else {
+            return false;
+        }
     }
 
 //    @Override

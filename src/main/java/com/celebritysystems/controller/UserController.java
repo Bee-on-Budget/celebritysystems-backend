@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -53,6 +54,32 @@ public class UserController {
                     logger.warn("User not found with id: {}", id);
                     return ResponseEntity.notFound().build();
                 });
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/id/{id}/reset-password")
+    public ResponseEntity<?> resetPasswordById(@PathVariable Long id, @RequestBody Map<String, String> request) {
+        logger.info("Attempt to reset password for user with id: {}", id);
+
+        String newPassword = request.get("newPassword");
+        if (newPassword == null || newPassword.trim().isEmpty()) {
+            logger.warn("Invalid password provided for user id: {}", id);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("New password is required");
+        }
+
+        try {
+            boolean success = userService.resetPassword(id, newPassword);
+            if (success) {
+                logger.info("Password reset successfully for user with id: {}", id);
+                return ResponseEntity.ok(Collections.singletonMap("message", "Password reset successfully"));
+            } else {
+                logger.warn("User not found for password reset with id: {}", id);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            }
+        } catch (Exception e) {
+            logger.error("Error resetting password for user id: {}", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error resetting password");
+        }
     }
 
     @GetMapping("/username/{username}")
@@ -97,6 +124,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Registration failed");
         }
     }
+
     @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/id/{id}")
     public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody User user) {
@@ -113,6 +141,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating user");
         }
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         logger.info("Request to delete user with id: {}", id);

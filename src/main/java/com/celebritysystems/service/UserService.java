@@ -15,5 +15,7 @@ public interface UserService {
     Optional<User> getUserByUsername(String username);
     Optional<List<User>> getUsersByRole(RoleInSystem role);
     User updateUser(Long id, User user);
+        boolean resetPassword(Long userId, String newPassword);
+
 //    List<UserRegistrationStatsDTO> getUserRegistrationStats();
 }
