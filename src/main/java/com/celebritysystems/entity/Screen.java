@@ -36,6 +36,8 @@ public class Screen {
 
     private String pixelScreen;
 
+    private String batchScreen;
+
     @Column(length = 1000)
     private String description;
 
