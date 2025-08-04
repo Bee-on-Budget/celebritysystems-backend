@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -20,11 +21,11 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-
     @Override
     public List<User> findAll() {
         return userRepository.findAll();
     }
+
     @Override
     public User updateUser(Long id, User user) {
         return userRepository.findById(id)
@@ -35,11 +36,53 @@ public class UserServiceImpl implements UserService {
                     existingUser.setRole(user.getRole());
                     existingUser.setCanEdit(user.getCanEdit());
                     existingUser.setCanRead(user.getCanRead());
+                    existingUser.setPlayerId(user.getPlayerId());
                     // Note: We're not updating password or username here
                     return userRepository.save(existingUser);
                 })
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
     }
+
+    @Override
+    @Transactional
+    public User patchUser(Long id, Map<String, Object> updates) {
+        return userRepository.findById(id)
+                .map(existingUser -> {
+                    updates.forEach((key, value) -> {
+                        switch (key) {
+                            case "fullName":
+                                existingUser.setFullName((String) value);
+                                break;
+                            case "email":
+                                existingUser.setEmail((String) value);
+                                break;
+                            case "playerId":
+                                existingUser.setPlayerId((String) value);
+                                break;
+                            case "role":
+                                if (value instanceof String) {
+                                    existingUser.setRole(RoleInSystem.valueOf((String) value));
+                                }
+                                break;
+                            case "canEdit":
+                                existingUser.setCanEdit((Boolean) value);
+                                break;
+                            case "canRead":
+                                existingUser.setCanRead((Boolean) value);
+                                break;
+                            case "company":
+                                // Handle company update if needed
+                                break;
+                            default:
+                                // Ignore unknown fields
+                                break;
+                        }
+                    });
+                    return userRepository.save(existingUser);
+                })
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+    }
+
     @Override
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
@@ -47,7 +90,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User save(User user) {
-// Create new user
+        // Create new user
         User newUser = new User();
         newUser.setUsername(user.getUsername());
         newUser.setEmail(user.getEmail());
@@ -57,6 +100,7 @@ public class UserServiceImpl implements UserService {
         newUser.setCanEdit(user.getCanEdit());
         newUser.setCanRead(user.getCanRead());
         newUser.setFullName(user.getFullName());
+        newUser.setPlayerId(user.getPlayerId());
 
         return userRepository.save(newUser);
     }
@@ -74,6 +118,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<User> getUserByUsername(String username) {
         return userRepository.findByUsername(username);
+    }
+
+    @Override
+    public Optional<User> getUserByPlayerId(String playerId) {
+        return userRepository.findByPlayerId(playerId);
     }
 
     @Override
@@ -111,6 +160,4 @@ public class UserServiceImpl implements UserService {
 ////                .toList();
 //        return null;
 //    }
-
-
 }

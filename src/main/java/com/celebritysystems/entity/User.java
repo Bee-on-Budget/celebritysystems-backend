@@ -20,7 +20,8 @@ import java.util.Set;
 @Entity
 @Table(name = "users", uniqueConstraints = {
         @UniqueConstraint(columnNames = "email"),
-        @UniqueConstraint(columnNames = "username")
+        @UniqueConstraint(columnNames = "username"),
+        @UniqueConstraint(columnNames = "player_id")
 })
 public class User {
     @Id
@@ -33,11 +34,14 @@ public class User {
     @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = false,name = "full_name")
+    @Column(nullable = false, name = "full_name")
     private String fullName;
 
     @Column(nullable = false)
     private String password;
+
+    @Column(unique = true, name = "player_id")
+    private String playerId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)

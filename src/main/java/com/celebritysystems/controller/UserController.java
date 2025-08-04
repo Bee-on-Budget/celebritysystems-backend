@@ -97,6 +97,20 @@ public class UserController {
                 });
     }
 
+    @GetMapping("/player-id/{playerId}")
+    public ResponseEntity<User> getUserByPlayerId(@PathVariable String playerId) {
+        logger.info("Fetching user by player ID: {}", playerId);
+        return userService.getUserByPlayerId(playerId)
+                .map(user -> {
+                    logger.debug("User found with player ID: {}", playerId);
+                    return ResponseEntity.ok(user);
+                })
+                .orElseGet(() -> {
+                    logger.warn("User not found with player ID: {}", playerId);
+                    return ResponseEntity.notFound().build();
+                });
+    }
+
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<?> createUser(@RequestBody User user) {
@@ -109,6 +123,10 @@ public class UserController {
             if (userService.getUserByUsername(user.getUsername()).isPresent()) {
                 logger.warn("Username already taken: {}", user.getUsername());
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username already taken");
+            }
+            if (user.getPlayerId() != null && userService.getUserByPlayerId(user.getPlayerId()).isPresent()) {
+                logger.warn("Player ID already in use: {}", user.getPlayerId());
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Player ID already in use");
             }
 
             User companyUser = userService.save(user);
@@ -142,6 +160,47 @@ public class UserController {
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/id/{id}")
+    public ResponseEntity<?> patchUser(@PathVariable Long id, @RequestBody Map<String, Object> updates) {
+        logger.info("Attempt to patch user with id: {} with updates: {}", id, updates.keySet());
+        try {
+            // Validate that email and playerId are unique if they're being updated
+            if (updates.containsKey("email")) {
+                String newEmail = (String) updates.get("email");
+                userService.getUserByEmail(newEmail).ifPresent(existingUser -> {
+                    if (!existingUser.getId().equals(id)) {
+                        throw new IllegalArgumentException("Email already in use");
+                    }
+                });
+            }
+            
+            if (updates.containsKey("playerId")) {
+                String newPlayerId = (String) updates.get("playerId");
+                if (newPlayerId != null) {
+                    userService.getUserByPlayerId(newPlayerId).ifPresent(existingUser -> {
+                        if (!existingUser.getId().equals(id)) {
+                            throw new IllegalArgumentException("Player ID already in use");
+                        }
+                    });
+                }
+            }
+
+            User updatedUser = userService.patchUser(id, updates);
+            logger.info("User patched successfully with id: {}", id);
+            return ResponseEntity.ok(updatedUser);
+        } catch (IllegalArgumentException e) {
+            logger.warn("Validation error patching user with id: {}: {}", id, e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (RuntimeException e) {
+            logger.error("Error patching user with id: {}", id, e);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            logger.error("Unexpected error patching user with id: {}", id, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error patching user");
+        }
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         logger.info("Request to delete user with id: {}", id);
@@ -170,5 +229,4 @@ public class UserController {
                     return ResponseEntity.notFound().build();
                 });
     }
-
 }
