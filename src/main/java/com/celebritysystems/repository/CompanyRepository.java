@@ -28,4 +28,6 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
     @Query(value = "SELECT YEAR(created_at) as year, COUNT(*) as total " +
             "FROM company GROUP BY year ORDER BY year", nativeQuery = true)
     List<Object[]> getAnnualCompanyRegistrationStats();
+
+    Boolean existsByEmail(String email);
 }

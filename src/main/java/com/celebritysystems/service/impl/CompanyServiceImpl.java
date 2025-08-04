@@ -78,11 +78,48 @@ public class CompanyServiceImpl implements CompanyService {
     public Long getCompaniesCount() {
         return companyRepository.count();
     }
+
     @Override
-public Page<Company> findAllPaginated(int page, int size) {
-    Pageable pageable = PageRequest.of(page, size);
-    return companyRepository.findAll(pageable);
-}
+    public Page<Company> findAllPaginated(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return companyRepository.findAll(pageable);
+    }
+
+    @Override
+    @Transactional
+    public CompanyDto updateCompany(Long id, CompanyDto companyDto) {
+        Company existingCompany = companyRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Company with ID " + id + " not found"));
+
+        // Check if the email is being changed and if it already exists
+        if (companyDto.getName() != null) {
+            existingCompany.setName(companyDto.getName());
+        }
+        if (companyDto.getPhone() != null) {
+            existingCompany.setPhone(companyDto.getPhone());
+        }
+        if (companyDto.getEmail() != null) {
+            if (!existingCompany.getEmail().equals(companyDto.getEmail()) &&
+                    companyRepository.existsByEmail(companyDto.getEmail())) {
+                throw new IllegalArgumentException("Email '" + companyDto.getEmail() + "' is already in use");
+            }
+            existingCompany.setEmail(companyDto.getEmail());
+        }
+        if (companyDto.getLocation() != null) {
+            existingCompany.setLocation(companyDto.getLocation());
+        }
+
+        Company updatedCompany = companyRepository.save(existingCompany);
+
+        // Convert back to DTO
+        return CompanyDto.builder()
+                .name(updatedCompany.getName())
+                .phone(updatedCompany.getPhone())
+                .email(updatedCompany.getEmail())
+                .location(updatedCompany.getLocation())
+                .build();
+    }
+
 
     @Override
     public void assignUser(Long employeeId, Long companyId) {

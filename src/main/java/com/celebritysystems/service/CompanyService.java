@@ -31,4 +31,6 @@ public interface CompanyService {
     List<AnnualStats> getAnnualStats();
     Long getCompaniesCount();
     Page<Company> findAllPaginated(int page, int size);
+
+    CompanyDto updateCompany(Long id, CompanyDto companyDto);
 }

@@ -1,6 +1,8 @@
 package com.celebritysystems.controller;
 
 import com.celebritysystems.dto.CompanyDto;
+import com.celebritysystems.dto.CreateTicketDTO;
+import com.celebritysystems.dto.TicketDTO;
 import com.celebritysystems.dto.statistics.AnnualStats;
 import com.celebritysystems.dto.statistics.MonthlyStats;
 import com.celebritysystems.entity.Company;
@@ -148,6 +150,28 @@ public ResponseEntity<Page<Company>> getAllCompaniesPaginated(
     log.info("Fetching companies page {} with size {}", page, size);
     return ResponseEntity.ok(companyService.findAllPaginated(page, size));
 }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateCompany(@PathVariable Long id, @Valid @RequestBody CompanyDto companyDto) {
+        log.info("Received request to update company with ID: {}", id);
+        try {
+            log.debug("Company update payload for ID {}: {}", id, companyDto.toString());
+
+            CompanyDto updatedCompany = companyService.updateCompany(id, companyDto);
+            log.info("Successfully updated company with ID: {}", id);
+
+            return ResponseEntity.ok(updatedCompany);
+        } catch (IllegalArgumentException e) {
+            log.error("Validation error in company update: {}", e.getMessage(), e);
+            return ResponseEntity.badRequest().body(
+                    new CompanyController.ErrorResponse("VALIDATION_ERROR", e.getMessage()));
+        } catch (Exception e) {
+            log.error("Unexpected error during company update: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().body(
+                    new CompanyController.ErrorResponse("INTERNAL_SERVER_ERROR",
+                            "An unexpected error occurred: " + e.getMessage()));
+        }
+    }
 
     @Data
     @NoArgsConstructor

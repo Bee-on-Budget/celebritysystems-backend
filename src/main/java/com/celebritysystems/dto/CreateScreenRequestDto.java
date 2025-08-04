@@ -21,6 +21,8 @@ public class CreateScreenRequestDto {
     private String location;
 
     private String pixelScreen;
+    private String batchScreen;
+
     private String description;
 
     private String powerSupply;
