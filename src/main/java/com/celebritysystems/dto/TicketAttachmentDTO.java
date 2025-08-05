@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 public class TicketAttachmentDTO {
     private Long id;
     private Long ticketId;
+    private String fileUrl;
+    private String fileName;
     private String note;
     private Long uploadedBy;
     private LocalDateTime uploadedAt;

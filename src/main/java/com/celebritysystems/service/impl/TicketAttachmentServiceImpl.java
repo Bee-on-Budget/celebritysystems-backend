@@ -9,11 +9,11 @@ import com.celebritysystems.repository.TicketAttachmentRepository;
 import com.celebritysystems.repository.TicketRepository;
 import com.celebritysystems.repository.UserRepository;
 import com.celebritysystems.service.TicketAttachmentService;
+import com.celebritysystems.service.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 
 @Service
@@ -23,6 +23,7 @@ public class TicketAttachmentServiceImpl implements TicketAttachmentService {
     private final TicketAttachmentRepository ticketAttachmentRepository;
     private final TicketRepository ticketRepository;
     private final UserRepository userRepository;
+    private final S3Service s3Service;
 
     @Override
     public TicketAttachmentDTO getAttachmentById(Long id) {
@@ -39,11 +40,12 @@ public class TicketAttachmentServiceImpl implements TicketAttachmentService {
         User uploadedBy = userRepository.findById(dto.getUploadedBy())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        byte[] file = toBytes(dto.getFilePath());
+        String fileUrl = s3Service.uploadFile(dto.getFilePath(), "ticket-attachments");
 
         TicketAttachment attachment = TicketAttachment.builder()
                 .ticket(ticket)
-                .fileData(file)
+                .fileUrl(fileUrl)
+                .fileName(dto.getFilePath().getOriginalFilename())
                 .note(dto.getNote())
                 .uploadedBy(uploadedBy)
                 .build();
@@ -53,6 +55,13 @@ public class TicketAttachmentServiceImpl implements TicketAttachmentService {
 
     @Override
     public void deleteAttachment(Long id) {
+        TicketAttachment attachment = ticketAttachmentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Attachment not found"));
+        
+        if (attachment.getFileUrl() != null) {
+            s3Service.deleteFile(attachment.getFileUrl());
+        }
+        
         ticketAttachmentRepository.deleteById(id);
     }
 
@@ -60,18 +69,12 @@ public class TicketAttachmentServiceImpl implements TicketAttachmentService {
         return TicketAttachmentDTO.builder()
                 .id(attachment.getId())
                 .ticketId(attachment.getTicketId())
+                .fileUrl(attachment.getFileUrl())
+                .fileName(attachment.getFileName())
                 .note(attachment.getNote())
                 .uploadedBy(attachment.getUploadedBy() != null ? attachment.getUploadedBy().getId() : null)
                 .uploadedAt(attachment.getUploadedAt())
                 .build();
     }
 
-    private byte[] toBytes(MultipartFile file) {
-        if (file == null || file.isEmpty()) return null;
-        try {
-            return file.getBytes();
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to read file: " + file.getOriginalFilename(), e);
-        }
-    }
 }
