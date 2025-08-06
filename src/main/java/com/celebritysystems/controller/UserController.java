@@ -160,7 +160,7 @@ public class UserController {
         }
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/id/{id}")
     public ResponseEntity<?> patchUser(@PathVariable Long id, @RequestBody Map<String, Object> updates) {
         logger.info("Attempt to patch user with id: {} with updates: {}", id, updates.keySet());

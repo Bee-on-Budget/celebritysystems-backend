@@ -80,6 +80,7 @@ public class TicketServiceImpl implements TicketService {
             if (updatedTicketDTO.getAssignedToWorkerId() != null) {
                 User assignedWorker = userRepository.findById(updatedTicketDTO.getAssignedToWorkerId()).orElse(null);
                 ticket.setAssignedToWorker(assignedWorker);
+                ticket.setStatus(TicketStatus.IN_PROGRESS);
             }
 
             // Update assigned supervisor if provided

@@ -4,6 +4,7 @@ import com.celebritysystems.dto.WorkerReportDTO;
 import com.celebritysystems.dto.WorkerReportResponseDTO;
 import com.celebritysystems.entity.Ticket;
 import com.celebritysystems.entity.WorkerReport;
+import com.celebritysystems.entity.enums.TicketStatus;
 import com.celebritysystems.repository.TicketRepository;
 import com.celebritysystems.repository.WorkerReportRepository;
 import com.celebritysystems.service.WorkerReportService;
@@ -38,7 +39,10 @@ public class WorkerReportServiceImpl implements WorkerReportService {
 
         WorkerReport workerReport = toEntity(workerReportDTO, ticket);
         WorkerReport savedReport = workerReportRepository.save(workerReport);
-        
+
+        ticket.setStatus(TicketStatus.RESOLVED);
+        ticketRepository.save(ticket);
+
         return toResponseDTO(savedReport);
     }
 
@@ -46,7 +50,7 @@ public class WorkerReportServiceImpl implements WorkerReportService {
     public WorkerReportResponseDTO getWorkerReportByTicketId(Long ticketId) {
         WorkerReport workerReport = workerReportRepository.findByTicketId(ticketId)
                 .orElse(null);
-        
+
         return workerReport != null ? toResponseDTO(workerReport) : null;
     }
 
@@ -57,7 +61,7 @@ public class WorkerReportServiceImpl implements WorkerReportService {
 
         updateEntityFromDTO(existingReport, workerReportDTO);
         WorkerReport updatedReport = workerReportRepository.save(existingReport);
-        
+
         return toResponseDTO(updatedReport);
     }
 
@@ -65,7 +69,7 @@ public class WorkerReportServiceImpl implements WorkerReportService {
     public void deleteWorkerReport(Long ticketId) {
         WorkerReport workerReport = workerReportRepository.findByTicketId(ticketId)
                 .orElseThrow(() -> new IllegalArgumentException("Worker report not found for ticket ID: " + ticketId));
-        
+
         workerReportRepository.delete(workerReport);
     }
 
@@ -89,7 +93,7 @@ public class WorkerReportServiceImpl implements WorkerReportService {
         if (reportData.getServiceType() != null) {
             try {
                 serviceType = WorkerReport.ServiceType.valueOf(
-                    reportData.getServiceType().toUpperCase().replace(" ", "_")
+                        reportData.getServiceType().toUpperCase().replace(" ", "_")
                 );
             } catch (IllegalArgumentException e) {
                 serviceType = WorkerReport.ServiceType.REGULAR_SERVICE;
@@ -140,7 +144,7 @@ public class WorkerReportServiceImpl implements WorkerReportService {
         if (reportData.getServiceType() != null) {
             try {
                 WorkerReport.ServiceType serviceType = WorkerReport.ServiceType.valueOf(
-                    reportData.getServiceType().toUpperCase().replace(" ", "_")
+                        reportData.getServiceType().toUpperCase().replace(" ", "_")
                 );
                 entity.setServiceType(serviceType);
             } catch (IllegalArgumentException e) {
