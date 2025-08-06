@@ -119,17 +119,23 @@ public class Screen {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    @Lob
-    @Basic(fetch = FetchType.LAZY)
-    private byte[] connection;
+    @Column(name = "connection_file_url")
+    private String connectionFileUrl;
+    
+    @Column(name = "connection_file_name")
+    private String connectionFileName;
 
-    @Lob
-    @Basic(fetch = FetchType.LAZY)
-    private byte[] config;
+    @Column(name = "config_file_url")
+    private String configFileUrl;
+    
+    @Column(name = "config_file_name")
+    private String configFileName;
 
-    @Lob
-    @Basic(fetch = FetchType.LAZY)
-    private byte[] version;
+    @Column(name = "version_file_url")
+    private String versionFileUrl;
+    
+    @Column(name = "version_file_name")
+    private String versionFileName;
 
 
     @OneToMany

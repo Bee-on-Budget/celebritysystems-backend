@@ -25,10 +25,11 @@ public class TicketAttachment {
     @JoinColumn(name = "ticket_id")
     private Ticket ticket;
 
-    @Lob
-    @Basic(fetch = FetchType.LAZY)
-    @Column(name = "file_data", columnDefinition = "LONGBLOB")
-    private byte[] fileData;
+    @Column(name = "file_url")
+    private String fileUrl;
+    
+    @Column(name = "file_name")
+    private String fileName;
 
     private String note;
 

@@ -9,7 +9,9 @@ import com.celebritysystems.entity.enums.TicketStatus;
 import com.celebritysystems.repository.*;
 import com.celebritysystems.service.TicketService;
 import com.celebritysystems.service.WorkerReportService;
+import com.celebritysystems.service.OneSignalService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TicketServiceImpl implements TicketService {
@@ -33,6 +36,7 @@ public class TicketServiceImpl implements TicketService {
     private final ScreenRepository screenRepository;
     private final CompanyRepository companyRepository;
     private final WorkerReportService workerReportService;
+    private final OneSignalService oneSignalService; // Add OneSignal service
 
     @Override
     public List<TicketResponseDTO> getAllTickets() {
@@ -63,12 +67,22 @@ public class TicketServiceImpl implements TicketService {
             }
         }
 
-        return toDTO(ticketRepository.save(ticket));
+        Ticket savedTicket = ticketRepository.save(ticket);
+        
+        // Send notification if ticket is assigned to a worker during creation
+        if (savedTicket.getAssignedToWorker() != null) {
+            sendTicketAssignmentNotification(savedTicket);
+        }
+
+        return toDTO(savedTicket);
     }
 
     @Override
     public TicketDTO updateTicket(Long id, CreateTicketDTO updatedTicketDTO) {
         return ticketRepository.findById(id).map(ticket -> {
+            // Store the previous assigned worker to detect changes
+            User previousAssignedWorker = ticket.getAssignedToWorker();
+            
             ticket.setTitle(updatedTicketDTO.getTitle());
             ticket.setDescription(updatedTicketDTO.getDescription());
 
@@ -77,9 +91,10 @@ public class TicketServiceImpl implements TicketService {
             }
 
             // Update assigned worker if provided
+            User newAssignedWorker = null;
             if (updatedTicketDTO.getAssignedToWorkerId() != null) {
-                User assignedWorker = userRepository.findById(updatedTicketDTO.getAssignedToWorkerId()).orElse(null);
-                ticket.setAssignedToWorker(assignedWorker);
+                newAssignedWorker = userRepository.findById(updatedTicketDTO.getAssignedToWorkerId()).orElse(null);
+                ticket.setAssignedToWorker(newAssignedWorker);
                 ticket.setStatus(TicketStatus.IN_PROGRESS);
             }
 
@@ -102,8 +117,76 @@ public class TicketServiceImpl implements TicketService {
                 ticket.setCompany(company);
             }
 
-            return toDTO(ticketRepository.save(ticket));
+            Ticket savedTicket = ticketRepository.save(ticket);
+            
+            // Send notification if worker assignment changed
+            if (hasWorkerAssignmentChanged(previousAssignedWorker, newAssignedWorker)) {
+                sendTicketAssignmentNotification(savedTicket);
+            }
+
+            return toDTO(savedTicket);
         }).orElseThrow(() -> new IllegalArgumentException("Ticket not found with ID: " + id));
+    }
+
+    /**
+     * Check if the worker assignment has changed
+     */
+    private boolean hasWorkerAssignmentChanged(User previousWorker, User newWorker) {
+        // If both are null, no change
+        if (previousWorker == null && newWorker == null) {
+            return false;
+        }
+        
+        // If one is null and the other isn't, there's a change
+        if (previousWorker == null || newWorker == null) {
+            return true;
+        }
+        
+        // If both exist, check if they're different
+        return !previousWorker.getId().equals(newWorker.getId());
+    }
+
+    /**
+     * Send notification to the assigned worker about the new ticket
+     */
+    private void sendTicketAssignmentNotification(Ticket ticket) {
+        try {
+            if (ticket.getAssignedToWorker() != null && ticket.getAssignedToWorker().getPlayerId() != null) {
+                String playerId = ticket.getAssignedToWorker().getPlayerId();
+                String workerName = ticket.getAssignedToWorker().getFullName();
+                
+                // Prepare notification content
+                String title = "New Ticket Assigned";
+                String message = String.format("Hi %s, a new ticket '%s' has been assigned to you.", 
+                    workerName, ticket.getTitle());
+                
+                // Prepare additional data to send with notification
+                Map<String, Object> data = new HashMap<>();
+                data.put("ticketId", ticket.getId().toString());
+                data.put("ticketTitle", ticket.getTitle());
+                data.put("ticketDescription", ticket.getDescription());
+                data.put("ticketStatus", ticket.getStatus() != null ? ticket.getStatus().name() : "PENDING");
+                data.put("assignedAt", LocalDateTime.now().toString());
+                data.put("companyName", ticket.getCompany() != null ? ticket.getCompany().getName() : "");
+                data.put("screenName", ticket.getScreen() != null ? ticket.getScreen().getName() : "");
+                data.put("screenLocation", ticket.getScreen() != null ? ticket.getScreen().getLocation() : "");
+                data.put("createdBy", ticket.getCreatedBy() != null ? ticket.getCreatedBy().getFullName() : "");
+                data.put("notificationType", "TICKET_ASSIGNMENT");
+                
+                // Send notification to the specific user
+                List<String> playerIds = List.of(playerId);
+                oneSignalService.sendWithData(title, message, data, playerIds);
+                
+                log.info("Notification sent to worker {} (playerId: {}) for ticket ID: {}", 
+                    workerName, playerId, ticket.getId());
+                
+            } else {
+                log.warn("Cannot send notification: Worker has no playerId for ticket ID: {}", ticket.getId());
+            }
+        } catch (Exception e) {
+            log.error("Failed to send ticket assignment notification for ticket ID: {}", ticket.getId(), e);
+            // Don't throw exception to avoid breaking the ticket assignment process
+        }
     }
 
     @Override
@@ -260,5 +343,4 @@ public class TicketServiceImpl implements TicketService {
                 .map(this::toTicketResponseDto)
                 .collect(Collectors.toList());
     }
-
 }

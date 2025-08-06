@@ -6,11 +6,14 @@ import com.celebritysystems.dto.statistics.MonthlyStats;
 import com.celebritysystems.entity.Screen;
 import com.celebritysystems.entity.enums.SolutionTypeInScreen;
 import com.celebritysystems.service.ScreenService;
+import com.celebritysystems.service.S3Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartException;
@@ -25,6 +28,7 @@ import java.util.List;
 public class ScreenController {
 
     private final ScreenService screenService;
+    private final S3Service s3Service;
 
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<?> createScreen(@ModelAttribute CreateScreenRequestDto request) {
@@ -49,7 +53,7 @@ public class ScreenController {
 
         } catch (MultipartException e) {
             return ResponseEntity.badRequest().body("Invalid file upload");
-        } catch (Exception e) {
+        } catch (JsonProcessingException e) {
             log.error("Error creating screen", e);
             return ResponseEntity.status(500).body("Error creating screen: " + e.getMessage());
         }
@@ -130,5 +134,76 @@ public ResponseEntity<List<ScreenResponse>> getScreensWithoutContracts() {
     public ResponseEntity<Long> getScreensCount() {
         Long count = screenService.getScreensCount();
         return ResponseEntity.ok(count);
+    }
+
+    @GetMapping("/{id}/download/{fileType}")
+    public ResponseEntity<Resource> downloadScreenFile(@PathVariable Long id, 
+                                                       @PathVariable String fileType) {
+        log.info("Downloading {} file for screen with ID: {}", fileType, id);
+        
+        ScreenResponse screen = screenService.getScreenById(id)
+                .orElse(null);
+        if (screen == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        try {
+            String fileUrl = null;
+            String fileName = null;
+            
+            switch (fileType.toLowerCase()) {
+                case "connection" -> {
+                    // Need to add these fields to ScreenResponse or create a method to get them
+                    log.warn("Connection file download not implemented - need to add fileUrl fields to ScreenResponse");
+                    return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+                }
+                case "config" -> {
+                    log.warn("Config file download not implemented - need to add fileUrl fields to ScreenResponse");
+                    return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+                }
+                case "version" -> {
+                    log.warn("Version file download not implemented - need to add fileUrl fields to ScreenResponse");
+                    return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+                }
+                default -> {
+                    return ResponseEntity.badRequest().build();
+                }
+            }
+            
+        } catch (Exception e) {
+            log.error("Failed to download {} file for screen with ID: {}", fileType, id, e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("/{id}/presigned-url/{fileType}")
+    public ResponseEntity<String> getScreenFilePresignedUrl(@PathVariable Long id, 
+                                                            @PathVariable String fileType,
+                                                            @RequestParam(defaultValue = "60") int expirationMinutes) {
+        log.info("Generating presigned URL for {} file of screen with ID: {}", fileType, id);
+        
+        ScreenResponse screen = screenService.getScreenById(id)
+                .orElse(null);
+        if (screen == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        try {
+            String fileUrl = null;
+            
+            switch (fileType.toLowerCase()) {
+                case "connection", "config", "version" -> {
+                    log.warn("Presigned URL generation not implemented - need to add fileUrl fields to ScreenResponse");
+                    return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+                }
+                default -> {
+                    return ResponseEntity.badRequest().build();
+                }
+            }
+            
+        } catch (Exception e) {
+            log.error("Failed to generate presigned URL for {} file of screen with ID: {}", fileType, id, e);
+            return ResponseEntity.internalServerError().build();
+        }
     }
 }

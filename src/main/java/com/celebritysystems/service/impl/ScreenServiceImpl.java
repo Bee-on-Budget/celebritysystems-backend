@@ -12,6 +12,7 @@ import com.celebritysystems.repository.ContractRepository;
 import com.celebritysystems.repository.ModuleRepository;
 import com.celebritysystems.repository.ScreenRepository;
 import com.celebritysystems.service.ScreenService;
+import com.celebritysystems.service.S3Service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -19,9 +20,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -34,7 +33,8 @@ public class ScreenServiceImpl implements ScreenService {
     private final ScreenRepository screenRepository;
     private final ModuleRepository moduleRepository;
     private final CabinRepository cabinRepository;
- private final ContractRepository contractRepository;
+    private final ContractRepository contractRepository;
+    private final S3Service s3Service;
     private ScreenResponse mapToResponse(Screen screen) {
         ScreenResponse response = new ScreenResponse();
         response.setId(screen.getId());
@@ -144,7 +144,7 @@ for (CabinDto dto : cabinDtoList) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by("id").descending());
 
         Page<Screen> screenPage = screenRepository.findAll(pageable);
-        List<ScreenResponse> content = screenPage.getContent().stream().map(screen -> new ScreenResponse(screen)).toList();
+        List<ScreenResponse> content = screenPage.getContent().stream().map(ScreenResponse::new).toList();
 
         PaginatedResponse<ScreenResponse> response = new PaginatedResponse<>();
         response.setContent(content);
@@ -203,10 +203,24 @@ for (CabinDto dto : cabinDtoList) {
         screen.setHubQuantity(dto.getHubQuantity());
         screen.setSpareHubQuantity(dto.getSpareHubQuantity());
 
-        // Binary Data Fields
-        screen.setConnection(toBytes(dto.getConnectionFile()));
-        screen.setConfig(toBytes(dto.getConfigFile()));
-        screen.setVersion(toBytes(dto.getVersionFile()));
+        // File Upload Fields
+        if (dto.getConnectionFile() != null && !dto.getConnectionFile().isEmpty()) {
+            String connectionUrl = s3Service.uploadFile(dto.getConnectionFile(), "screen-files/connection");
+            screen.setConnectionFileUrl(connectionUrl);
+            screen.setConnectionFileName(dto.getConnectionFile().getOriginalFilename());
+        }
+        
+        if (dto.getConfigFile() != null && !dto.getConfigFile().isEmpty()) {
+            String configUrl = s3Service.uploadFile(dto.getConfigFile(), "screen-files/config");
+            screen.setConfigFileUrl(configUrl);
+            screen.setConfigFileName(dto.getConfigFile().getOriginalFilename());
+        }
+        
+        if (dto.getVersionFile() != null && !dto.getVersionFile().isEmpty()) {
+            String versionUrl = s3Service.uploadFile(dto.getVersionFile(), "screen-files/version");
+            screen.setVersionFileUrl(versionUrl);
+            screen.setVersionFileName(dto.getVersionFile().getOriginalFilename());
+        }
 
         // Media Fields
         screen.setMedia(dto.getMedia());
@@ -275,14 +289,6 @@ for (CabinDto dto : cabinDtoList) {
         return screenRepository.count();
     }
 
-    private byte[] toBytes(MultipartFile file) {
-        if (file == null || file.isEmpty()) return null;
-        try {
-            return file.getBytes();
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to read file: " + file.getOriginalFilename(), e);
-        }
-    }
     @Override
 public List<ScreenResponse> getScreensWithoutContracts() {
     // Get all screens
