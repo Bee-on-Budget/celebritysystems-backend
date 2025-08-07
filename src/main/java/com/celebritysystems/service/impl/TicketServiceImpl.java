@@ -80,14 +80,18 @@ public class TicketServiceImpl implements TicketService {
     @Override
     public TicketDTO updateTicket(Long id, CreateTicketDTO updatedTicketDTO) {
         return ticketRepository.findById(id).map(ticket -> {
-            // Store the previous assigned worker to detect changes
+            // Store the previous assigned worker and status to detect changes
             User previousAssignedWorker = ticket.getAssignedToWorker();
+            TicketStatus previousStatus = ticket.getStatus();
             
             ticket.setTitle(updatedTicketDTO.getTitle());
             ticket.setDescription(updatedTicketDTO.getDescription());
 
+            // Update status if provided
+            TicketStatus newStatus = null;
             if (updatedTicketDTO.getStatus() != null) {
-                ticket.setStatus(TicketStatus.valueOf(updatedTicketDTO.getStatus()));
+                newStatus = TicketStatus.valueOf(updatedTicketDTO.getStatus());
+                ticket.setStatus(newStatus);
             }
 
             // Update assigned worker if provided
@@ -123,6 +127,11 @@ public class TicketServiceImpl implements TicketService {
             if (hasWorkerAssignmentChanged(previousAssignedWorker, newAssignedWorker)) {
                 sendTicketAssignmentNotification(savedTicket);
             }
+            
+            // Send notification to all company users if status changed
+            if (hasStatusChanged(previousStatus, newStatus)) {
+                sendTicketStatusUpdateNotificationToCompany(savedTicket, previousStatus, newStatus);
+            }
 
             return toDTO(savedTicket);
         }).orElseThrow(() -> new IllegalArgumentException("Ticket not found with ID: " + id));
@@ -144,6 +153,24 @@ public class TicketServiceImpl implements TicketService {
         
         // If both exist, check if they're different
         return !previousWorker.getId().equals(newWorker.getId());
+    }
+
+    /**
+     * Check if the ticket status has changed
+     */
+    private boolean hasStatusChanged(TicketStatus previousStatus, TicketStatus newStatus) {
+        // If both are null, no change
+        if (previousStatus == null && newStatus == null) {
+            return false;
+        }
+        
+        // If one is null and the other isn't, there's a change
+        if (previousStatus == null || newStatus == null) {
+            return true;
+        }
+        
+        // If both exist, check if they're different
+        return !previousStatus.equals(newStatus);
     }
 
     /**
@@ -186,6 +213,70 @@ public class TicketServiceImpl implements TicketService {
         } catch (Exception e) {
             log.error("Failed to send ticket assignment notification for ticket ID: {}", ticket.getId(), e);
             // Don't throw exception to avoid breaking the ticket assignment process
+        }
+    }
+
+    /**
+     * Send notification to all users in the company about ticket status update
+     */
+    private void sendTicketStatusUpdateNotificationToCompany(Ticket ticket, TicketStatus previousStatus, TicketStatus newStatus) {
+        try {
+            if (ticket.getCompany() == null) {
+                log.warn("Cannot send company notification: Ticket {} has no associated company", ticket.getId());
+                return;
+            }
+
+            // Get all users from the same company who have playerIds
+            List<User> companyUsers = userRepository.findByCompanyIdAndPlayerIdIsNotNull(ticket.getCompany().getId());
+            
+            if (companyUsers.isEmpty()) {
+                log.warn("No users with playerIds found for company {} for ticket {}", 
+                    ticket.getCompany().getName(), ticket.getId());
+                return;
+            }
+
+            // Extract playerIds from company users
+            List<String> playerIds = companyUsers.stream()
+                    .map(User::getPlayerId)
+                    .filter(playerId -> playerId != null && !playerId.trim().isEmpty())
+                    .collect(Collectors.toList());
+
+            if (playerIds.isEmpty()) {
+                log.warn("No valid playerIds found for company users for ticket {}", ticket.getId());
+                return;
+            }
+
+            // Prepare notification content
+            String title = "Ticket Status Updated";
+            String previousStatusStr = previousStatus != null ? previousStatus.name() : "No Status";
+            String newStatusStr = newStatus != null ? newStatus.name() : "No Status";
+            
+            String message = String.format("Ticket '%s' status changed from %s to %s", 
+                ticket.getTitle(), previousStatusStr, newStatusStr);
+            
+            // Prepare additional data to send with notification
+            Map<String, Object> data = new HashMap<>();
+            data.put("ticketId", ticket.getId().toString());
+            data.put("ticketTitle", ticket.getTitle());
+            data.put("ticketDescription", ticket.getDescription());
+            data.put("previousStatus", previousStatusStr);
+            data.put("newStatus", newStatusStr);
+            data.put("updatedAt", LocalDateTime.now().toString());
+            data.put("companyName", ticket.getCompany().getName());
+            data.put("screenName", ticket.getScreen() != null ? ticket.getScreen().getName() : "");
+            data.put("screenLocation", ticket.getScreen() != null ? ticket.getScreen().getLocation() : "");
+            data.put("assignedWorker", ticket.getAssignedToWorker() != null ? ticket.getAssignedToWorker().getFullName() : "");
+            data.put("notificationType", "TICKET_STATUS_UPDATE");
+            
+            // Send notification to all company users
+            oneSignalService.sendWithData(title, message, data, playerIds);
+            
+            log.info("Status update notification sent to {} users in company '{}' for ticket ID: {}", 
+                playerIds.size(), ticket.getCompany().getName(), ticket.getId());
+                
+        } catch (Exception e) {
+            log.error("Failed to send ticket status update notification for ticket ID: {}", ticket.getId(), e);
+            // Don't throw exception to avoid breaking the ticket update process
         }
     }
 
