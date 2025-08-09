@@ -146,6 +146,7 @@ public class Screen {
     @JoinColumn(name = "screen_id", nullable = true)
     private List<Cabin> cabinList;
 
+    //test
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
