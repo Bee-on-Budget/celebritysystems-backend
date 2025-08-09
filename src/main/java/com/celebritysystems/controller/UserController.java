@@ -124,10 +124,7 @@ public class UserController {
                 logger.warn("Username already taken: {}", user.getUsername());
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username already taken");
             }
-            if (user.getPlayerId() != null && userService.getUserByPlayerId(user.getPlayerId()).isPresent()) {
-                logger.warn("Player ID already in use: {}", user.getPlayerId());
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Player ID already in use");
-            }
+            // Removed player ID validation - multiple users can have same player ID
 
             User companyUser = userService.save(user);
             logger.info("User created successfully with username: {}", companyUser.getUsername());
@@ -160,12 +157,11 @@ public class UserController {
         }
     }
 
-//    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/id/{id}")
     public ResponseEntity<?> patchUser(@PathVariable Long id, @RequestBody Map<String, Object> updates) {
         logger.info("Attempt to patch user with id: {} with updates: {}", id, updates.keySet());
         try {
-            // Validate that email and playerId are unique if they're being updated
+            // Only validate email uniqueness
             if (updates.containsKey("email")) {
                 String newEmail = (String) updates.get("email");
                 userService.getUserByEmail(newEmail).ifPresent(existingUser -> {
@@ -175,17 +171,8 @@ public class UserController {
                 });
             }
             
-            if (updates.containsKey("playerId")) {
-                String newPlayerId = (String) updates.get("playerId");
-                if (newPlayerId != null) {
-                    userService.getUserByPlayerId(newPlayerId).ifPresent(existingUser -> {
-                        if (!existingUser.getId().equals(id)) {
-                            throw new IllegalArgumentException("Player ID already in use");
-                        }
-                    });
-                }
-            }
-
+            // Removed player ID validation completely - multiple users can have same player ID
+            
             User updatedUser = userService.patchUser(id, updates);
             logger.info("User patched successfully with id: {}", id);
             return ResponseEntity.ok(updatedUser);
@@ -229,4 +216,6 @@ public class UserController {
                     return ResponseEntity.notFound().build();
                 });
     }
+
+
 }

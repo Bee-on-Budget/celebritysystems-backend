@@ -21,7 +21,6 @@ import java.util.Set;
 @Table(name = "users", uniqueConstraints = {
         @UniqueConstraint(columnNames = "email"),
         @UniqueConstraint(columnNames = "username"),
-        @UniqueConstraint(columnNames = "player_id")
 })
 public class User {
     @Id
