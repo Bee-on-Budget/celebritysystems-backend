@@ -9,6 +9,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import com.celebritysystems.entity.enums.TicketStatus;
 
 import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "ticket")
 @Getter
@@ -57,5 +58,12 @@ public class Ticket {
     @Enumerated(EnumType.STRING)
     private TicketStatus status;
 
+    // ✅ Timestamps for each status
+    private LocalDateTime openedAt;
+    private LocalDateTime inProgressAt;
+    private LocalDateTime resolvedAt;
+    private LocalDateTime closedAt;
+
     private String attachmentFileName; // ✅ Add this
+
 }

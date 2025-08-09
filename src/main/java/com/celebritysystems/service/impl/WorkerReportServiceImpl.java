@@ -26,6 +26,7 @@ public class WorkerReportServiceImpl implements WorkerReportService {
     private final WorkerReportRepository workerReportRepository;
     private final TicketRepository ticketRepository;
 
+
     @Override
     public WorkerReportResponseDTO createWorkerReport(Long ticketId, WorkerReportDTO workerReportDTO) {
         // Check if ticket exists
@@ -41,6 +42,7 @@ public class WorkerReportServiceImpl implements WorkerReportService {
         WorkerReport savedReport = workerReportRepository.save(workerReport);
 
         ticket.setStatus(TicketStatus.RESOLVED);
+        ticket = updateTicketStatus(ticket, TicketStatus.RESOLVED);
         ticketRepository.save(ticket);
 
         return toResponseDTO(savedReport);
@@ -209,5 +211,24 @@ public class WorkerReportServiceImpl implements WorkerReportService {
                 .createdAt(workerReport.getCreatedAt())
                 .updatedAt(workerReport.getUpdatedAt())
                 .build();
+    }
+
+    public Ticket updateTicketStatus(Ticket ticket, TicketStatus newStatus) {
+        ticket.setStatus(newStatus);
+        switch (newStatus) {
+            case OPEN:
+                ticket.setOpenedAt(LocalDateTime.now());
+                break;
+            case IN_PROGRESS:
+                ticket.setInProgressAt(LocalDateTime.now());
+                break;
+            case RESOLVED:
+                ticket.setResolvedAt(LocalDateTime.now());
+                break;
+            case CLOSED:
+                ticket.setClosedAt(LocalDateTime.now());
+                break;
+        }
+        return ticket;
     }
 }

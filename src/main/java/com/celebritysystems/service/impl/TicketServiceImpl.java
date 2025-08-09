@@ -66,9 +66,11 @@ public class TicketServiceImpl implements TicketService {
                 throw new RuntimeException("Failed to process file upload", e);
             }
         }
+        ticket = updateTicketStatus(ticket, TicketStatus.OPEN);
 
         Ticket savedTicket = ticketRepository.save(ticket);
-        
+
+
         // Send notification if ticket is assigned to a worker during creation
         if (savedTicket.getAssignedToWorker() != null) {
             sendTicketAssignmentNotification(savedTicket);
@@ -83,7 +85,7 @@ public class TicketServiceImpl implements TicketService {
             // Store the previous assigned worker and status to detect changes
             User previousAssignedWorker = ticket.getAssignedToWorker();
             TicketStatus previousStatus = ticket.getStatus();
-            
+
             ticket.setTitle(updatedTicketDTO.getTitle());
             ticket.setDescription(updatedTicketDTO.getDescription());
 
@@ -100,6 +102,7 @@ public class TicketServiceImpl implements TicketService {
                 newAssignedWorker = userRepository.findById(updatedTicketDTO.getAssignedToWorkerId()).orElse(null);
                 ticket.setAssignedToWorker(newAssignedWorker);
                 ticket.setStatus(TicketStatus.IN_PROGRESS);
+                ticket = updateTicketStatus(ticket, TicketStatus.IN_PROGRESS);
             }
 
             // Update assigned supervisor if provided
@@ -122,12 +125,12 @@ public class TicketServiceImpl implements TicketService {
             }
 
             Ticket savedTicket = ticketRepository.save(ticket);
-            
+
             // Send notification if worker assignment changed
             if (hasWorkerAssignmentChanged(previousAssignedWorker, newAssignedWorker)) {
                 sendTicketAssignmentNotification(savedTicket);
             }
-            
+
             // Send notification to all company users if status changed
             if (hasStatusChanged(previousStatus, newStatus)) {
                 sendTicketStatusUpdateNotificationToCompany(savedTicket, previousStatus, newStatus);
@@ -145,12 +148,12 @@ public class TicketServiceImpl implements TicketService {
         if (previousWorker == null && newWorker == null) {
             return false;
         }
-        
+
         // If one is null and the other isn't, there's a change
         if (previousWorker == null || newWorker == null) {
             return true;
         }
-        
+
         // If both exist, check if they're different
         return !previousWorker.getId().equals(newWorker.getId());
     }
@@ -163,12 +166,12 @@ public class TicketServiceImpl implements TicketService {
         if (previousStatus == null && newStatus == null) {
             return false;
         }
-        
+
         // If one is null and the other isn't, there's a change
         if (previousStatus == null || newStatus == null) {
             return true;
         }
-        
+
         // If both exist, check if they're different
         return !previousStatus.equals(newStatus);
     }
@@ -181,12 +184,12 @@ public class TicketServiceImpl implements TicketService {
             if (ticket.getAssignedToWorker() != null && ticket.getAssignedToWorker().getPlayerId() != null) {
                 String playerId = ticket.getAssignedToWorker().getPlayerId();
                 String workerName = ticket.getAssignedToWorker().getFullName();
-                
+
                 // Prepare notification content
                 String title = "New Ticket Assigned";
-                String message = String.format("Hi %s, a new ticket '%s' has been assigned to you.", 
-                    workerName, ticket.getTitle());
-                
+                String message = String.format("Hi %s, a new ticket '%s' has been assigned to you.",
+                        workerName, ticket.getTitle());
+
                 // Prepare additional data to send with notification
                 Map<String, Object> data = new HashMap<>();
                 data.put("ticketId", ticket.getId().toString());
@@ -199,14 +202,14 @@ public class TicketServiceImpl implements TicketService {
                 data.put("screenLocation", ticket.getScreen() != null ? ticket.getScreen().getLocation() : "");
                 data.put("createdBy", ticket.getCreatedBy() != null ? ticket.getCreatedBy().getFullName() : "");
                 data.put("notificationType", "TICKET_ASSIGNMENT");
-                
+
                 // Send notification to the specific user
                 List<String> playerIds = List.of(playerId);
                 oneSignalService.sendWithData(title, message, data, playerIds);
-                
-                log.info("Notification sent to worker {} (playerId: {}) for ticket ID: {}", 
-                    workerName, playerId, ticket.getId());
-                
+
+                log.info("Notification sent to worker {} (playerId: {}) for ticket ID: {}",
+                        workerName, playerId, ticket.getId());
+
             } else {
                 log.warn("Cannot send notification: Worker has no playerId for ticket ID: {}", ticket.getId());
             }
@@ -228,10 +231,10 @@ public class TicketServiceImpl implements TicketService {
 
             // Get all users from the same company who have playerIds
             List<User> companyUsers = userRepository.findByCompanyIdAndPlayerIdIsNotNull(ticket.getCompany().getId());
-            
+
             if (companyUsers.isEmpty()) {
-                log.warn("No users with playerIds found for company {} for ticket {}", 
-                    ticket.getCompany().getName(), ticket.getId());
+                log.warn("No users with playerIds found for company {} for ticket {}",
+                        ticket.getCompany().getName(), ticket.getId());
                 return;
             }
 
@@ -250,10 +253,10 @@ public class TicketServiceImpl implements TicketService {
             String title = "Ticket Status Updated";
             String previousStatusStr = previousStatus != null ? previousStatus.name() : "No Status";
             String newStatusStr = newStatus != null ? newStatus.name() : "No Status";
-            
-            String message = String.format("Ticket '%s' status changed from %s to %s", 
-                ticket.getTitle(), previousStatusStr, newStatusStr);
-            
+
+            String message = String.format("Ticket '%s' status changed from %s to %s",
+                    ticket.getTitle(), previousStatusStr, newStatusStr);
+
             // Prepare additional data to send with notification
             Map<String, Object> data = new HashMap<>();
             data.put("ticketId", ticket.getId().toString());
@@ -267,13 +270,13 @@ public class TicketServiceImpl implements TicketService {
             data.put("screenLocation", ticket.getScreen() != null ? ticket.getScreen().getLocation() : "");
             data.put("assignedWorker", ticket.getAssignedToWorker() != null ? ticket.getAssignedToWorker().getFullName() : "");
             data.put("notificationType", "TICKET_STATUS_UPDATE");
-            
+
             // Send notification to all company users
             oneSignalService.sendWithData(title, message, data, playerIds);
-            
-            log.info("Status update notification sent to {} users in company '{}' for ticket ID: {}", 
-                playerIds.size(), ticket.getCompany().getName(), ticket.getId());
-                
+
+            log.info("Status update notification sent to {} users in company '{}' for ticket ID: {}",
+                    playerIds.size(), ticket.getCompany().getName(), ticket.getId());
+
         } catch (Exception e) {
             log.error("Failed to send ticket status update notification for ticket ID: {}", ticket.getId(), e);
             // Don't throw exception to avoid breaking the ticket update process
@@ -433,5 +436,24 @@ public class TicketServiceImpl implements TicketService {
         return pendingTickets.stream()
                 .map(this::toTicketResponseDto)
                 .collect(Collectors.toList());
+    }
+
+    public Ticket updateTicketStatus(Ticket ticket, TicketStatus newStatus) {
+        ticket.setStatus(newStatus);
+        switch (newStatus) {
+            case OPEN:
+                ticket.setOpenedAt(LocalDateTime.now());
+                break;
+            case IN_PROGRESS:
+                ticket.setInProgressAt(LocalDateTime.now());
+                break;
+            case RESOLVED:
+                ticket.setResolvedAt(LocalDateTime.now());
+                break;
+            case CLOSED:
+                ticket.setClosedAt(LocalDateTime.now());
+                break;
+        }
+        return ticket;
     }
 }
