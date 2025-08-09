@@ -40,7 +40,7 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Column(unique = true, name = "player_id")
+    @Column(unique = false, name = "player_id")
     private String playerId;
 
     @Enumerated(EnumType.STRING)
