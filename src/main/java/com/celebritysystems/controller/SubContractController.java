@@ -55,15 +55,31 @@ public class SubContractController {
             return ResponseEntity.status(500).body("Error viewing SubContract: " + e.getMessage());
         }
     }
+
     @DeleteMapping("/{id}")
-public ResponseEntity<?> deleteSubContract(@PathVariable Long id) {
-    try {
-        subContractService.deleteSubContract(id);
-        return ResponseEntity.ok("SubContract deleted successfully");
-    } catch (Exception e) {
-        log.error("Error deleting SubContract", e);
-        return ResponseEntity.status(500).body("Error deleting SubContract: " + e.getMessage());
+    public ResponseEntity<?> deleteSubContract(@PathVariable Long id) {
+        try {
+            subContractService.deleteSubContract(id);
+            return ResponseEntity.ok("SubContract deleted successfully");
+        } catch (Exception e) {
+            log.error("Error deleting SubContract", e);
+            return ResponseEntity.status(500).body("Error deleting SubContract: " + e.getMessage());
+        }
     }
-}
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateSubContract(
+            @PathVariable Long id,
+            @RequestBody SubContractRequestDTO request) {
+        try {
+            log.info("Updating SubContract with id: {}, data: {}", id, request);
+            subContractService.updateSubContract(id, request);
+            return ResponseEntity.ok("SubContract updated successfully");
+        } catch (Exception e) {
+            log.error("Error updating SubContract", e);
+            return ResponseEntity.status(500).body("Error updating SubContract: " + e.getMessage());
+        }
+    }
+
 
 }

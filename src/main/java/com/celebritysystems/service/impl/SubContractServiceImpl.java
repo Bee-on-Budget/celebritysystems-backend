@@ -33,13 +33,14 @@ public class SubContractServiceImpl implements SubContractService {
         this.companyRepository = companyRepository;
         this.contractRepository = contractRepository;
     }
+
     @Override
-public void deleteSubContract(Long id) {
-    if (!subContractRepository.existsById(id)) {
-        throw new RuntimeException("SubContract not found with id: " + id);
+    public void deleteSubContract(Long id) {
+        if (!subContractRepository.existsById(id)) {
+            throw new RuntimeException("SubContract not found with id: " + id);
+        }
+        subContractRepository.deleteById(id);
     }
-    subContractRepository.deleteById(id);
-}
 
 
     @Override
@@ -76,5 +77,23 @@ public void deleteSubContract(Long id) {
         response.setHasPrevious(subContractPage.hasPrevious());
 
         return response;
+    }
+
+    @Override
+    public void updateSubContract(Long id, SubContractRequestDTO request) {
+        SubContract existingSubContract = subContractRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("SubContract not found with id: " + id));
+
+        Company mainCompany = companyRepository.findById(request.getMainCompanyId()).orElseThrow(() -> new RuntimeException("mainCompany not found with id: " + request.getMainCompanyId()));
+        Company controllerCompany = companyRepository.findById(request.getControllerCompanyId()).orElseThrow(() -> new RuntimeException("controllerCompany not found with id: " + request.getControllerCompanyId()));
+        Contract contract = contractRepository.findById(request.getContractId()).orElseThrow(() -> new RuntimeException("Contract not found with id: " + request.getContractId()));
+
+        existingSubContract.setMainCompany(mainCompany);
+        existingSubContract.setControllerCompany(controllerCompany);
+        existingSubContract.setContract(contract);
+        existingSubContract.setCreatedAt(request.getCreatedAt());
+        existingSubContract.setExpiredAt(request.getExpiredAt());
+
+        subContractRepository.save(existingSubContract);
     }
 }

@@ -13,4 +13,6 @@ public interface SubContractService {
     void deleteSubContract(Long id);
 
     PaginatedResponse<SubContract> getSubContracts(Integer page);
+
+    void updateSubContract(Long id, SubContractRequestDTO request);
 }
