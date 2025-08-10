@@ -33,4 +33,6 @@ public class TicketResponseDTO {
     private LocalDateTime resolvedAt;
     private LocalDateTime closedAt;
 
+    private String ticketImageUrl;
+    private String ticketImageName;
 }

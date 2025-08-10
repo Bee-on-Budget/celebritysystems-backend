@@ -7,6 +7,7 @@ import com.celebritysystems.dto.WorkerReportResponseDTO;
 import com.celebritysystems.entity.*;
 import com.celebritysystems.entity.enums.TicketStatus;
 import com.celebritysystems.repository.*;
+import com.celebritysystems.service.S3Service;
 import com.celebritysystems.service.TicketService;
 import com.celebritysystems.service.WorkerReportService;
 import com.celebritysystems.service.OneSignalService;
@@ -37,6 +38,7 @@ public class TicketServiceImpl implements TicketService {
     private final CompanyRepository companyRepository;
     private final WorkerReportService workerReportService;
     private final OneSignalService oneSignalService; // Add OneSignal service
+    private final S3Service s3Service;
 
     @Override
     public List<TicketResponseDTO> getAllTickets() {
@@ -389,6 +391,14 @@ public class TicketServiceImpl implements TicketService {
         Company company = dto.getCompanyId() != null ? companyRepository.findById(dto.getCompanyId()).orElse(null)
                 : null;
 
+        // File Upload Fields
+        String ticketImageUrl = null;
+        String ticketImageName = null;
+        if (dto.getTicketImage() != null && !dto.getTicketImage().isEmpty()) {
+            ticketImageUrl = s3Service.uploadFile(dto.getTicketImage(), "ticket-files/ticket-image");
+            ticketImageName = dto.getTicketImage().getOriginalFilename();
+        }
+
         return Ticket.builder()
                 .title(dto.getTitle())
                 .description(dto.getDescription())
@@ -398,6 +408,8 @@ public class TicketServiceImpl implements TicketService {
                 .assignedBySupervisor(assignedBy)
                 .screen(screen)
                 .company(company)
+                .ticketImageUrl(ticketImageUrl)
+                .ticketImageName(ticketImageName)
                 .build();
     }
 
@@ -435,6 +447,8 @@ public class TicketServiceImpl implements TicketService {
                 .inProgressAt(ticket.getInProgressAt())
                 .resolvedAt(ticket.getResolvedAt())
                 .closedAt(ticket.getClosedAt())
+                .ticketImageUrl(ticket.getTicketImageUrl())
+                .ticketImageName(ticket.getTicketImageName())
                 .build();
     }
 

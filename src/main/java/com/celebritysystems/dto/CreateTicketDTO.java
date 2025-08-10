@@ -17,4 +17,5 @@ public class CreateTicketDTO {
     private String status;
     private Long companyId;
     private MultipartFile file; // Optional, handled separately in TicketAttachment
+    private MultipartFile ticketImage;
 }
