@@ -370,6 +370,10 @@ public class TicketServiceImpl implements TicketService {
                 .createdAt(ticket.getCreatedAt())
                 .companyId(ticket.getCompany() != null ? ticket.getCompany().getId() : null)
                 .attachmentFileName(ticket.getAttachmentFileName())
+//                .openedAt(ticket.getOpenedAt())
+//                .inProgressAt(ticket.getInProgressAt())
+//                .resolvedAt(ticket.getResolvedAt())
+//                .closedAt(ticket.getClosedAt())
                 .build();
     }
 
@@ -427,6 +431,10 @@ public class TicketServiceImpl implements TicketService {
                 .location(ticket.getScreen() != null ? ticket.getScreen().getLocation() : null)
                 .screenType(ticket.getScreen() != null ? ticket.getScreen().getScreenType().toString() : null)
                 .workerReport(workerReport) // Include worker report in response
+                .openedAt(ticket.getOpenedAt())
+                .inProgressAt(ticket.getInProgressAt())
+                .resolvedAt(ticket.getResolvedAt())
+                .closedAt(ticket.getClosedAt())
                 .build();
     }
 

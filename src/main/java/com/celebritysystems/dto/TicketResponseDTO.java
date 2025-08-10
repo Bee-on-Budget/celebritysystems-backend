@@ -27,4 +27,10 @@ public class TicketResponseDTO {
     private String location;
     private WorkerReportResponseDTO workerReport;
 
+    // ✅ Timestamps for each status
+    private LocalDateTime openedAt;
+    private LocalDateTime inProgressAt;
+    private LocalDateTime resolvedAt;
+    private LocalDateTime closedAt;
+
 }
