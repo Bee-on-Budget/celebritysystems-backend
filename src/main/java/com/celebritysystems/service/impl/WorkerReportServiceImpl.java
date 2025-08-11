@@ -7,6 +7,7 @@ import com.celebritysystems.entity.WorkerReport;
 import com.celebritysystems.entity.enums.TicketStatus;
 import com.celebritysystems.repository.TicketRepository;
 import com.celebritysystems.repository.WorkerReportRepository;
+import com.celebritysystems.service.S3Service;
 import com.celebritysystems.service.WorkerReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ public class WorkerReportServiceImpl implements WorkerReportService {
 
     private final WorkerReportRepository workerReportRepository;
     private final TicketRepository ticketRepository;
-
+    private final S3Service s3Service;
 
     @Override
     public WorkerReportResponseDTO createWorkerReport(Long ticketId, WorkerReportDTO workerReportDTO) {
@@ -79,6 +80,7 @@ public class WorkerReportServiceImpl implements WorkerReportService {
         WorkerReportDTO.ReportData reportData = dto.getReport();
         WorkerReportDTO.ChecklistData checklist = reportData.getChecklist();
 
+
         // Parse the date string to LocalDateTime
         LocalDateTime reportDate = null;
         if (reportData.getDate() != null) {
@@ -102,6 +104,23 @@ public class WorkerReportServiceImpl implements WorkerReportService {
             }
         }
 
+        // File Upload Fields
+        String solutionImageUrl = null;
+        String solutionImageName = null;
+
+        String technicianSignaturesUrl = null;
+        String technicianSignaturesName = null;
+
+        if (dto.getReport().getSolutionImage() != null && !dto.getReport().getSolutionImage().isEmpty()) {
+            solutionImageUrl = s3Service.uploadFile(dto.getReport().getSolutionImage(), "ticket-files/solution-image");
+            solutionImageName = dto.getReport().getSolutionImage().getOriginalFilename();
+        }
+
+        if (dto.getReport().getTechnicianSignatures() != null && !dto.getReport().getTechnicianSignatures().isEmpty()) {
+            technicianSignaturesUrl = s3Service.uploadFile(dto.getReport().getTechnicianSignatures(), "technician-signatures/signature-image");
+            technicianSignaturesName = dto.getReport().getTechnicianSignatures().getOriginalFilename();
+        }
+
         return WorkerReport.builder()
                 .ticket(ticket)
                 .reportDate(reportDate)
@@ -121,10 +140,10 @@ public class WorkerReportServiceImpl implements WorkerReportService {
                 .dateTime(reportData.getDateTime())
                 .defectsFound(reportData.getDefectsFound())
                 .solutionsProvided(reportData.getSolutionsProvided())
-                .serviceSupervisorSignatures(reportData.getServiceSupervisorSignatures())
-                .technicianSignatures(reportData.getTechnicianSignatures())
-                .authorizedPersonSignatures(reportData.getAuthorizedPersonSignatures())
-                .solutionImage(reportData.getSolutionImage())
+                .serviceSupervisorSignatures(reportData.getServiceSupervisorSignatures().toString()) //TODO: remove .toString() and fix the logic
+                .technicianSignatures(technicianSignaturesUrl)
+                .authorizedPersonSignatures(reportData.getAuthorizedPersonSignatures().toString()) //TODO: remove .toString() and fix the logic
+                .solutionImage(solutionImageUrl)
                 .build();
     }
 
@@ -174,10 +193,10 @@ public class WorkerReportServiceImpl implements WorkerReportService {
         entity.setDateTime(reportData.getDateTime());
         entity.setDefectsFound(reportData.getDefectsFound());
         entity.setSolutionsProvided(reportData.getSolutionsProvided());
-        entity.setServiceSupervisorSignatures(reportData.getServiceSupervisorSignatures());
-        entity.setTechnicianSignatures(reportData.getTechnicianSignatures());
-        entity.setAuthorizedPersonSignatures(reportData.getAuthorizedPersonSignatures());
-        entity.setSolutionImage(reportData.getSolutionImage());
+        entity.setServiceSupervisorSignatures(reportData.getServiceSupervisorSignatures().toString()); //TODO: remove .toString() and fix the logic
+        entity.setTechnicianSignatures(reportData.getTechnicianSignatures().toString()); //TODO: Maybe you should somethings more here to delete the old Image from S3service for example? so get the name(should be uniq) and them remove it from the service in somehow, and remove toString
+        entity.setAuthorizedPersonSignatures(reportData.getAuthorizedPersonSignatures().toString()); //TODO: remove .toString() and fix the logic
+        entity.setSolutionImage(reportData.getSolutionImage().toString()); //TODO: Maybe you should somethings more here to delete the old Image from S3service for example? so get the name(should be uniq) and them remove it from the service in somehow, and remove toString
     }
 
     private WorkerReportResponseDTO toResponseDTO(WorkerReport workerReport) {

@@ -52,10 +52,18 @@ public class WorkerReport {
     @Column(columnDefinition = "TEXT")
     private String solutionsProvided;
 
+    @Column(nullable = true)
     private String serviceSupervisorSignatures;
+    @Column(nullable = true)
     private String technicianSignatures;
+    @Column(nullable = true)
+    private String technicianSignaturesName;
+    @Column(nullable = true)
     private String authorizedPersonSignatures;
+    @Column(nullable = true)
     private String solutionImage;
+    @Column(nullable = true)
+    private String solutionImageName;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

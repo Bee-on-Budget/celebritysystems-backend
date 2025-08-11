@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -40,16 +41,17 @@ public class WorkerReportDTO {
         private String solutionsProvided;
         
         @JsonProperty("service_supervisor_signatures")
-        private String serviceSupervisorSignatures;
+        private MultipartFile serviceSupervisorSignatures;
         
         @JsonProperty("technician_signatures")
-        private String technicianSignatures;
+        private MultipartFile technicianSignatures;
         
         @JsonProperty("authorized_person_Signatures")
-        private String authorizedPersonSignatures;
+        private MultipartFile authorizedPersonSignatures;
         
         @JsonProperty("solution_image")
-        private String solutionImage;
+        private MultipartFile solutionImage;
+
     }
 
     @Data
