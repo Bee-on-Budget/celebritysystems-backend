@@ -140,9 +140,9 @@ public class WorkerReportServiceImpl implements WorkerReportService {
                 .dateTime(reportData.getDateTime())
                 .defectsFound(reportData.getDefectsFound())
                 .solutionsProvided(reportData.getSolutionsProvided())
-                .serviceSupervisorSignatures(reportData.getServiceSupervisorSignatures().toString()) //TODO: remove .toString() and fix the logic
+//                .serviceSupervisorSignatures(reportData.getServiceSupervisorSignatures().toString()) //TODO: remove .toString() and fix the logic
                 .technicianSignatures(technicianSignaturesUrl)
-                .authorizedPersonSignatures(reportData.getAuthorizedPersonSignatures().toString()) //TODO: remove .toString() and fix the logic
+//                .authorizedPersonSignatures(reportData.getAuthorizedPersonSignatures().toString()) //TODO: remove .toString() and fix the logic
                 .solutionImage(solutionImageUrl)
                 .build();
     }
@@ -193,10 +193,10 @@ public class WorkerReportServiceImpl implements WorkerReportService {
         entity.setDateTime(reportData.getDateTime());
         entity.setDefectsFound(reportData.getDefectsFound());
         entity.setSolutionsProvided(reportData.getSolutionsProvided());
-        entity.setServiceSupervisorSignatures(reportData.getServiceSupervisorSignatures().toString()); //TODO: remove .toString() and fix the logic
-        entity.setTechnicianSignatures(reportData.getTechnicianSignatures().toString()); //TODO: Maybe you should somethings more here to delete the old Image from S3service for example? so get the name(should be uniq) and them remove it from the service in somehow, and remove toString
-        entity.setAuthorizedPersonSignatures(reportData.getAuthorizedPersonSignatures().toString()); //TODO: remove .toString() and fix the logic
-        entity.setSolutionImage(reportData.getSolutionImage().toString()); //TODO: Maybe you should somethings more here to delete the old Image from S3service for example? so get the name(should be uniq) and them remove it from the service in somehow, and remove toString
+//        entity.setServiceSupervisorSignatures(reportData.getServiceSupervisorSignatures().toString()); //TODO: remove .toString() and fix the logic
+//        entity.setTechnicianSignatures(reportData.getTechnicianSignatures().toString()); //TODO: Maybe you should somethings more here to delete the old Image from S3service for example? so get the name(should be uniq) and them remove it from the service in somehow, and remove toString
+//        entity.setAuthorizedPersonSignatures(reportData.getAuthorizedPersonSignatures().toString()); //TODO: remove .toString() and fix the logic
+//        entity.setSolutionImage(reportData.getSolutionImage().toString()); //TODO: Maybe you should somethings more here to delete the old Image from S3service for example? so get the name(should be uniq) and them remove it from the service in somehow, and remove toString
     }
 
     private WorkerReportResponseDTO toResponseDTO(WorkerReport workerReport) {

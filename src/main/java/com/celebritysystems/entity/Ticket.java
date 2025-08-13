@@ -65,7 +65,9 @@ public class Ticket {
     private LocalDateTime closedAt;
 
     private String attachmentFileName; // ✅ Add this
+    @Column(nullable = true)
     private String ticketImageUrl;
+    @Column(nullable = true)
     private String ticketImageName;
 
 }
