@@ -311,4 +311,3 @@ public List<ScreenResponse> getScreensWithoutContracts() {
             .collect(Collectors.toList());
 }
 }
-
