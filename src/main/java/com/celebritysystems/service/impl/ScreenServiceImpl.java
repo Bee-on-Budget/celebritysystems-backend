@@ -35,6 +35,7 @@ public class ScreenServiceImpl implements ScreenService {
     private final CabinRepository cabinRepository;
     private final ContractRepository contractRepository;
     private final S3Service s3Service;
+
     private ScreenResponse mapToResponse(Screen screen) {
         ScreenResponse response = new ScreenResponse();
         response.setId(screen.getId());
@@ -92,17 +93,17 @@ public class ScreenServiceImpl implements ScreenService {
             double heightResolution = 0;
             double widthResolution = 0;
 
-for (CabinDto dto : cabinDtoList) {
-    Cabin cabinet = new Cabin();
-    cabinet.setCabinName(dto.getCabinetName());
-    cabinet.setQuantity(dto.getQuantity());
-    cabinet.setHeightQuantity(dto.getHeightQuantity());
-    cabinet.setWidthQuantity(dto.getWidthQuantity());
-    cabinet.setHeight(dto.getHeight());
-    cabinet.setWidth(dto.getWidth());
-    
-    cabinet.setIsHeight(dto.getIsHeight());
-    cabinet.setIsWidth(dto.getIsWidth());
+            for (CabinDto dto : cabinDtoList) {
+                Cabin cabinet = new Cabin();
+                cabinet.setCabinName(dto.getCabinetName());
+                cabinet.setQuantity(dto.getQuantity());
+                cabinet.setHeightQuantity(dto.getHeightQuantity());
+                cabinet.setWidthQuantity(dto.getWidthQuantity());
+                cabinet.setHeight(dto.getHeight());
+                cabinet.setWidth(dto.getWidth());
+                
+                cabinet.setIsHeight(dto.getIsHeight());
+                cabinet.setIsWidth(dto.getIsWidth());
 
                 //Calculate resolution from Cabinets
                 if(dto.getIsHeight().equals(Boolean.TRUE)){
@@ -266,6 +267,46 @@ for (CabinDto dto : cabinDtoList) {
                     screenResponse.setId(screen.getId());
                     screenResponse.setName(screen.getName());
                     screenResponse.setLocation(screen.getLocation());
+                    screenResponse.setScreenType(screen.getScreenType());
+                    screenResponse.setSolutionType(screen.getSolutionType());
+                    screenResponse.setPixelScreen(screen.getPixelScreen());
+                    screenResponse.setDescription(screen.getDescription());
+                    screenResponse.setPowerSupply(screen.getPowerSupply());
+                    screenResponse.setPowerSupplyQuantity(screen.getPowerSupplyQuantity());
+                    screenResponse.setSparePowerSupplyQuantity(screen.getSparePowerSupplyQuantity());
+                    screenResponse.setReceivingCard(screen.getReceivingCard());
+                    screenResponse.setReceivingCardQuantity(screen.getReceivingCardQuantity());
+                    screenResponse.setSpareReceivingCardQuantity(screen.getSpareReceivingCardQuantity());
+                    screenResponse.setCable(screen.getCable());
+                    screenResponse.setCableQuantity(screen.getCableQuantity());
+                    screenResponse.setSpareCableQuantity(screen.getSpareCableQuantity());
+                    screenResponse.setPowerCable(screen.getPowerCable());
+                    screenResponse.setPowerCableQuantity(screen.getPowerCableQuantity());
+                    screenResponse.setSparePowerCableQuantity(screen.getSparePowerCableQuantity());
+                    screenResponse.setDataCable(screen.getDataCable());
+                    screenResponse.setDataCableQuantity(screen.getDataCableQuantity());
+                    screenResponse.setSpareDataCableQuantity(screen.getSpareDataCableQuantity());
+                    screenResponse.setMedia(screen.getMedia());
+                    screenResponse.setMediaQuantity(screen.getMediaQuantity());
+                    screenResponse.setSpareMediaQuantity(screen.getSpareMediaQuantity());
+                    screenResponse.setFan(screen.getFan());
+                    screenResponse.setFanQuantity(screen.getFanQuantity());
+                    screenResponse.setHub(screen.getHub());
+                    screenResponse.setHubQuantity(screen.getHubQuantity());
+                    screenResponse.setSpareHubQuantity(screen.getSpareHubQuantity());
+                    screenResponse.setResolution(screen.getResolution());
+                    screenResponse.setCreatedAt(screen.getCreatedAt());
+                    screenResponse.setModuleList(screen.getModuleList());
+                    screenResponse.setCabinList(screen.getCabinList());
+                    
+                    // Add file URL and filename fields
+                    screenResponse.setConnectionFileUrl(screen.getConnectionFileUrl());
+                    screenResponse.setConnectionFileName(screen.getConnectionFileName());
+                    screenResponse.setConfigFileUrl(screen.getConfigFileUrl());
+                    screenResponse.setConfigFileName(screen.getConfigFileName());
+                    screenResponse.setVersionFileUrl(screen.getVersionFileUrl());
+                    screenResponse.setVersionFileName(screen.getVersionFileName());
+                    
                     return screenResponse;
                 });
     }
@@ -290,24 +331,24 @@ for (CabinDto dto : cabinDtoList) {
     }
 
     @Override
-public List<ScreenResponse> getScreensWithoutContracts() {
-    // Get all screens
-    List<Screen> allScreens = screenRepository.findAll();
-    
-    // Get all screens that are in active contracts
-    List<Long> screensInContracts = contractRepository.findActiveContractScreenIds();
-    
-    // Filter screens that are not in active contracts
-    return allScreens.stream()
-            .filter(screen -> !screensInContracts.contains(screen.getId()))
-            .map(screen -> {
-                ScreenResponse response = new ScreenResponse();
-                response.setId(screen.getId());
-                response.setName(screen.getName());
-                response.setLocation(screen.getLocation());
-                // Set other fields as needed
-                return response;
-            })
-            .collect(Collectors.toList());
-}
+    public List<ScreenResponse> getScreensWithoutContracts() {
+        // Get all screens
+        List<Screen> allScreens = screenRepository.findAll();
+        
+        // Get all screens that are in active contracts
+        List<Long> screensInContracts = contractRepository.findActiveContractScreenIds();
+        
+        // Filter screens that are not in active contracts
+        return allScreens.stream()
+                .filter(screen -> !screensInContracts.contains(screen.getId()))
+                .map(screen -> {
+                    ScreenResponse response = new ScreenResponse();
+                    response.setId(screen.getId());
+                    response.setName(screen.getName());
+                    response.setLocation(screen.getLocation());
+                    // Set other fields as needed
+                    return response;
+                })
+                .collect(Collectors.toList());
+    }
 }

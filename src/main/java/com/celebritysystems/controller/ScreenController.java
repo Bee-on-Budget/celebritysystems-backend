@@ -13,7 +13,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartException;
@@ -58,12 +60,14 @@ public class ScreenController {
             return ResponseEntity.status(500).body("Error creating screen: " + e.getMessage());
         }
     }
-@GetMapping("/without-contracts")
-public ResponseEntity<List<ScreenResponse>> getScreensWithoutContracts() {
-    log.info("Fetching screens without active contracts");
-    List<ScreenResponse> screens = screenService.getScreensWithoutContracts();
-    return ResponseEntity.ok(screens);
-}
+
+    @GetMapping("/without-contracts")
+    public ResponseEntity<List<ScreenResponse>> getScreensWithoutContracts() {
+        log.info("Fetching screens without active contracts");
+        List<ScreenResponse> screens = screenService.getScreensWithoutContracts();
+        return ResponseEntity.ok(screens);
+    }
+
     private List<CabinDto> parseCabinList(String json) throws JsonProcessingException {
         return new ObjectMapper().readValue(json, new TypeReference<>() {});
     }
@@ -72,13 +76,10 @@ public ResponseEntity<List<ScreenResponse>> getScreensWithoutContracts() {
         return new ObjectMapper().readValue(json, new TypeReference<>() {});
     }
 
-
     @GetMapping()
     ResponseEntity<PaginatedResponse<ScreenResponse>> getAllScreens(@RequestParam(name = "page", defaultValue = "0") Integer page) {
         PaginatedResponse<ScreenResponse> screenPage = screenService.getAllScreens(page);
-//        Page<ConsultationRes> responsePage = consultationPage.map(ConsultationRes::new);
         return ResponseEntity.ok().body(screenPage);
-
     }
 
     @GetMapping("/statistic/monthly")
@@ -113,7 +114,7 @@ public ResponseEntity<List<ScreenResponse>> getScreensWithoutContracts() {
     @GetMapping("/search")
     public ResponseEntity<List<Screen>> searchScreensByName(@RequestParam("name") String name) {
         log.info("Searching for screens with name containing: {}", name);
-        List<Screen> screens =  screenService.searchScreenByName(name);
+        List<Screen> screens = screenService.searchScreenByName(name);
         log.info("Found {} screens matching: {}", screens.size(), name);
         return ResponseEntity.ok(screens);
     }
@@ -144,6 +145,7 @@ public ResponseEntity<List<ScreenResponse>> getScreensWithoutContracts() {
         ScreenResponse screen = screenService.getScreenById(id)
                 .orElse(null);
         if (screen == null) {
+            log.warn("Screen not found with ID: {}", id);
             return ResponseEntity.notFound().build();
         }
 
@@ -153,22 +155,42 @@ public ResponseEntity<List<ScreenResponse>> getScreensWithoutContracts() {
             
             switch (fileType.toLowerCase()) {
                 case "connection" -> {
-                    // Need to add these fields to ScreenResponse or create a method to get them
-                    log.warn("Connection file download not implemented - need to add fileUrl fields to ScreenResponse");
-                    return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+                    fileUrl = screen.getConnectionFileUrl();
+                    fileName = screen.getConnectionFileName();
                 }
                 case "config" -> {
-                    log.warn("Config file download not implemented - need to add fileUrl fields to ScreenResponse");
-                    return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+                    fileUrl = screen.getConfigFileUrl();
+                    fileName = screen.getConfigFileName();
                 }
                 case "version" -> {
-                    log.warn("Version file download not implemented - need to add fileUrl fields to ScreenResponse");
-                    return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+                    fileUrl = screen.getVersionFileUrl();
+                    fileName = screen.getVersionFileName();
                 }
                 default -> {
+                    log.warn("Invalid file type requested: {}", fileType);
                     return ResponseEntity.badRequest().build();
                 }
             }
+            
+            if (fileUrl == null || fileUrl.isEmpty()) {
+                log.warn("No {} file found for screen ID: {}", fileType, id);
+                return ResponseEntity.notFound().build();
+            }
+            
+            Resource resource = s3Service.downloadFile(fileUrl);
+            
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Content-Disposition");
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, 
+                "attachment; filename=\"" + (fileName != null ? fileName : fileType + "_file") + "\"");
+            
+            String contentType = determineContentType(fileName);
+            headers.setContentType(MediaType.parseMediaType(contentType));
+
+            log.info("{} file downloaded successfully for screen ID: {}", fileType, id);
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(resource);
             
         } catch (Exception e) {
             log.error("Failed to download {} file for screen with ID: {}", fileType, id, e);
@@ -185,6 +207,7 @@ public ResponseEntity<List<ScreenResponse>> getScreensWithoutContracts() {
         ScreenResponse screen = screenService.getScreenById(id)
                 .orElse(null);
         if (screen == null) {
+            log.warn("Screen not found with ID: {}", id);
             return ResponseEntity.notFound().build();
         }
 
@@ -192,18 +215,48 @@ public ResponseEntity<List<ScreenResponse>> getScreensWithoutContracts() {
             String fileUrl = null;
             
             switch (fileType.toLowerCase()) {
-                case "connection", "config", "version" -> {
-                    log.warn("Presigned URL generation not implemented - need to add fileUrl fields to ScreenResponse");
-                    return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
-                }
+                case "connection" -> fileUrl = screen.getConnectionFileUrl();
+                case "config" -> fileUrl = screen.getConfigFileUrl();
+                case "version" -> fileUrl = screen.getVersionFileUrl();
                 default -> {
+                    log.warn("Invalid file type requested: {}", fileType);
                     return ResponseEntity.badRequest().build();
                 }
             }
+            
+            if (fileUrl == null || fileUrl.isEmpty()) {
+                log.warn("No {} file found for screen ID: {}", fileType, id);
+                return ResponseEntity.notFound().build();
+            }
+            
+            String presignedUrl = s3Service.generatePresignedUrl(fileUrl, expirationMinutes);
+            log.info("Generated presigned URL for {} file of screen ID: {}", fileType, id);
+            
+            return ResponseEntity.ok(presignedUrl);
             
         } catch (Exception e) {
             log.error("Failed to generate presigned URL for {} file of screen with ID: {}", fileType, id, e);
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+    // Helper method for determining content type
+    private String determineContentType(String fileName) {
+        if (fileName == null) return "application/octet-stream";
+        
+        String extension = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
+        return switch (extension) {
+            case "pdf" -> "application/pdf";
+            case "jpg", "jpeg" -> "image/jpeg";
+            case "png" -> "image/png";
+            case "gif" -> "image/gif";
+            case "txt" -> "text/plain";
+            case "doc" -> "application/msword";
+            case "docx" -> "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+            case "json" -> "application/json";
+            case "xml" -> "application/xml";
+            case "config" -> "text/plain";
+            default -> "application/octet-stream";
+        };
     }
 }
