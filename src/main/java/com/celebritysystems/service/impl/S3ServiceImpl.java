@@ -26,6 +26,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.exception.SdkClientException;
@@ -61,19 +62,32 @@ public class S3ServiceImpl implements S3Service {
             throw new IllegalArgumentException("File cannot be null or empty");
         }
 
+        log.info("Starting file upload: {} (size: {} bytes, type: {})", 
+                file.getOriginalFilename(), file.getSize(), file.getContentType());
+
         validateFile(file);
 
         try {
+            // Check if bucket exists first
+            if (!bucketExists()) {
+                throw new RuntimeException("Bucket does not exist or is not accessible: " + bucketName);
+            }
+
             String fileKey = generateFileKey(keyPrefix, file.getOriginalFilename());
+            log.info("Generated file key: {}", fileKey);
             
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(bucketName)
                     .key(fileKey)
                     .contentType(file.getContentType())
                     .contentLength(file.getSize())
-                    .serverSideEncryption(ServerSideEncryption.AES256)
+                    .metadata(Map.of(
+                        "original-filename", file.getOriginalFilename(),
+                        "upload-timestamp", LocalDateTime.now().toString()
+                    ))
                     .build();
 
+            log.info("Uploading file to bucket: {}, key: {}", bucketName, fileKey);
             s3Client.putObject(putObjectRequest, RequestBody.fromBytes(file.getBytes()));
             
             String fileUrl = buildFileUrl(fileKey);
@@ -81,14 +95,46 @@ public class S3ServiceImpl implements S3Service {
             return fileUrl;
             
         } catch (IOException e) {
-            log.error("Failed to upload file to S3: {}", file.getOriginalFilename(), e);
-            throw new RuntimeException("Failed to upload file to S3", e);
+            log.error("Failed to read file content: {}", file.getOriginalFilename(), e);
+            throw new RuntimeException("Failed to read file content", e);
+        } catch (S3Exception e) {
+            log.error("S3 service error while uploading file: {} - Status Code: {}, Error Code: {}, Message: {}", 
+                     file.getOriginalFilename(), e.statusCode(), e.awsErrorDetails().errorCode(), e.getMessage(), e);
+            
+            // Provide more specific error messages based on status code
+            String errorMessage = switch (e.statusCode()) {
+                case 400 -> "Bad request - check bucket name, file key, or credentials";
+                case 403 -> "Access denied - check your credentials and permissions";
+                case 404 -> "Bucket not found: " + bucketName;
+                case 409 -> "Conflict - bucket might be in different region";
+                default -> "S3 service error: " + e.getMessage();
+            };
+            
+            throw new RuntimeException(errorMessage, e);
         } catch (AwsServiceException e) {
             log.error("AWS service error while uploading file: {}", file.getOriginalFilename(), e);
             throw new RuntimeException("AWS service error during file upload", e);
         } catch (SdkClientException e) {
             log.error("SDK client error while uploading file: {}", file.getOriginalFilename(), e);
             throw new RuntimeException("SDK client error during file upload", e);
+        }
+    }
+
+    private boolean bucketExists() {
+        try {
+            HeadBucketRequest headBucketRequest = HeadBucketRequest.builder()
+                    .bucket(bucketName)
+                    .build();
+            s3Client.headBucket(headBucketRequest);
+            log.info("Bucket {} exists and is accessible", bucketName);
+            return true;
+        } catch (S3Exception e) {
+            log.error("Bucket check failed for bucket: {} - Status Code: {}, Error: {}", 
+                     bucketName, e.statusCode(), e.getMessage());
+            return false;
+        } catch (Exception e) {
+            log.error("Unexpected error checking bucket: {}", bucketName, e);
+            return false;
         }
     }
 
@@ -135,8 +181,16 @@ public class S3ServiceImpl implements S3Service {
         String uniqueId = UUID.randomUUID().toString().substring(0, 8);
         String sanitizedFilename = sanitizeFilename(originalFilename);
         
-        return String.format("%s/%s/%s/%s-%s", 
+        String fileKey = String.format("%s/%s/%s/%s-%s", 
                 pathPrefix, keyPrefix, timestamp, uniqueId, sanitizedFilename);
+        
+        // Remove any double slashes and ensure it doesn't start with /
+        fileKey = fileKey.replaceAll("/+", "/");
+        if (fileKey.startsWith("/")) {
+            fileKey = fileKey.substring(1);
+        }
+        
+        return fileKey;
     }
 
     private String buildFileUrl(String fileKey) {

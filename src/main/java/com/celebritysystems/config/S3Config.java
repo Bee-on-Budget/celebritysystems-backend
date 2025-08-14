@@ -1,5 +1,6 @@
 package com.celebritysystems.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +12,7 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 import java.net.URI;
 
+@Slf4j
 @Configuration
 public class S3Config {
 
@@ -28,17 +30,22 @@ public class S3Config {
 
     @Bean
     public S3Client s3Client() {
+        log.info("Configuring S3Client with endpoint: {}, region: {}", endpoint, region);
+        
         AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(accessKey, secretKey);
         
         return S3Client.builder()
                 .region(Region.of(region))
                 .credentialsProvider(StaticCredentialsProvider.create(awsCredentials))
                 .endpointOverride(URI.create(endpoint))
+                .forcePathStyle(true)
                 .build();
     }
 
     @Bean
     public S3Presigner s3Presigner() {
+        log.info("Configuring S3Presigner with endpoint: {}, region: {}", endpoint, region);
+        
         AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(accessKey, secretKey);
         
         return S3Presigner.builder()
