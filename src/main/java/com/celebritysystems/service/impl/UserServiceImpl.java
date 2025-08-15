@@ -10,7 +10,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import jakarta.persistence.criteria.Predicate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -116,6 +120,39 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Page<User> findAllPaginated(Pageable pageable, String search, RoleInSystem role, Long companyId) {
+        return userRepository.findAll(createUserSpecification(search, role, companyId), pageable);
+    }
+
+    private Specification<User> createUserSpecification(String search, RoleInSystem role, Long companyId) {
+        return (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            // Search in username, email, or fullName
+            if (search != null && !search.trim().isEmpty()) {
+                String searchPattern = "%" + search.toLowerCase() + "%";
+                Predicate searchPredicate = criteriaBuilder.or(
+                        criteriaBuilder.like(criteriaBuilder.lower(root.get("username")), searchPattern),
+                        criteriaBuilder.like(criteriaBuilder.lower(root.get("email")), searchPattern),
+                        criteriaBuilder.like(criteriaBuilder.lower(root.get("fullName")), searchPattern));
+                predicates.add(searchPredicate);
+            }
+
+            // Filter by role
+            if (role != null) {
+                predicates.add(criteriaBuilder.equal(root.get("role"), role));
+            }
+
+            // Filter by company
+            if (companyId != null) {
+                predicates.add(criteriaBuilder.equal(root.get("company").get("id"), companyId));
+            }
+
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+    @Override
     public Optional<User> getUserByUsername(String username) {
         return userRepository.findByUsername(username);
     }
@@ -129,15 +166,15 @@ public class UserServiceImpl implements UserService {
     public Optional<List<User>> getUsersByRole(RoleInSystem role) {
         return userRepository.findAllByRole(role);
     }
-      
+
     @Override
     @Transactional
     public boolean resetPassword(Long userId, String newPassword) {
-        
+
         if (newPassword == null || newPassword.trim().isEmpty()) {
             return false;
         }
-        
+
         Optional<User> userOptional = userRepository.findById(userId);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
@@ -149,15 +186,16 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-//    @Override
-//    public List<UserRegistrationStatsDTO> getUserRegistrationStats() {
-//        System.out.println("||||||||||||||||||||||||||||||  getUserRegistrationStats  ||||||||||||||||||||||||||||||||||||||");
-////        return userRepository.getUserRegistrationStatsNative().stream()
-////                .map(row -> new UserRegistrationStatsDTO(
-////                        ((java.sql.Date) row[0]).toLocalDate(),
-////                        ((Number) row[1]).longValue()
-////                ))
-////                .toList();
-//        return null;
-//    }
+    // @Override
+    // public List<UserRegistrationStatsDTO> getUserRegistrationStats() {
+    // System.out.println("|||||||||||||||||||||||||||||| getUserRegistrationStats
+    // ||||||||||||||||||||||||||||||||||||||");
+    //// return userRepository.getUserRegistrationStatsNative().stream()
+    //// .map(row -> new UserRegistrationStatsDTO(
+    //// ((java.sql.Date) row[0]).toLocalDate(),
+    //// ((Number) row[1]).longValue()
+    //// ))
+    //// .toList();
+    // return null;
+    // }
 }

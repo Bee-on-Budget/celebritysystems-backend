@@ -9,4 +9,3 @@ public interface TicketAttachmentService {
     TicketAttachmentDTO addAttachment(CreateTicketAttachmentDTO attachmentDTO);
     void deleteAttachment(Long id);
 }
-

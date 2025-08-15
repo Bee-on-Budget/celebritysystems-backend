@@ -7,10 +7,14 @@ import com.celebritysystems.entity.enums.RoleInSystem;
 import com.celebritysystems.repository.UserRepository;
 import com.celebritysystems.service.UserService;
 import lombok.RequiredArgsConstructor;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -217,5 +221,40 @@ public class UserController {
                 });
     }
 
+    
+// Add this method to your UserController class
+
+@GetMapping("/paginated")
+public ResponseEntity<Page<User>> getUsersPaginated(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size,
+        @RequestParam(defaultValue = "id") String sortBy,
+        @RequestParam(defaultValue = "asc") String sortDir,
+        @RequestParam(required = false) String search,
+        @RequestParam(required = false) RoleInSystem role,
+        @RequestParam(required = false) Long companyId) {
+    
+    logger.info("Fetching paginated users - page: {}, size: {}, sortBy: {}, sortDir: {}, search: {}, role: {}, companyId: {}", 
+                page, size, sortBy, sortDir, search, role, companyId);
+    
+    try {
+        // Create sort direction
+        Sort.Direction direction = sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Sort sort = Sort.by(direction, sortBy);
+        
+        // Create pageable
+        Pageable pageable = PageRequest.of(page, size, sort);
+        
+        // Get paginated users
+        Page<User> users = userService.findAllPaginated(pageable, search, role, companyId);
+        
+        logger.debug("Found {} users out of {} total", users.getNumberOfElements(), users.getTotalElements());
+        return ResponseEntity.ok(users);
+        
+    } catch (Exception e) {
+        logger.error("Error fetching paginated users", e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+}
 
 }

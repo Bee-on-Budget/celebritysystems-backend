@@ -87,6 +87,14 @@ public class ScreenResponse {
 
     private List<Cabin> cabinList;
 
+    // File-related fields
+    private String connectionFileUrl;
+    private String connectionFileName;
+    private String configFileUrl;
+    private String configFileName;
+    private String versionFileUrl;
+    private String versionFileName;
+
     public ScreenResponse(Screen screen) {
         this.id = screen.getId();
         this.name = screen.getName();
@@ -122,5 +130,13 @@ public class ScreenResponse {
         this.createdAt = screen.getCreatedAt();
         this.moduleList = screen.getModuleList();
         this.cabinList = screen.getCabinList();
+        
+        // Map file-related fields
+        this.connectionFileUrl = screen.getConnectionFileUrl();
+        this.connectionFileName = screen.getConnectionFileName();
+        this.configFileUrl = screen.getConfigFileUrl();
+        this.configFileName = screen.getConfigFileName();
+        this.versionFileUrl = screen.getVersionFileUrl();
+        this.versionFileName = screen.getVersionFileName();
     }
 }

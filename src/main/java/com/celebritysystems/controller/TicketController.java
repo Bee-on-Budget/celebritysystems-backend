@@ -7,6 +7,7 @@ import com.celebritysystems.dto.WorkerReportDTO;
 import com.celebritysystems.dto.WorkerReportResponseDTO;
 import com.celebritysystems.service.TicketService;
 import com.celebritysystems.service.WorkerReportService;
+import com.celebritysystems.service.S3Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
@@ -15,8 +16,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartException;
@@ -33,6 +36,7 @@ public class TicketController {
 
     private final TicketService ticketService;
     private final WorkerReportService workerReportService;
+    private final S3Service s3Service;
 
     // ==================== TICKET ENDPOINTS ====================
 
@@ -325,6 +329,58 @@ public class TicketController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+    // ==================== TICKET IMAGE DOWNLOAD ENDPOINT ====================
+
+    @GetMapping("/{id}/image/download")
+    public ResponseEntity<Resource> downloadTicketImage(@PathVariable Long id) {
+        log.info("Downloading ticket image for ticket ID: {}", id);
+        
+        TicketResponseDTO ticket = ticketService.getTicketById(id);
+        if (ticket == null || ticket.getTicketImageUrl() == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        try {
+            Resource resource = s3Service.downloadFile(ticket.getTicketImageUrl());
+            
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Content-Disposition");
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, 
+                "attachment; filename=\"" + ticket.getTicketImageName() + "\"");
+            
+            String contentType = determineContentType(ticket.getTicketImageName());
+            headers.setContentType(MediaType.parseMediaType(contentType));
+
+            log.info("Ticket image downloaded successfully: {}", ticket.getTicketImageName());
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(resource);
+                    
+        } catch (Exception e) {
+            log.error("Failed to download ticket image for ID: {}", id, e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    // ==================== HELPER METHODS ====================
+
+    private String determineContentType(String fileName) {
+        if (fileName == null) return "application/octet-stream";
+        
+        String extension = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
+        return switch (extension) {
+            case "pdf" -> "application/pdf";
+            case "jpg", "jpeg" -> "image/jpeg";
+            case "png" -> "image/png";
+            case "gif" -> "image/gif";
+            case "txt" -> "text/plain";
+            case "doc" -> "application/msword";
+            case "docx" -> "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+            default -> "application/octet-stream";
+        };
+    }
+
     // ==================== ERROR RESPONSE CLASS ====================
 
     @Data

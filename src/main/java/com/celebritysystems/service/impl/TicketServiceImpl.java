@@ -62,16 +62,20 @@ public class TicketServiceImpl implements TicketService {
 
         if (ticketDTO.getFile() != null && !ticketDTO.getFile().isEmpty()) {
             try {
-                byte[] fileBytes = ticketDTO.getFile().getBytes();
+                // Upload the general attachment file to S3
+                String fileUrl = s3Service.uploadFile(ticketDTO.getFile(), "ticket-attachments");
                 ticket.setAttachmentFileName(ticketDTO.getFile().getOriginalFilename());
-            } catch (IOException e) {
+                // Note: You might want to store the S3 URL as well for downloads
+                log.info("Uploaded ticket attachment file: {}", ticketDTO.getFile().getOriginalFilename());
+            } catch (Exception e) {
+                log.error("Failed to upload ticket attachment file", e);
                 throw new RuntimeException("Failed to process file upload", e);
             }
         }
+        
         ticket = updateTicketStatus(ticket, TicketStatus.OPEN);
 
         Ticket savedTicket = ticketRepository.save(ticket);
-
 
         // Send notification if ticket is assigned to a worker during creation
         if (savedTicket.getAssignedToWorker() != null) {
