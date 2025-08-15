@@ -10,6 +10,7 @@ import com.celebritysystems.repository.WorkerReportRepository;
 import com.celebritysystems.service.S3Service;
 import com.celebritysystems.service.WorkerReportService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class WorkerReportServiceImpl implements WorkerReportService {
 
     private final WorkerReportRepository workerReportRepository;
@@ -29,7 +31,7 @@ public class WorkerReportServiceImpl implements WorkerReportService {
     private final S3Service s3Service;
 
     @Override
-    public WorkerReportResponseDTO createWorkerReport(Long ticketId, WorkerReportDTO workerReportDTO) {
+    public WorkerReportResponseDTO createWorkerReport(Long ticketId, WorkerReportDTO workerReportDTO, WorkerReportDTO.ChecklistData checklistData) {
         // Check if ticket exists
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new IllegalArgumentException("Ticket not found with ID: " + ticketId));
@@ -39,7 +41,10 @@ public class WorkerReportServiceImpl implements WorkerReportService {
             throw new IllegalArgumentException("Worker report already exists for ticket ID: " + ticketId);
         }
 
-        WorkerReport workerReport = toEntity(workerReportDTO, ticket);
+        log.info("Received request to create worker report for ticket ID With workerReportDTO: {}", workerReportDTO);
+        log.info("Received request to create worker report for ticket ID With SolutionsProvided: {}", workerReportDTO.getSolutionsProvided());
+
+        WorkerReport workerReport = toEntity(workerReportDTO, ticket, checklistData);
         WorkerReport savedReport = workerReportRepository.save(workerReport);
 
         ticket.setStatus(TicketStatus.RESOLVED);
@@ -76,9 +81,9 @@ public class WorkerReportServiceImpl implements WorkerReportService {
         workerReportRepository.delete(workerReport);
     }
 
-    private WorkerReport toEntity(WorkerReportDTO dto, Ticket ticket) {
-        WorkerReportDTO.ReportData reportData = dto.getReport();
-        WorkerReportDTO.ChecklistData checklist = reportData.getChecklist();
+    private WorkerReport toEntity(WorkerReportDTO dto, Ticket ticket, WorkerReportDTO.ChecklistData checklist) {
+        WorkerReportDTO reportData = dto;
+//        WorkerReportDTO.ChecklistData checklist = reportData.getChecklist();
 
 
         // Parse the date string to LocalDateTime
@@ -111,14 +116,14 @@ public class WorkerReportServiceImpl implements WorkerReportService {
         String technicianSignaturesUrl = null;
         String technicianSignaturesName = null;
 
-        if (dto.getReport().getSolutionImage() != null && !dto.getReport().getSolutionImage().isEmpty()) {
-            solutionImageUrl = s3Service.uploadFile(dto.getReport().getSolutionImage(), "ticket-files/solution-image");
-            solutionImageName = dto.getReport().getSolutionImage().getOriginalFilename();
+        if (dto.getSolutionImage() != null && !dto.getSolutionImage().isEmpty()) {
+            solutionImageUrl = s3Service.uploadFile(dto.getSolutionImage(), "ticket-files/solution-image");
+            solutionImageName = dto.getSolutionImage().getOriginalFilename();
         }
 
-        if (dto.getReport().getTechnicianSignatures() != null && !dto.getReport().getTechnicianSignatures().isEmpty()) {
-            technicianSignaturesUrl = s3Service.uploadFile(dto.getReport().getTechnicianSignatures(), "technician-signatures/signature-image");
-            technicianSignaturesName = dto.getReport().getTechnicianSignatures().getOriginalFilename();
+        if (dto.getTechnicianSignatures() != null && !dto.getTechnicianSignatures().isEmpty()) {
+            technicianSignaturesUrl = s3Service.uploadFile(dto.getTechnicianSignatures(), "technician-signatures/signature-image");
+            technicianSignaturesName = dto.getTechnicianSignatures().getOriginalFilename();
         }
 
         return WorkerReport.builder()
@@ -142,15 +147,17 @@ public class WorkerReportServiceImpl implements WorkerReportService {
                 .solutionsProvided(reportData.getSolutionsProvided())
 //                .serviceSupervisorSignatures(reportData.getServiceSupervisorSignatures().toString()) //TODO: remove .toString() and fix the logic
                 .technicianSignatures(technicianSignaturesUrl)
+                .technicianSignaturesName(technicianSignaturesName)
 //                .authorizedPersonSignatures(reportData.getAuthorizedPersonSignatures().toString()) //TODO: remove .toString() and fix the logic
                 .solutionImage(solutionImageUrl)
+                .solutionImageName(solutionImageName)
                 .build();
     }
 
     private void updateEntityFromDTO(WorkerReport entity, WorkerReportDTO dto) {
-        WorkerReportDTO.ReportData reportData = dto.getReport();
-        WorkerReportDTO.ChecklistData checklist = reportData.getChecklist();
-
+        WorkerReportDTO reportData = dto;
+//        WorkerReportDTO.ChecklistData checklist = reportData.getChecklist();
+        WorkerReportDTO.ChecklistData checklist = new WorkerReportDTO.ChecklistData(); //TODO : this object should got it from request.
         // Update report date
         if (reportData.getDate() != null) {
             try {

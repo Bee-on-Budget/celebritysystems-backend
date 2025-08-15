@@ -7,6 +7,8 @@ import com.celebritysystems.dto.WorkerReportDTO;
 import com.celebritysystems.dto.WorkerReportResponseDTO;
 import com.celebritysystems.service.TicketService;
 import com.celebritysystems.service.WorkerReportService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -224,13 +226,19 @@ public class TicketController {
 
     // ==================== WORKER REPORT ENDPOINTS ====================
 
-    @PostMapping("/{ticketId}/worker-report")
+    @PostMapping(path = "/{ticketId}/worker-report", consumes = "multipart/form-data")
     public ResponseEntity<?> createWorkerReport(
             @PathVariable Long ticketId,
-            @Valid @RequestBody WorkerReportDTO workerReportDTO) {
+            @ModelAttribute WorkerReportDTO workerReportDTO
+    )throws JsonProcessingException {
+
         log.info("Received request to create worker report for ticket ID: {}", ticketId);
+
         try {
-            WorkerReportResponseDTO createdReport = workerReportService.createWorkerReport(ticketId, workerReportDTO);
+            ObjectMapper objectMapper = new ObjectMapper();
+            WorkerReportDTO.ChecklistData checklistData = objectMapper.readValue(workerReportDTO.getChecklist(), WorkerReportDTO.ChecklistData.class);
+
+            WorkerReportResponseDTO createdReport = workerReportService.createWorkerReport(ticketId, workerReportDTO, checklistData);
             log.info("Successfully created worker report for ticket ID: {}", ticketId);
             return ResponseEntity.ok(createdReport);
         } catch (IllegalArgumentException e) {
@@ -244,6 +252,7 @@ public class TicketController {
                             "An unexpected error occurred: " + e.getMessage()));
         }
     }
+
 
     @GetMapping("/{ticketId}/worker-report")
     public ResponseEntity<?> getWorkerReportByTicketId(@PathVariable Long ticketId) {
