@@ -37,6 +37,7 @@ public class WorkerReportDTO {
 //    private MultipartFile serviceSupervisorSignatures;
 
     //    @JsonProperty("technician_signatures")
+    @Nullable
     private MultipartFile technicianSignatures;
 
     //    @JsonProperty("authorized_person_Signatures")
@@ -44,6 +45,7 @@ public class WorkerReportDTO {
 //    private MultipartFile authorizedPersonSignatures;
 
     //    @JsonProperty("solution_image")
+    @Nullable
     private MultipartFile solutionImage;
 
     @Data
