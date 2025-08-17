@@ -2,6 +2,7 @@ package com.celebritysystems.service.impl;
 
 import com.celebritysystems.dto.TicketDTO;
 import com.celebritysystems.dto.CreateTicketDTO;
+import com.celebritysystems.dto.PatchTicketDTO;
 import com.celebritysystems.dto.TicketResponseDTO;
 import com.celebritysystems.dto.WorkerReportResponseDTO;
 import com.celebritysystems.entity.*;
@@ -482,4 +483,74 @@ public class TicketServiceImpl implements TicketService {
         }
         return ticket;
     }
+    @Override
+public TicketDTO patchTicket(Long id, PatchTicketDTO patchTicketDTO) {
+    return ticketRepository.findById(id).map(ticket -> {
+        // Store the previous assigned worker and status to detect changes
+        User previousAssignedWorker = ticket.getAssignedToWorker();
+        TicketStatus previousStatus = ticket.getStatus();
+        
+        boolean hasChanges = false;
+
+        // Update status if provided
+        TicketStatus newStatus = null;
+        if (patchTicketDTO.hasStatus()) {
+            try {
+                newStatus = TicketStatus.valueOf(patchTicketDTO.getStatus());
+                ticket = updateTicketStatus(ticket, newStatus);
+                hasChanges = true;
+                log.info("Updated status to {} for ticket ID: {}", newStatus, id);
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Invalid status value: " + patchTicketDTO.getStatus());
+            }
+        }
+
+        // Update assigned worker if provided
+        User newAssignedWorker = null;
+        if (patchTicketDTO.hasAssignedToWorkerId()) {
+            newAssignedWorker = userRepository.findById(patchTicketDTO.getAssignedToWorkerId())
+                    .orElseThrow(() -> new IllegalArgumentException("Worker not found with ID: " + patchTicketDTO.getAssignedToWorkerId()));
+            ticket.setAssignedToWorker(newAssignedWorker);
+            
+            // Auto-update status to IN_PROGRESS when assigning a worker (if status not explicitly provided)
+            if (!patchTicketDTO.hasStatus()) {
+                ticket = updateTicketStatus(ticket, TicketStatus.IN_PROGRESS);
+                newStatus = TicketStatus.IN_PROGRESS;
+                log.info("Auto-updated status to IN_PROGRESS when assigning worker for ticket ID: {}", id);
+            }
+            hasChanges = true;
+            log.info("Assigned worker {} to ticket ID: {}", newAssignedWorker.getFullName(), id);
+        }
+
+        // Update assigned supervisor if provided
+        if (patchTicketDTO.hasAssignedBySupervisorId()) {
+            User assignedSupervisor = userRepository.findById(patchTicketDTO.getAssignedBySupervisorId())
+                    .orElseThrow(() -> new IllegalArgumentException("Supervisor not found with ID: " + patchTicketDTO.getAssignedBySupervisorId()));
+            ticket.setAssignedBySupervisor(assignedSupervisor);
+            hasChanges = true;
+            log.info("Assigned supervisor {} to ticket ID: {}", assignedSupervisor.getFullName(), id);
+        }
+
+        // Only save if there were actual changes
+        if (!hasChanges) {
+            log.info("No changes detected for ticket ID: {}", id);
+            return toDTO(ticket);
+        }
+
+        Ticket savedTicket = ticketRepository.save(ticket);
+
+        // Send notifications only if relevant changes occurred
+        if (hasWorkerAssignmentChanged(previousAssignedWorker, newAssignedWorker)) {
+            sendTicketAssignmentNotification(savedTicket);
+        }
+
+        if (hasStatusChanged(previousStatus, newStatus)) {
+            sendTicketStatusUpdateNotificationToCompany(savedTicket, previousStatus, newStatus);
+        }
+
+        log.info("Successfully patched ticket with ID: {}", id);
+        return toDTO(savedTicket);
+
+    }).orElseThrow(() -> new IllegalArgumentException("Ticket not found with ID: " + id));
+}
 }

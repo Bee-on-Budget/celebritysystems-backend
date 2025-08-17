@@ -2,6 +2,7 @@ package com.celebritysystems.service;
 
 import com.celebritysystems.dto.TicketDTO;
 import com.celebritysystems.dto.CreateTicketDTO;
+import com.celebritysystems.dto.PatchTicketDTO;
 import com.celebritysystems.dto.TicketResponseDTO;
 import com.celebritysystems.dto.WorkerReportResponseDTO;
 
@@ -34,6 +35,8 @@ public interface TicketService {
     Map<String, Long> getTicketCountByStatus();
 
     List<TicketResponseDTO> getPendingTickets();
+
+    TicketDTO patchTicket(Long id,PatchTicketDTO patchTicketDTO);
 
     List<TicketResponseDTO> getTicketsByCompanyId(Long companyId);
 }

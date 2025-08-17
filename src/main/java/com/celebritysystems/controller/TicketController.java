@@ -2,6 +2,7 @@ package com.celebritysystems.controller;
 
 import com.celebritysystems.dto.TicketDTO;
 import com.celebritysystems.dto.CreateTicketDTO;
+import com.celebritysystems.dto.PatchTicketDTO;
 import com.celebritysystems.dto.TicketResponseDTO;
 import com.celebritysystems.dto.WorkerReportDTO;
 import com.celebritysystems.dto.WorkerReportResponseDTO;
@@ -362,6 +363,27 @@ public class TicketController {
             return ResponseEntity.internalServerError().build();
         }
     }
+    @PatchMapping("/{id}")
+public ResponseEntity<?> patchTicket(@PathVariable Long id, @Valid @RequestBody PatchTicketDTO patchTicketDTO) {
+    log.info("Received PATCH request to update ticket with ID: {}", id);
+    try {
+        log.debug("Ticket PATCH payload for ID {}: {}", id, patchTicketDTO.toString());
+
+        TicketDTO updatedTicket = ticketService.patchTicket(id, patchTicketDTO);
+        log.info("Successfully patched ticket with ID: {}", id);
+
+        return ResponseEntity.ok(updatedTicket);
+    } catch (IllegalArgumentException e) {
+        log.error("Validation error in ticket patch: {}", e.getMessage(), e);
+        return ResponseEntity.badRequest().body(
+                new ErrorResponse("VALIDATION_ERROR", e.getMessage()));
+    } catch (Exception e) {
+        log.error("Unexpected error during ticket patch: {}", e.getMessage(), e);
+        return ResponseEntity.internalServerError().body(
+                new ErrorResponse("INTERNAL_SERVER_ERROR",
+                        "An unexpected error occurred: " + e.getMessage()));
+    }
+}
 
     // ==================== HELPER METHODS ====================
 
