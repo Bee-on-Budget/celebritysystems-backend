@@ -3,6 +3,7 @@ package com.celebritysystems.controller;
 import com.celebritysystems.dto.TicketDTO;
 import com.celebritysystems.dto.CreateTicketDTO;
 import com.celebritysystems.dto.PatchTicketDTO;
+import com.celebritysystems.dto.PatchWorkerReportDTO;
 import com.celebritysystems.dto.TicketResponseDTO;
 import com.celebritysystems.dto.WorkerReportDTO;
 import com.celebritysystems.dto.WorkerReportResponseDTO;
@@ -234,16 +235,17 @@ public class TicketController {
     @PostMapping(path = "/{ticketId}/worker-report", consumes = "multipart/form-data")
     public ResponseEntity<?> createWorkerReport(
             @PathVariable Long ticketId,
-            @ModelAttribute WorkerReportDTO workerReportDTO
-    )throws JsonProcessingException {
+            @ModelAttribute WorkerReportDTO workerReportDTO) throws JsonProcessingException {
 
         log.info("Received request to create worker report for ticket ID: {}", ticketId);
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
-            WorkerReportDTO.ChecklistData checklistData = objectMapper.readValue(workerReportDTO.getChecklist(), WorkerReportDTO.ChecklistData.class);
+            WorkerReportDTO.ChecklistData checklistData = objectMapper.readValue(workerReportDTO.getChecklist(),
+                    WorkerReportDTO.ChecklistData.class);
 
-            WorkerReportResponseDTO createdReport = workerReportService.createWorkerReport(ticketId, workerReportDTO, checklistData);
+            WorkerReportResponseDTO createdReport = workerReportService.createWorkerReport(ticketId, workerReportDTO,
+                    checklistData);
             log.info("Successfully created worker report for ticket ID: {}", ticketId);
             return ResponseEntity.ok(createdReport);
         } catch (IllegalArgumentException e) {
@@ -257,7 +259,6 @@ public class TicketController {
                             "An unexpected error occurred: " + e.getMessage()));
         }
     }
-
 
     @GetMapping("/{ticketId}/worker-report")
     public ResponseEntity<?> getWorkerReportByTicketId(@PathVariable Long ticketId) {
@@ -336,7 +337,7 @@ public class TicketController {
     @GetMapping("/{id}/image/download")
     public ResponseEntity<Resource> downloadTicketImage(@PathVariable Long id) {
         log.info("Downloading ticket image for ticket ID: {}", id);
-        
+
         TicketResponseDTO ticket = ticketService.getTicketById(id);
         if (ticket == null || ticket.getTicketImageUrl() == null) {
             return ResponseEntity.notFound().build();
@@ -344,12 +345,12 @@ public class TicketController {
 
         try {
             Resource resource = s3Service.downloadFile(ticket.getTicketImageUrl());
-            
+
             HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Content-Disposition");
-            headers.add(HttpHeaders.CONTENT_DISPOSITION, 
-                "attachment; filename=\"" + ticket.getTicketImageName() + "\"");
-            
+            headers.add(HttpHeaders.CONTENT_DISPOSITION,
+                    "attachment; filename=\"" + ticket.getTicketImageName() + "\"");
+
             String contentType = determineContentType(ticket.getTicketImageName());
             headers.setContentType(MediaType.parseMediaType(contentType));
 
@@ -357,39 +358,69 @@ public class TicketController {
             return ResponseEntity.ok()
                     .headers(headers)
                     .body(resource);
-                    
+
         } catch (Exception e) {
             log.error("Failed to download ticket image for ID: {}", id, e);
             return ResponseEntity.internalServerError().build();
         }
     }
-    @PatchMapping("/{id}")
-public ResponseEntity<?> patchTicket(@PathVariable Long id, @Valid @RequestBody PatchTicketDTO patchTicketDTO) {
-    log.info("Received PATCH request to update ticket with ID: {}", id);
-    try {
-        log.debug("Ticket PATCH payload for ID {}: {}", id, patchTicketDTO.toString());
 
-        TicketDTO updatedTicket = ticketService.patchTicket(id, patchTicketDTO);
-        log.info("Successfully patched ticket with ID: {}", id);
+    @PatchMapping("/{ticketId}/worker-report")
+    public ResponseEntity<?> patchWorkerReport(
+            @PathVariable Long ticketId,
+            @Valid @RequestBody PatchWorkerReportDTO patchWorkerReportDTO) {
 
-        return ResponseEntity.ok(updatedTicket);
-    } catch (IllegalArgumentException e) {
-        log.error("Validation error in ticket patch: {}", e.getMessage(), e);
-        return ResponseEntity.badRequest().body(
-                new ErrorResponse("VALIDATION_ERROR", e.getMessage()));
-    } catch (Exception e) {
-        log.error("Unexpected error during ticket patch: {}", e.getMessage(), e);
-        return ResponseEntity.internalServerError().body(
-                new ErrorResponse("INTERNAL_SERVER_ERROR",
-                        "An unexpected error occurred: " + e.getMessage()));
+        log.info("Received PATCH request to update worker report for ticket ID: {}", ticketId);
+
+        try {
+            log.debug("Worker report PATCH payload for ticket ID {}: {}", ticketId, patchWorkerReportDTO.toString());
+
+            WorkerReportResponseDTO patchedReport = workerReportService.patchWorkerReport(ticketId,
+                    patchWorkerReportDTO);
+            log.info("Successfully patched worker report for ticket ID: {}", ticketId);
+
+            return ResponseEntity.ok(patchedReport);
+
+        } catch (IllegalArgumentException e) {
+            log.error("Validation error in worker report patch: {}", e.getMessage(), e);
+            return ResponseEntity.badRequest().body(
+                    new ErrorResponse("VALIDATION_ERROR", e.getMessage()));
+        } catch (Exception e) {
+            log.error("Unexpected error during worker report patch: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().body(
+                    new ErrorResponse("INTERNAL_SERVER_ERROR",
+                            "An unexpected error occurred: " + e.getMessage()));
+        }
     }
-}
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<?> patchTicket(@PathVariable Long id, @Valid @RequestBody PatchTicketDTO patchTicketDTO) {
+        log.info("Received PATCH request to update ticket with ID: {}", id);
+        try {
+            log.debug("Ticket PATCH payload for ID {}: {}", id, patchTicketDTO.toString());
+
+            TicketDTO updatedTicket = ticketService.patchTicket(id, patchTicketDTO);
+            log.info("Successfully patched ticket with ID: {}", id);
+
+            return ResponseEntity.ok(updatedTicket);
+        } catch (IllegalArgumentException e) {
+            log.error("Validation error in ticket patch: {}", e.getMessage(), e);
+            return ResponseEntity.badRequest().body(
+                    new ErrorResponse("VALIDATION_ERROR", e.getMessage()));
+        } catch (Exception e) {
+            log.error("Unexpected error during ticket patch: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().body(
+                    new ErrorResponse("INTERNAL_SERVER_ERROR",
+                            "An unexpected error occurred: " + e.getMessage()));
+        }
+    }
 
     // ==================== HELPER METHODS ====================
 
     private String determineContentType(String fileName) {
-        if (fileName == null) return "application/octet-stream";
-        
+        if (fileName == null)
+            return "application/octet-stream";
+
         String extension = fileName.substring(fileName.lastIndexOf('.') + 1).toLowerCase();
         return switch (extension) {
             case "pdf" -> "application/pdf";

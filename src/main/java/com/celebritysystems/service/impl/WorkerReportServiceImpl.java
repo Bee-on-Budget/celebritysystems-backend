@@ -1,5 +1,6 @@
 package com.celebritysystems.service.impl;
 
+import com.celebritysystems.dto.PatchWorkerReportDTO;
 import com.celebritysystems.dto.WorkerReportDTO;
 import com.celebritysystems.dto.WorkerReportResponseDTO;
 import com.celebritysystems.entity.Ticket;
@@ -206,6 +207,29 @@ public class WorkerReportServiceImpl implements WorkerReportService {
 //        entity.setSolutionImage(reportData.getSolutionImage().toString()); //TODO: Maybe you should somethings more here to delete the old Image from S3service for example? so get the name(should be uniq) and them remove it from the service in somehow, and remove toString
     }
 
+    @Override
+public WorkerReportResponseDTO patchWorkerReport(Long ticketId, PatchWorkerReportDTO patchWorkerReportDTO) {
+    log.info("Patching worker report for ticket ID: {}", ticketId);
+    
+    WorkerReport existingReport = workerReportRepository.findByTicketId(ticketId)
+            .orElseThrow(() -> new IllegalArgumentException("Worker report not found for ticket ID: " + ticketId));
+
+    // Only update fields that are not null in the patch DTO
+    if (patchWorkerReportDTO.getDefectsFound() != null) {
+        existingReport.setDefectsFound(patchWorkerReportDTO.getDefectsFound());
+        log.debug("Updated defectsFound for ticket ID: {}", ticketId);
+    }
+    
+    if (patchWorkerReportDTO.getSolutionsProvided() != null) {
+        existingReport.setSolutionsProvided(patchWorkerReportDTO.getSolutionsProvided());
+        log.debug("Updated solutionsProvided for ticket ID: {}", ticketId);
+    }
+
+    WorkerReport updatedReport = workerReportRepository.save(existingReport);
+    log.info("Successfully patched worker report for ticket ID: {}", ticketId);
+    
+    return toResponseDTO(updatedReport);
+}
     private WorkerReportResponseDTO toResponseDTO(WorkerReport workerReport) {
         Map<String, String> checklist = new HashMap<>();
         checklist.put("Data Cables (Cat6/RJ45)", workerReport.getDataCables());
