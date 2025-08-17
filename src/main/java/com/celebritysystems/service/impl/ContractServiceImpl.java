@@ -15,6 +15,7 @@ import com.celebritysystems.repository.CompanyRepository;
 import com.celebritysystems.repository.ContractRepository;
 import com.celebritysystems.service.ContractService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +24,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -30,13 +32,17 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ContractServiceImpl implements ContractService {
 
     private final ContractRepository contractRepository;
-private final CompanyRepository companyRepository;
-private final ScreenServiceImpl screenService;
+    private final CompanyRepository companyRepository;
+    private final ScreenServiceImpl screenService;
+
     @Override
     public Contract createContract(Contract contract) {
+        log.info("Creating new contract for company: {}", contract.getCompanyId());
+        
         if (contract.getScreenIds() != null) {
             List<Long> validScreenIds = contract.getScreenIds()
                     .stream()
@@ -47,17 +53,20 @@ private final ScreenServiceImpl screenService;
                 throw new IllegalArgumentException("Screen IDs must not be null or empty.");
             }
 
+            // Check for existing active contracts for each screen
             for (Long screenId : validScreenIds) {
-                List<Contract> existingContracts = contractRepository.findByScreenId(screenId);
+                List<Contract> existingContracts = getContractsByScreen(screenId);
                 for (Contract existingContract : existingContracts) {
                     if (existingContract.getExpiredAt().isAfter(LocalDateTime.now())) {
                         throw new IllegalStateException("Screen with id " + screenId + " already has an ongoing contract.");
                     }
                 }
 
+                // Check if contract already exists for this company and screen
                 if (contract.getCompanyId() != null &&
-                        contractRepository.existsByCompanyIdAndScreenId(contract.getCompanyId(), screenId)) {
-                    throw new IllegalArgumentException("Active contract already exists for company " + contract.getCompanyId() + " and screen " + screenId);
+                        contractExistsForCompanyAndScreen(contract.getCompanyId(), screenId)) {
+                    throw new IllegalArgumentException("Active contract already exists for company " + 
+                            contract.getCompanyId() + " and screen " + screenId);
                 }
             }
 
@@ -68,11 +77,15 @@ private final ScreenServiceImpl screenService;
             contract.setStartContractAt(LocalDateTime.now());
         }
 
-        return contractRepository.save(contract);
+        Contract savedContract = contractRepository.save(contract);
+        log.info("Contract created successfully with ID: {}", savedContract.getId());
+        return savedContract;
     }
 
     @Override
     public Contract createContractFromDTO(CreateContractDTO dto) {
+        log.info("Creating contract from DTO for company: {}", dto.getCompanyId());
+        
         List<AccountPermission> permissions = dto.getAccountPermissions() != null
                 ? dto.getAccountPermissions().stream()
                     .map(this::mapToEntity)
@@ -81,7 +94,10 @@ private final ScreenServiceImpl screenService;
                 : List.of();
     
         List<Long> screenIds = dto.getScreenIds() != null
-                ? dto.getScreenIds().stream().filter(Objects::nonNull).distinct().collect(Collectors.toList())
+                ? dto.getScreenIds().stream()
+                    .filter(Objects::nonNull)
+                    .distinct()
+                    .collect(Collectors.toList())
                 : List.of();
     
         Contract contract = Contract.builder()
@@ -100,7 +116,6 @@ private final ScreenServiceImpl screenService;
     
         return createContract(contract);
     }
-    
 
     private AccountPermission mapToEntity(AccountPermissionDTO dto) {
         AccountPermission entity = new AccountPermission();
@@ -112,36 +127,113 @@ private final ScreenServiceImpl screenService;
 
     @Override
     public Contract getContractById(Long id) {
+        log.info("Fetching contract with ID: {}", id);
         return contractRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Contract not found with id: " + id));
     }
 
     @Override
     public List<Contract> getContractsByCompany(Long companyId) {
+        log.info("Fetching contracts for company: {}", companyId);
         return contractRepository.findByCompanyId(companyId);
     }
 
     @Override
     public List<Contract> getContractsByScreen(Long screenId) {
-        return contractRepository.findByScreenId(screenId);
+        log.info("Fetching contracts for screen: {}", screenId);
+        // Get all contracts and filter in Java for screen ID
+        return contractRepository.findAll().stream()
+                .filter(contract -> contract.getScreenIds() != null && 
+                                  contract.getScreenIds().contains(screenId))
+                .collect(Collectors.toList());
     }
 
     @Override
     public Optional<Contract> getCurrentContractForScreen(Long screenId) {
-        return contractRepository.findFirstByScreenIdOrderByCreatedAtDesc(screenId);
+        log.info("Fetching current contract for screen: {}", screenId);
+        // Get all contracts and filter in Java, then get the most recent
+        return contractRepository.findAll().stream()
+                .filter(contract -> contract.getScreenIds() != null && 
+                                  contract.getScreenIds().contains(screenId))
+                .max(Comparator.comparing(Contract::getCreatedAt));
     }
+
     @Override
     public List<Contract> getContractsByCompanyName(String companyName) {
+        log.info("Searching contracts by company name: {}", companyName);
         return contractRepository.findByCompanyNameContainingIgnoreCase(companyName);
     }
-    
-@Override
-public double getTotalContractValue() {
-    Double result = contractRepository.sumAllContractValues();
-    return result != null ? result : 0.0;
-}
+
+    @Override
+    public double getTotalContractValue() {
+        log.info("Calculating total contract value");
+        Double result = contractRepository.sumAllContractValues();
+        return result != null ? result : 0.0;
+    }
+
+    // NEW METHODS: Get screens by company through contracts
+    @Override
+    public List<ScreenResponse> getScreensByCompany(Long companyId) {
+        log.info("Fetching screens for company: {}", companyId);
+        List<Contract> contracts = contractRepository.findByCompanyId(companyId);
+        
+        return contracts.stream()
+                .filter(contract -> contract.getScreenIds() != null) // Null safety
+                .flatMap(contract -> contract.getScreenIds().stream())
+                .distinct() // Remove duplicate screen IDs
+                .map(screenId -> {
+                    try {
+                        return screenService.getScreenById(screenId);
+                    } catch (Exception e) {
+                        log.warn("Could not fetch screen with ID: {}, error: {}", screenId, e.getMessage());
+                        return Optional.<ScreenResponse>empty();
+                    }
+                })
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ScreenResponse> getActiveScreensByCompany(Long companyId) {
+        log.info("Fetching active screens for company: {}", companyId);
+        List<Contract> activeContracts = contractRepository.findByCompanyId(companyId)
+                .stream()
+                .filter(contract -> contract.getExpiredAt().isAfter(LocalDateTime.now()))
+                .collect(Collectors.toList());
+        
+        return activeContracts.stream()
+                .filter(contract -> contract.getScreenIds() != null) // Null safety
+                .flatMap(contract -> contract.getScreenIds().stream())
+                .distinct() // Remove duplicate screen IDs
+                .map(screenId -> {
+                    try {
+                        return screenService.getScreenById(screenId);
+                    } catch (Exception e) {
+                        log.warn("Could not fetch screen with ID: {}, error: {}", screenId, e.getMessage());
+                        return Optional.<ScreenResponse>empty();
+                    }
+                })
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Long> getScreenIdsByCompany(Long companyId) {
+        log.info("Fetching screen IDs for company: {}", companyId);
+        List<Contract> contracts = contractRepository.findByCompanyId(companyId);
+        
+        return contracts.stream()
+                .filter(contract -> contract.getScreenIds() != null) // Null safety
+                .flatMap(contract -> contract.getScreenIds().stream())
+                .distinct() // Remove duplicate screen IDs
+                .collect(Collectors.toList());
+    }
+
     @Override
     public Contract updateContract(Long id, Contract contractDetails) {
+        log.info("Updating contract with ID: {}", id);
         Contract existingContract = getContractById(id);
 
         if (contractDetails.getInfo() != null) {
@@ -173,29 +265,39 @@ public double getTotalContractValue() {
             existingContract.setAccountPermissions(contractDetails.getAccountPermissions());
         }
 
-        return contractRepository.save(existingContract);
+        Contract updatedContract = contractRepository.save(existingContract);
+        log.info("Contract updated successfully with ID: {}", updatedContract.getId());
+        return updatedContract;
     }
 
     @Override
     public void deleteContract(Long id) {
+        log.info("Deleting contract with ID: {}", id);
         if (!contractRepository.existsById(id)) {
             throw new IllegalArgumentException("Contract not found with id: " + id);
         }
         contractRepository.deleteById(id);
+        log.info("Contract deleted successfully with ID: {}", id);
     }
 
     @Override
     public boolean contractExistsForCompanyAndScreen(Long companyId, Long screenId) {
-        return contractRepository.existsByCompanyIdAndScreenId(companyId, screenId);
+        log.debug("Checking if contract exists for company: {} and screen: {}", companyId, screenId);
+        // Get contracts by company and check if any contains the screen ID
+        return contractRepository.findByCompanyId(companyId).stream()
+                .anyMatch(contract -> contract.getScreenIds() != null && 
+                                    contract.getScreenIds().contains(screenId));
     }
 
     @Override
     public long getContractCountByMonthAndYear(int month, int year) {
+        log.info("Getting contract count for month: {} and year: {}", month, year);
         return contractRepository.countByMonthAndYear(month, year);
     }
 
     @Override
     public List<MonthlyStats> getMonthlyContractStats() {
+        log.info("Fetching monthly contract statistics");
         return contractRepository.getMonthlyContractRegistrationStats()
                 .stream()
                 .map(record -> new MonthlyStats(
@@ -207,6 +309,7 @@ public double getTotalContractValue() {
 
     @Override
     public List<AnnualStats> getAnnualContractStats() {
+        log.info("Fetching annual contract statistics");
         return contractRepository.getAnnualContractRegistrationStats()
                 .stream()
                 .map(record -> new AnnualStats(
@@ -214,8 +317,10 @@ public double getTotalContractValue() {
                         ((Number) record[1]).longValue()))
                 .toList();
     }
+
     @Override
     public List<ContractResponseDTO> getAllContractsWithNames() {
+        log.info("Fetching all contracts with names");
         List<Contract> contracts = contractRepository.findAll();
     
         return contracts.stream().map(contract -> {
@@ -249,16 +354,34 @@ public double getTotalContractValue() {
     
             dto.setAccountPermissions(permissionDTOs);
     
-            // Fetch company name
-            companyRepository.findById(contract.getCompanyId())
-                    .ifPresent(company -> dto.setCompanyName(company.getName()));
+            // Fetch company name safely
+            try {
+                companyRepository.findById(contract.getCompanyId())
+                        .ifPresentOrElse(
+                                company -> dto.setCompanyName(company.getName()),
+                                () -> {
+                                    log.warn("Company not found for ID: {}", contract.getCompanyId());
+                                    dto.setCompanyName("Unknown Company");
+                                }
+                        );
+            } catch (Exception e) {
+                log.error("Error fetching company for ID: {}, error: {}", contract.getCompanyId(), e.getMessage());
+                dto.setCompanyName("Unknown Company");
+            }
     
-            // Fetch screen names
+            // Fetch screen names safely
             List<String> screenNames = contract.getScreenIds() != null
                     ? contract.getScreenIds().stream()
-                        .map(screenId -> screenService.getScreenById(screenId)
-                                .map(ScreenResponse::getName)
-                                .orElse("Unknown"))
+                        .map(screenId -> {
+                            try {
+                                return screenService.getScreenById(screenId)
+                                        .map(ScreenResponse::getName)
+                                        .orElse("Unknown Screen");
+                            } catch (Exception e) {
+                                log.warn("Error fetching screen for ID: {}, error: {}", screenId, e.getMessage());
+                                return "Unknown Screen";
+                            }
+                        })
                         .collect(Collectors.toList())
                     : List.of();
     
@@ -267,65 +390,103 @@ public double getTotalContractValue() {
             return dto;
         }).collect(Collectors.toList());
     }
-    @Override
-public Page<Contract> findAllPaginated(int page, int size) {
-    Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-    return contractRepository.findAll(pageable);
-}
 
-@Override
-public Page<ContractResponseDTO> getAllContractsWithNamesPaginated(int page, int size) {
-    Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
-    Page<Contract> contracts = contractRepository.findAll(pageable);
-    
-    return contracts.map(contract -> {
-        ContractResponseDTO dto = new ContractResponseDTO();
-        dto.setId(contract.getId());
-        dto.setInfo(contract.getInfo());
-        dto.setStartContractAt(contract.getStartContractAt());
-        dto.setExpiredAt(contract.getExpiredAt());
-        dto.setAccountName(contract.getAccountName());
-        dto.setContractValue(contract.getContractValue());
+    @Override
+    public Page<Contract> findAllPaginated(int page, int size) {
+        log.info("Fetching contracts page: {} with size: {}", page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        return contractRepository.findAll(pageable);
+    }
+
+    @Override
+    public Page<ContractResponseDTO> getAllContractsWithNamesPaginated(int page, int size) {
+        log.info("Fetching contracts with names, page: {} with size: {}", page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Contract> contracts = contractRepository.findAll(pageable);
         
-        // Convert enums to String safely
-        dto.setDurationType(contract.getDurationType() != null ? contract.getDurationType().name() : null);
-        dto.setOperatorType(contract.getOperatorType() != null ? contract.getOperatorType().name() : null);
-        dto.setSupplyType(contract.getSupplyType() != null ? contract.getSupplyType().name() : null);
-        
-        dto.setCreatedAt(contract.getCreatedAt());
-        dto.setUpdatedAt(contract.getUpdatedAt());
-        
-        // Map AccountPermission -> AccountPermissionDTO
-        List<AccountPermissionDTO> permissionDTOs = contract.getAccountPermissions() != null
-                ? contract.getAccountPermissions().stream()
-                    .map(permission -> {
-                        AccountPermissionDTO dtoPermission = new AccountPermissionDTO();
-                        dtoPermission.setName(permission.getName());
-                        dtoPermission.setCanRead(permission.isCanRead());
-                        dtoPermission.setCanEdit(permission.isCanEdit());
-                        return dtoPermission;
-                    }).collect(Collectors.toList())
-                : List.of();
-        
-        dto.setAccountPermissions(permissionDTOs);
-        
-        // Fetch company name
-        companyRepository.findById(contract.getCompanyId())
-                .ifPresent(company -> dto.setCompanyName(company.getName()));
-        
-        // Fetch screen names
-        List<String> screenNames = contract.getScreenIds() != null
-                ? contract.getScreenIds().stream()
-                    .map(screenId -> screenService.getScreenById(screenId)
-                            .map(ScreenResponse::getName)
-                            .orElse("Unknown"))
-                    .collect(Collectors.toList())
-                : List.of();
-        
-        dto.setScreenNames(screenNames);
-        
-        return dto;
-    });
-}
-    
+        return contracts.map(contract -> {
+            ContractResponseDTO dto = new ContractResponseDTO();
+            dto.setId(contract.getId());
+            dto.setInfo(contract.getInfo());
+            dto.setStartContractAt(contract.getStartContractAt());
+            dto.setExpiredAt(contract.getExpiredAt());
+            dto.setAccountName(contract.getAccountName());
+            dto.setContractValue(contract.getContractValue());
+            
+            // Convert enums to String safely
+            dto.setDurationType(contract.getDurationType() != null ? contract.getDurationType().name() : null);
+            dto.setOperatorType(contract.getOperatorType() != null ? contract.getOperatorType().name() : null);
+            dto.setSupplyType(contract.getSupplyType() != null ? contract.getSupplyType().name() : null);
+            
+            dto.setCreatedAt(contract.getCreatedAt());
+            dto.setUpdatedAt(contract.getUpdatedAt());
+            
+            // Map AccountPermission -> AccountPermissionDTO
+            List<AccountPermissionDTO> permissionDTOs = contract.getAccountPermissions() != null
+                    ? contract.getAccountPermissions().stream()
+                        .map(permission -> {
+                            AccountPermissionDTO dtoPermission = new AccountPermissionDTO();
+                            dtoPermission.setName(permission.getName());
+                            dtoPermission.setCanRead(permission.isCanRead());
+                            dtoPermission.setCanEdit(permission.isCanEdit());
+                            return dtoPermission;
+                        }).collect(Collectors.toList())
+                    : List.of();
+            
+            dto.setAccountPermissions(permissionDTOs);
+            
+            // Fetch company name safely
+            try {
+                companyRepository.findById(contract.getCompanyId())
+                        .ifPresentOrElse(
+                                company -> dto.setCompanyName(company.getName()),
+                                () -> {
+                                    log.warn("Company not found for ID: {}", contract.getCompanyId());
+                                    dto.setCompanyName("Unknown Company");
+                                }
+                        );
+            } catch (Exception e) {
+                log.error("Error fetching company for ID: {}, error: {}", contract.getCompanyId(), e.getMessage());
+                dto.setCompanyName("Unknown Company");
+            }
+            
+            // Fetch screen names safely
+            List<String> screenNames = contract.getScreenIds() != null
+                    ? contract.getScreenIds().stream()
+                        .map(screenId -> {
+                            try {
+                                return screenService.getScreenById(screenId)
+                                        .map(ScreenResponse::getName)
+                                        .orElse("Unknown Screen");
+                            } catch (Exception e) {
+                                log.warn("Error fetching screen for ID: {}, error: {}", screenId, e.getMessage());
+                                return "Unknown Screen";
+                            }
+                        })
+                        .collect(Collectors.toList())
+                    : List.of();
+            
+            dto.setScreenNames(screenNames);
+            
+            return dto;
+        });
+    }
+
+    // Helper method to get active screen IDs (if needed elsewhere)
+    public List<Long> getActiveContractScreenIds() {
+        log.info("Fetching active contract screen IDs");
+        return contractRepository.findActiveContracts(LocalDateTime.now()).stream()
+                .filter(contract -> contract.getScreenIds() != null)
+                .flatMap(contract -> contract.getScreenIds().stream())
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    // Additional helper method to get active contracts for a specific company
+    public List<Contract> getActiveContractsByCompany(Long companyId) {
+        log.info("Fetching active contracts for company: {}", companyId);
+        return contractRepository.findByCompanyId(companyId).stream()
+                .filter(contract -> contract.getExpiredAt().isAfter(LocalDateTime.now()))
+                .collect(Collectors.toList());
+    }
 }

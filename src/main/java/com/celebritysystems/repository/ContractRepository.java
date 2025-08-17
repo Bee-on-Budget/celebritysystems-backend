@@ -14,15 +14,6 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
 
         List<Contract> findByCompanyId(Long companyId);
 
-        @Query("SELECT c FROM Contract c JOIN c.screenIds s WHERE s = :screenId")
-        List<Contract> findByScreenId(@Param("screenId") Long screenId);
-
-        @Query("SELECT CASE WHEN COUNT(c) > 0 THEN true ELSE false END FROM Contract c JOIN c.screenIds s WHERE s = :screenId AND c.companyId = :companyId")
-        boolean existsByCompanyIdAndScreenId(@Param("companyId") Long companyId, @Param("screenId") Long screenId);
-
-        @Query("SELECT c FROM Contract c JOIN c.screenIds s WHERE s = :screenId ORDER BY c.createdAt DESC")
-        Optional<Contract> findFirstByScreenIdOrderByCreatedAtDesc(@Param("screenId") Long screenId);
-
         List<Contract> findByExpiredAtBetween(LocalDateTime startDate, LocalDateTime endDate);
 
         @Query(value = "SELECT COUNT(*) FROM contract WHERE MONTH(created_at) = :month AND YEAR(created_at) = :year", nativeQuery = true)
@@ -38,9 +29,13 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
         @Query("SELECT SUM(c.contractValue) FROM Contract c")
         Double sumAllContractValues();
 
-     @Query("SELECT DISTINCT screenId FROM Contract c JOIN c.screenIds screenId WHERE c.expiredAt > CURRENT_TIMESTAMP")
-List<Long> findActiveContractScreenIds();
         @Query(value = "SELECT YEAR(created_at) as year, COUNT(*) as total " +
                         "FROM contract GROUP BY year ORDER BY year", nativeQuery = true)
         List<Object[]> getAnnualContractRegistrationStats();
+
+
+         @Query("SELECT DISTINCT screenId FROM Contract c JOIN c.screenIds screenId WHERE c.expiredAt > CURRENT_TIMESTAMP")
+        List<Long> findActiveContractScreenIds();
+        @Query("SELECT c FROM Contract c WHERE c.expiredAt > :currentTime")
+        List<Contract> findActiveContracts(@Param("currentTime") LocalDateTime currentTime);
 }

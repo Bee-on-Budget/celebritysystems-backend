@@ -2,6 +2,7 @@ package com.celebritysystems.controller;
 
 import com.celebritysystems.dto.ContractResponseDTO;
 import com.celebritysystems.dto.CreateContractDTO;
+import com.celebritysystems.dto.ScreenResponse;
 import com.celebritysystems.dto.statistics.AnnualStats;
 import com.celebritysystems.dto.statistics.MonthlyStats;
 import com.celebritysystems.entity.Contract;
@@ -57,6 +58,30 @@ public class ContractController {
         Optional<Contract> contract = contractService.getCurrentContractForScreen(screenId);
         return contract.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    // NEW METHOD: Get all screens for a company
+    @GetMapping("/company/{companyId}/screens")
+    public ResponseEntity<List<ScreenResponse>> getScreensByCompany(@PathVariable Long companyId) {
+        log.info("Fetching screens for company: {}", companyId);
+        List<ScreenResponse> screens = contractService.getScreensByCompany(companyId);
+        return ResponseEntity.ok(screens);
+    }
+
+    // NEW METHOD: Get all active screens for a company (contracts not expired)
+    @GetMapping("/company/{companyId}/screens/active")
+    public ResponseEntity<List<ScreenResponse>> getActiveScreensByCompany(@PathVariable Long companyId) {
+        log.info("Fetching active screens for company: {}", companyId);
+        List<ScreenResponse> screens = contractService.getActiveScreensByCompany(companyId);
+        return ResponseEntity.ok(screens);
+    }
+
+    // NEW METHOD: Get screen IDs only for a company
+    @GetMapping("/company/{companyId}/screen-ids")
+    public ResponseEntity<List<Long>> getScreenIdsByCompany(@PathVariable Long companyId) {
+        log.info("Fetching screen IDs for company: {}", companyId);
+        List<Long> screenIds = contractService.getScreenIdsByCompany(companyId);
+        return ResponseEntity.ok(screenIds);
     }
 
     @PutMapping("/{id}")
@@ -127,5 +152,4 @@ public class ContractController {
         log.info("Searching contracts by company name: {}", companyName);
         return ResponseEntity.ok(contractService.getContractsByCompanyName(companyName));
     }
-
 }
