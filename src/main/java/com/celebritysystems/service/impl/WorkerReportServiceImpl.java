@@ -99,17 +99,6 @@ public class WorkerReportServiceImpl implements WorkerReportService {
             }
         }
 
-        WorkerReport.ServiceType serviceType = null;
-        if (reportData.getServiceType() != null) {
-            try {
-                serviceType = WorkerReport.ServiceType.valueOf(
-                        reportData.getServiceType().toUpperCase().replace(" ", "_")
-                );
-            } catch (IllegalArgumentException e) {
-                serviceType = WorkerReport.ServiceType.REGULAR_SERVICE;
-            }
-        }
-
         // File Upload Fields
         String solutionImageUrl = null;
         String solutionImageName = null;
@@ -130,7 +119,6 @@ public class WorkerReportServiceImpl implements WorkerReportService {
         return WorkerReport.builder()
                 .ticket(ticket)
                 .reportDate(reportDate)
-                .serviceType(serviceType)
                 .dataCables(checklist.getDataCables())
                 .powerCable(checklist.getPowerCable())
                 .powerSupplies(checklist.getPowerSupplies())
@@ -166,18 +154,6 @@ public class WorkerReportServiceImpl implements WorkerReportService {
                 entity.setReportDate(date.atStartOfDay());
             } catch (Exception e) {
                 // Keep existing date if parsing fails
-            }
-        }
-
-        // Update service type
-        if (reportData.getServiceType() != null) {
-            try {
-                WorkerReport.ServiceType serviceType = WorkerReport.ServiceType.valueOf(
-                        reportData.getServiceType().toUpperCase().replace(" ", "_")
-                );
-                entity.setServiceType(serviceType);
-            } catch (IllegalArgumentException e) {
-                // Keep existing service type if parsing fails
             }
         }
 
@@ -249,7 +225,8 @@ public WorkerReportResponseDTO patchWorkerReport(Long ticketId, PatchWorkerRepor
                 .id(workerReport.getId())
                 .ticketId(workerReport.getTicket().getId())
                 .reportDate(workerReport.getReportDate())
-                .serviceType(workerReport.getServiceType() != null ? workerReport.getServiceType().getDisplayName() : null)
+                // Remove serviceType from response
+                //.serviceType(workerReport.getServiceType() != null ? workerReport.getServiceType().getDisplayName() : null)
                 .checklist(checklist)
                 .dateTime(workerReport.getDateTime())
                 .defectsFound(workerReport.getDefectsFound())

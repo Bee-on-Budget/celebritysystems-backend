@@ -18,4 +18,5 @@ public class CreateTicketDTO {
     private Long companyId;
     private MultipartFile file; // Optional, handled separately in TicketAttachment
     private MultipartFile ticketImage;
+    private String serviceType; // Add this field
 }

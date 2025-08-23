@@ -35,4 +35,7 @@ public class TicketResponseDTO {
 
     private String ticketImageUrl;
     private String ticketImageName;
+
+    private String serviceType;
+    private String serviceTypeDisplayName;
 }

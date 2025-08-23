@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.celebritysystems.entity.enums.TicketStatus;
+import com.celebritysystems.entity.enums.ServiceType;
 
 import java.time.LocalDateTime;
 
@@ -70,4 +71,7 @@ public class Ticket {
     @Column(nullable = true)
     private String ticketImageName;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "service_type")
+    private ServiceType serviceType;
 }

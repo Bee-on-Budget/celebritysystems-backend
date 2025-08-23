@@ -7,6 +7,7 @@ import com.celebritysystems.dto.PatchWorkerReportDTO;
 import com.celebritysystems.dto.TicketResponseDTO;
 import com.celebritysystems.dto.WorkerReportDTO;
 import com.celebritysystems.dto.WorkerReportResponseDTO;
+import com.celebritysystems.entity.enums.ServiceType;
 import com.celebritysystems.service.TicketService;
 import com.celebritysystems.service.WorkerReportService;
 import com.celebritysystems.service.S3Service;
@@ -26,9 +27,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartException;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -108,9 +111,21 @@ public class TicketController {
 
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<?> createTicket(@Valid @ModelAttribute CreateTicketDTO ticketDTO) {
-        log.info("Received request to create new ticket");
+        log.info("Received request to create new ticket with service type: {}", ticketDTO.getServiceType());
         try {
             log.debug("Ticket creation payload: {}", ticketDTO.toString());
+
+            // Validate service type if provided
+            if (ticketDTO.getServiceType() != null) {
+                try {
+                    ServiceType.valueOf(ticketDTO.getServiceType());
+                } catch (IllegalArgumentException e) {
+                    return ResponseEntity.badRequest().body(
+                        new ErrorResponse("INVALID_SERVICE_TYPE", 
+                            "Invalid service type. Valid values are: " + 
+                            Arrays.toString(ServiceType.values())));
+                }
+            }
 
             TicketDTO createdTicket = ticketService.createTicket(ticketDTO);
             log.info("Successfully created ticket with ID: {}", createdTicket.getId());
@@ -442,5 +457,18 @@ public class TicketController {
     private static class ErrorResponse {
         private String errorCode;
         private String message;
+    }
+
+    @GetMapping("/service-types")
+    public ResponseEntity<List<Map<String, String>>> getServiceTypes() {
+        List<Map<String, String>> serviceTypes = Arrays.stream(ServiceType.values())
+            .map(type -> {
+                Map<String, String> typeInfo = new HashMap<>();
+                typeInfo.put("name", type.name());
+                typeInfo.put("displayName", type.getDisplayName());
+                return typeInfo;
+            })
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(serviceTypes);
     }
 }

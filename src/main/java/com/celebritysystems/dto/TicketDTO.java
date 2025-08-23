@@ -19,4 +19,5 @@ public class TicketDTO {
     private LocalDateTime createdAt;
     private Long companyId;
     private String attachmentFileName; 
+    private String serviceType;
 }

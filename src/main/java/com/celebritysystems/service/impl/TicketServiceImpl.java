@@ -6,6 +6,7 @@ import com.celebritysystems.dto.PatchTicketDTO;
 import com.celebritysystems.dto.TicketResponseDTO;
 import com.celebritysystems.dto.WorkerReportResponseDTO;
 import com.celebritysystems.entity.*;
+import com.celebritysystems.entity.enums.ServiceType;
 import com.celebritysystems.entity.enums.TicketStatus;
 import com.celebritysystems.repository.*;
 import com.celebritysystems.service.S3Service;
@@ -377,10 +378,7 @@ public class TicketServiceImpl implements TicketService {
                 .createdAt(ticket.getCreatedAt())
                 .companyId(ticket.getCompany() != null ? ticket.getCompany().getId() : null)
                 .attachmentFileName(ticket.getAttachmentFileName())
-//                .openedAt(ticket.getOpenedAt())
-//                .inProgressAt(ticket.getInProgressAt())
-//                .resolvedAt(ticket.getResolvedAt())
-//                .closedAt(ticket.getClosedAt())
+                .serviceType(ticket.getServiceType() != null ? ticket.getServiceType().name() : null)  // Add this line
                 .build();
     }
 
@@ -415,6 +413,7 @@ public class TicketServiceImpl implements TicketService {
                 .company(company)
                 .ticketImageUrl(ticketImageUrl)
                 .ticketImageName(ticketImageName)
+                .serviceType(dto.getServiceType() != null ? ServiceType.valueOf(dto.getServiceType()) : null)  // Add this line
                 .build();
     }
 
@@ -454,6 +453,8 @@ public class TicketServiceImpl implements TicketService {
                 .closedAt(ticket.getClosedAt())
                 .ticketImageUrl(ticket.getTicketImageUrl())
                 .ticketImageName(ticket.getTicketImageName())
+                .serviceType(ticket.getServiceType() != null ? ticket.getServiceType().name() : null)  // Add this line
+                .serviceTypeDisplayName(ticket.getServiceType() != null ? ticket.getServiceType().getDisplayName() : null)  // Add this line
                 .build();
     }
 

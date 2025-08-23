@@ -14,11 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class WorkerReportDTO {
-
     private String date;
-
-    //    @JsonProperty("service_type")
-    private String serviceType;
 
     @Valid
     private String checklist;
