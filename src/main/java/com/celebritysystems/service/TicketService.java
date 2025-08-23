@@ -3,9 +3,12 @@ package com.celebritysystems.service;
 import com.celebritysystems.dto.TicketDTO;
 import com.celebritysystems.dto.CreateTicketDTO;
 import com.celebritysystems.dto.PatchTicketDTO;
+import com.celebritysystems.dto.TicketAnalyticsDTO;
+import com.celebritysystems.dto.TicketAnalyticsSummaryDTO;
 import com.celebritysystems.dto.TicketResponseDTO;
 import com.celebritysystems.dto.WorkerReportResponseDTO;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -39,4 +42,12 @@ public interface TicketService {
     TicketDTO patchTicket(Long id,PatchTicketDTO patchTicketDTO);
 
     List<TicketResponseDTO> getTicketsByCompanyId(Long companyId);
+     List<TicketAnalyticsDTO> getTicketAnalytics(List<Long> screenIds, 
+                                               LocalDate startDate, 
+                                               LocalDate endDate);
+    
+    
+    TicketAnalyticsSummaryDTO getTicketAnalyticsSummary(List<Long> screenIds, 
+                                                        LocalDate startDate, 
+                                                        LocalDate endDate);              
 }

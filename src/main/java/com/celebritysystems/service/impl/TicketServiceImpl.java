@@ -3,6 +3,8 @@ package com.celebritysystems.service.impl;
 import com.celebritysystems.dto.TicketDTO;
 import com.celebritysystems.dto.CreateTicketDTO;
 import com.celebritysystems.dto.PatchTicketDTO;
+import com.celebritysystems.dto.TicketAnalyticsDTO;
+import com.celebritysystems.dto.TicketAnalyticsSummaryDTO;
 import com.celebritysystems.dto.TicketResponseDTO;
 import com.celebritysystems.dto.WorkerReportResponseDTO;
 import com.celebritysystems.entity.*;
@@ -22,6 +24,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -554,4 +558,132 @@ public TicketDTO patchTicket(Long id, PatchTicketDTO patchTicketDTO) {
 
     }).orElseThrow(() -> new IllegalArgumentException("Ticket not found with ID: " + id));
 }
+
+    @Override
+    public List<TicketAnalyticsDTO> getTicketAnalytics(List<Long> screenIds, 
+                                                      LocalDate startDate, 
+                                                      LocalDate endDate) {
+        List<Ticket> tickets = getTicketsForAnalysis(screenIds, startDate, endDate);
+
+        return tickets.stream()
+            .map(ticket -> {
+                Duration resolution = null;
+                if (ticket.getOpenedAt() != null && ticket.getClosedAt() != null) {
+                    resolution = Duration.between(ticket.getOpenedAt(), ticket.getClosedAt());
+                }
+
+                return TicketAnalyticsDTO.builder()
+                    .ticketId(ticket.getId())
+                    .serviceType(ticket.getServiceType() != null ? 
+                               ticket.getServiceType().getDisplayName() : 
+                               "Unspecified")
+                    .resolutionTime(resolution)
+                    .resolutionTimeFormatted(formatDuration(resolution))
+                    .build();
+            })
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public TicketAnalyticsSummaryDTO getTicketAnalyticsSummary(List<Long> screenIds, 
+                                                              LocalDate startDate, 
+                                                              LocalDate endDate) {
+        List<Ticket> tickets = getTicketsForAnalysis(screenIds, startDate, endDate);
+        
+        // Calculate service type counts including null cases
+        Map<String, Long> serviceTypeCounts = tickets.stream()
+            .collect(Collectors.groupingBy(
+                ticket -> ticket.getServiceType() != null ? 
+                         ticket.getServiceType().getDisplayName() : 
+                         "Unspecified",
+                Collectors.counting()
+            ));
+
+        // Calculate average resolution time
+        List<Duration> resolutionTimes = tickets.stream()
+            .filter(ticket -> ticket.getOpenedAt() != null && ticket.getClosedAt() != null)
+            .map(ticket -> Duration.between(ticket.getOpenedAt(), ticket.getClosedAt()))
+            .collect(Collectors.toList());
+
+        Duration averageResolution = calculateAverageDuration(resolutionTimes);
+
+        // Calculate average time by service type handling null cases
+        Map<String, Duration> averageTimeByServiceType = tickets.stream()
+            .filter(ticket -> ticket.getOpenedAt() != null && ticket.getClosedAt() != null)
+            .collect(Collectors.groupingBy(
+                ticket -> ticket.getServiceType() != null ? 
+                         ticket.getServiceType().getDisplayName() : 
+                         "Unspecified",
+                Collectors.collectingAndThen(
+                    Collectors.mapping(
+                        ticket -> Duration.between(ticket.getOpenedAt(), ticket.getClosedAt()),
+                        Collectors.toList()
+                    ),
+                    this::calculateAverageDuration
+                )
+            ));
+
+        return TicketAnalyticsSummaryDTO.builder()
+            .averageResolutionTime(averageResolution)
+            .averageResolutionTimeFormatted(formatDuration(averageResolution))
+            .serviceTypeCounts(serviceTypeCounts)
+            .averageTimeByServiceType(averageTimeByServiceType)
+            .totalTickets((long) tickets.size())
+            .build();
+    }
+
+    private List<Ticket> getTicketsForAnalysis(List<Long> screenIds, 
+                                             LocalDate startDate, 
+                                             LocalDate endDate) {
+        if (screenIds != null && !screenIds.isEmpty()) {
+            return ticketRepository.findByScreenIdInAndCreatedAtBetween(
+                screenIds, 
+                startDate.atStartOfDay(), 
+                endDate.atTime(23, 59, 59)
+            );
+        }
+        return ticketRepository.findByCreatedAtBetween(
+            startDate.atStartOfDay(), 
+            endDate.atTime(23, 59, 59)
+        );
+    }
+
+    private Duration calculateAverageDuration(List<Duration> durations) {
+        if (durations == null || durations.isEmpty()) {
+            return Duration.ZERO;
+        }
+        
+        long totalSeconds = durations.stream()
+            .mapToLong(Duration::getSeconds)
+            .sum();
+            
+        return Duration.ofSeconds(totalSeconds / durations.size());
+    }
+
+    private String formatDuration(Duration duration) {
+        if (duration == null) {
+            return "N/A";
+        }
+        
+        long days = duration.toDays();
+        long hours = duration.toHoursPart();
+        long minutes = duration.toMinutesPart();
+        long seconds = duration.toSecondsPart();
+        
+        StringBuilder formatted = new StringBuilder();
+        if (days > 0) {
+            formatted.append(days).append(" days ");
+        }
+        if (hours > 0 || days > 0) {
+            formatted.append(hours).append(" hours ");
+        }
+        if (minutes > 0 || hours > 0 || days > 0) {
+            formatted.append(minutes).append(" minutes ");
+        }
+        if (seconds > 0 && days == 0 && hours == 0) { // Only show seconds if less than an hour
+            formatted.append(seconds).append(" seconds");
+        }
+        
+        return formatted.toString().trim();
+    }
 }

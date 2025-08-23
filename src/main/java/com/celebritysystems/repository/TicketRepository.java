@@ -43,4 +43,14 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     List<Ticket> findByAssignedToWorkerIsNullAndAssignedBySupervisorIsNull();
 
+    List<Ticket> findByScreenIdInAndCreatedAtBetween(
+        List<Long> screenIds,
+        LocalDateTime startDate,
+        LocalDateTime endDate
+    );
+
+    List<Ticket> findByCreatedAtBetween(
+        LocalDateTime startDate,
+        LocalDateTime endDate
+    );
 }

@@ -4,6 +4,8 @@ import com.celebritysystems.dto.TicketDTO;
 import com.celebritysystems.dto.CreateTicketDTO;
 import com.celebritysystems.dto.PatchTicketDTO;
 import com.celebritysystems.dto.PatchWorkerReportDTO;
+import com.celebritysystems.dto.TicketAnalyticsDTO;
+import com.celebritysystems.dto.TicketAnalyticsSummaryDTO;
 import com.celebritysystems.dto.TicketResponseDTO;
 import com.celebritysystems.dto.WorkerReportDTO;
 import com.celebritysystems.dto.WorkerReportResponseDTO;
@@ -21,12 +23,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartException;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -470,5 +474,49 @@ public class TicketController {
             })
             .collect(Collectors.toList());
         return ResponseEntity.ok(serviceTypes);
+    }
+
+    @GetMapping("/analytics")
+    public ResponseEntity<?> getTicketAnalytics(
+            @RequestParam(required = false) List<Long> screenIds,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        
+        log.info("Getting ticket analytics for screens: {}, period: {} to {}", 
+                screenIds, startDate, endDate);
+        
+        try {
+            List<TicketAnalyticsDTO> analytics = 
+                ticketService.getTicketAnalytics(screenIds, startDate, endDate);
+            return ResponseEntity.ok(analytics);
+        } catch (Exception e) {
+            log.error("Failed to get ticket analytics: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().body(
+                new ErrorResponse("ANALYTICS_ERROR", 
+                    "Failed to retrieve ticket analytics: " + e.getMessage())
+            );
+        }
+    }
+
+    @GetMapping("/analytics/summary")
+    public ResponseEntity<?> getTicketAnalyticsSummary(
+            @RequestParam(required = false) List<Long> screenIds,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        
+        log.info("Getting ticket analytics summary for screens: {}, period: {} to {}", 
+                screenIds, startDate, endDate);
+        
+        try {
+            TicketAnalyticsSummaryDTO summary = 
+                ticketService.getTicketAnalyticsSummary(screenIds, startDate, endDate);
+            return ResponseEntity.ok(summary);
+        } catch (Exception e) {
+            log.error("Failed to get ticket analytics summary: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().body(
+                new ErrorResponse("ANALYTICS_SUMMARY_ERROR", 
+                    "Failed to retrieve ticket analytics summary: " + e.getMessage())
+            );
+        }
     }
 }
