@@ -55,4 +55,9 @@ List<WorkerReport> findByScreenIdInAndReportDateBetween(
     @Param("startDate") LocalDateTime startDate,
     @Param("endDate") LocalDateTime endDate
 );
+List<WorkerReport> findByTicketScreenIdInAndReportDateBetween(
+    List<Long> screenIds, 
+    LocalDateTime startDate, 
+    LocalDateTime endDate
+);
 }

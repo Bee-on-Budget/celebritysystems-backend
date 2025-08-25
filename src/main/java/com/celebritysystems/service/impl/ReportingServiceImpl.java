@@ -79,101 +79,122 @@ public class ReportingServiceImpl implements ReportingService {
         return responseBuilder.build();
     }
 
-  
-@Override
-public List<ComponentChangesSummaryDTO> getComponentChangesSummary(
-        List<Long> screenIds, LocalDate startDate, LocalDate endDate, List<String> components) {
+    @Override
+    public List<ComponentChangesSummaryDTO> getComponentChangesSummary(
+            List<Long> screenIds, LocalDate startDate, LocalDate endDate, List<String> components) {
 
-    log.info("Getting component changes summary for screens: {}, date range: {} to {}", screenIds, startDate, endDate);
+        log.info("Getting component changes summary for screens: {}, date range: {} to {}", screenIds, startDate, endDate);
 
-    List<WorkerReport> reports = getWorkerReports(screenIds, startDate, endDate);
-    List<String> targetComponents = components != null && !components.isEmpty()
-            ? components
-            : new ArrayList<>(COMPONENT_FIELD_MAP.keySet());
+        List<WorkerReport> reports = getWorkerReports(screenIds, startDate, endDate);
+        List<String> targetComponents = components != null && !components.isEmpty()
+                ? components
+                : new ArrayList<>(COMPONENT_FIELD_MAP.keySet());
 
-    Map<String, ComponentChangesSummaryDTO> summaryMap = new HashMap<>();
-
-    for (String componentName : targetComponents) {
-        ComponentChangesSummaryDTO summary = ComponentChangesSummaryDTO.builder()
-                .componentName(componentName)
-                .totalChanges(0L)
-                .changesPerScreen(new HashMap<>())
-                .changeTypeDistribution(new HashMap<>())
-                .build();
-        summaryMap.put(componentName, summary);
-    }
-
-    reports.sort(Comparator.comparing(WorkerReport::getReportDate));
-
-    for (WorkerReport report : reports) {
-        Long screenId = report.getTicket().getId();
+        Map<String, ComponentChangesSummaryDTO> summaryMap = new HashMap<>();
 
         for (String componentName : targetComponents) {
-            String currentValue = getComponentValue(report, componentName);
+            ComponentChangesSummaryDTO summary = ComponentChangesSummaryDTO.builder()
+                    .componentName(componentName)
+                    .totalChanges(0L)
+                    .changesPerScreen(new HashMap<>())
+                    .changeTypeDistribution(new HashMap<>())
+                    .build();
+            summaryMap.put(componentName, summary);
+        }
 
-            if (!"OK".equalsIgnoreCase(currentValue)) {
-                ComponentChangesSummaryDTO summary = summaryMap.get(componentName);
-                summary.setTotalChanges(summary.getTotalChanges() + 1);
+        reports.sort(Comparator.comparing(WorkerReport::getReportDate));
 
-                // Update changes per screen
-                Long currentCount = summary.getChangesPerScreen().getOrDefault(screenId, 0L);
-                summary.getChangesPerScreen().put(screenId, currentCount + 1);
+        for (WorkerReport report : reports) {
+            // FIXED: Get the actual screen ID from the ticket's screen, not the ticket ID
+            Long screenId = report.getTicket().getScreen() != null ? 
+                           report.getTicket().getScreen().getId() : 
+                           null;
+            
+            // Skip if no screen is associated
+            if (screenId == null) {
+                log.warn("Worker report {} has no associated screen, skipping", report.getId());
+                continue;
+            }
 
-                // Update change type distribution (just count by value)
-                String changeType = currentValue;
-                Long typeCount = summary.getChangeTypeDistribution().getOrDefault(changeType, 0L);
-                summary.getChangeTypeDistribution().put(changeType, typeCount + 1);
+            for (String componentName : targetComponents) {
+                String currentValue = getComponentValue(report, componentName);
+
+                if (!"OK".equalsIgnoreCase(currentValue)) {
+                    ComponentChangesSummaryDTO summary = summaryMap.get(componentName);
+                    summary.setTotalChanges(summary.getTotalChanges() + 1);
+
+                    // Update changes per screen
+                    Long currentCount = summary.getChangesPerScreen().getOrDefault(screenId, 0L);
+                    summary.getChangesPerScreen().put(screenId, currentCount + 1);
+
+                    // Update change type distribution (just count by value)
+                    String changeType = currentValue;
+                    Long typeCount = summary.getChangeTypeDistribution().getOrDefault(changeType, 0L);
+                    summary.getChangeTypeDistribution().put(changeType, typeCount + 1);
+                }
             }
         }
+
+        return new ArrayList<>(summaryMap.values());
     }
 
-    return new ArrayList<>(summaryMap.values());
-}
+    @Override
+    public List<DetailedChangeRecordDTO> getDetailedChangeRecords(
+            List<Long> screenIds, LocalDate startDate, LocalDate endDate, List<String> components) {
 
-@Override
-public List<DetailedChangeRecordDTO> getDetailedChangeRecords(
-        List<Long> screenIds, LocalDate startDate, LocalDate endDate, List<String> components) {
+        log.info("Getting detailed change records for screens: {}, date range: {} to {}", screenIds, startDate, endDate);
 
-    log.info("Getting detailed change records for screens: {}, date range: {} to {}", screenIds, startDate, endDate);
+        List<WorkerReport> reports = getWorkerReports(screenIds, startDate, endDate);
+        List<String> targetComponents = components != null && !components.isEmpty()
+                ? components
+                : new ArrayList<>(COMPONENT_FIELD_MAP.keySet());
 
-    List<WorkerReport> reports = getWorkerReports(screenIds, startDate, endDate);
-    List<String> targetComponents = components != null && !components.isEmpty()
-            ? components
-            : new ArrayList<>(COMPONENT_FIELD_MAP.keySet());
+        List<DetailedChangeRecordDTO> detailedRecords = new ArrayList<>();
+        reports.sort(Comparator.comparing(WorkerReport::getReportDate));
 
-    List<DetailedChangeRecordDTO> detailedRecords = new ArrayList<>();
-    reports.sort(Comparator.comparing(WorkerReport::getReportDate));
+        for (WorkerReport report : reports) {
+            // FIXED: Get the actual screen ID from the ticket's screen, not the ticket ID
+            Long screenId = report.getTicket().getScreen() != null ? 
+                           report.getTicket().getScreen().getId() : 
+                           null;
+            
+            // Skip if no screen is associated
+            if (screenId == null) {
+                log.warn("Worker report {} has no associated screen, skipping", report.getId());
+                continue;
+            }
 
-    for (WorkerReport report : reports) {
-        Long screenId = report.getTicket().getId();
+            for (String componentName : targetComponents) {
+                String currentValue = getComponentValue(report, componentName);
 
-        for (String componentName : targetComponents) {
-            String currentValue = getComponentValue(report, componentName);
+                if (!"OK".equalsIgnoreCase(currentValue)) {
+                    DetailedChangeRecordDTO record = DetailedChangeRecordDTO.builder()
+                            .ticketId(report.getTicket().getId())
+                            .screenId(screenId) // Now using the correct screen ID
+                            .componentName(componentName)
+                            .previousValue(null) // You can fill this if you want, but not needed for just counting
+                            .currentValue(currentValue)
+                            .changeDate(report.getReportDate())
+                            .build();
 
-            if (!"OK".equalsIgnoreCase(currentValue)) {
-                DetailedChangeRecordDTO record = DetailedChangeRecordDTO.builder()
-                        .ticketId(report.getTicket().getId())
-                        .screenId(screenId)
-                        .componentName(componentName)
-                        .previousValue(null) // You can fill this if you want, but not needed for just counting
-                        .currentValue(currentValue)
-                        .changeDate(report.getReportDate())
-                        .build();
-
-                detailedRecords.add(record);
+                    detailedRecords.add(record);
+                }
             }
         }
+
+        return detailedRecords;
     }
 
-    return detailedRecords;
-}
     @Override
     public List<ScreenHistoryDTO> getScreenHistory(List<Long> screenIds, LocalDate startDate, LocalDate endDate) {
         log.info("Getting screen history for screens: {}, date range: {} to {}", screenIds, startDate, endDate);
 
         List<WorkerReport> reports = getWorkerReports(screenIds, startDate, endDate);
+        
+        // FIXED: Group by actual screen ID, not ticket ID
         Map<Long, List<WorkerReport>> reportsByScreen = reports.stream()
-                .collect(Collectors.groupingBy(report -> report.getTicket().getId()));
+                .filter(report -> report.getTicket().getScreen() != null) // Filter out reports without screens
+                .collect(Collectors.groupingBy(report -> report.getTicket().getScreen().getId()));
 
         List<ScreenHistoryDTO> screenHistories = new ArrayList<>();
 
@@ -182,6 +203,11 @@ public List<DetailedChangeRecordDTO> getDetailedChangeRecords(
             List<WorkerReport> screenReports = entry.getValue();
             screenReports.sort(Comparator.comparing(WorkerReport::getReportDate));
 
+            // Get the screen name from the first report (assuming all reports have the same screen)
+            String screenName = screenReports.get(0).getTicket().getScreen() != null ? 
+                               screenReports.get(0).getTicket().getScreen().getName() : 
+                               "Screen " + screenId;
+
             List<ComponentHistoryDTO> componentHistories = buildComponentHistories(screenReports);
             Long totalChanges = componentHistories.stream()
                     .mapToLong(ComponentHistoryDTO::getChangeCount)
@@ -189,7 +215,7 @@ public List<DetailedChangeRecordDTO> getDetailedChangeRecords(
 
             ScreenHistoryDTO screenHistory = ScreenHistoryDTO.builder()
                     .screenId(screenId)
-                    .screenName("Screen " + screenId) // You might want to get actual screen name
+                    .screenName(screenName) // Using actual screen name
                     .componentHistories(componentHistories)
                     .totalChanges(totalChanges)
                     .build();
@@ -237,8 +263,9 @@ public List<DetailedChangeRecordDTO> getDetailedChangeRecords(
         if (screenIds == null || screenIds.isEmpty()) {
             return workerReportRepository.findByReportDateBetween(startDateTime, endDateTime);
         } else {
-            // Use the correct method to filter by screenId, not ticketId
-            return workerReportRepository.findByScreenIdInAndReportDateBetween(screenIds, startDateTime, endDateTime);
+            // FIXED: This method should filter by the screen ID associated with the ticket
+            // You'll need to add this method to your WorkerReportRepository
+            return workerReportRepository.findByTicketScreenIdInAndReportDateBetween(screenIds, startDateTime, endDateTime);
         }
     }
 

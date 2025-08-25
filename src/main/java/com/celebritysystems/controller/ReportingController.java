@@ -64,30 +64,6 @@ public class ReportingController {
         }
     }
 
-    @GetMapping("/components/detailed")
-    public ResponseEntity<?> getDetailedChangeRecords(
-            @RequestParam(required = false) List<Long> screenIds,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-            @RequestParam(required = false) List<String> components) {
-        
-        log.info("Getting detailed change records for screens: {}, date range: {} to {}", 
-                screenIds, startDate, endDate);
-        
-        try {
-            List<DetailedChangeRecordDTO> records = reportingService.getDetailedChangeRecords(
-                screenIds, startDate, endDate, components);
-            log.info("Successfully retrieved {} detailed change records", records.size());
-            return ResponseEntity.ok(records);
-        } catch (Exception e) {
-            log.error("Failed to get detailed change records: {}", e.getMessage(), e);
-            return ResponseEntity.internalServerError().body(
-                new ErrorResponse("DETAILED_RECORDS_ERROR", 
-                    "Failed to retrieve detailed change records: " + e.getMessage())
-            );
-        }
-    }
-
     @GetMapping("/screens/history")
     public ResponseEntity<?> getScreenHistory(
             @RequestParam(required = false) List<Long> screenIds,
