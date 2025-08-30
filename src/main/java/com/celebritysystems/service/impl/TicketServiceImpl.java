@@ -686,4 +686,58 @@ public TicketDTO patchTicket(Long id, PatchTicketDTO patchTicketDTO) {
         
         return formatted.toString().trim();
     }
+    @Override
+public List<TicketResponseDTO> getTicketsWithWorkerReportsByScreenId(Long screenId) {
+    log.info("Fetching tickets with worker reports for screen ID: {}", screenId);
+    
+    // Verify screen exists
+    if (!screenRepository.existsById(screenId)) {
+        throw new IllegalArgumentException("Screen not found with ID: " + screenId);
+    }
+    
+    List<Ticket> tickets = ticketRepository.findByScreenId(screenId);
+    
+    return tickets.stream()
+            .map(this::toTicketResponseDtoWithWorkerReport)
+            .collect(Collectors.toList());
+}
+private TicketResponseDTO toTicketResponseDtoWithWorkerReport(Ticket ticket) {
+    // Get worker report if exists
+    WorkerReportResponseDTO workerReport = null;
+    try {
+        workerReport = workerReportService.getWorkerReportByTicketId(ticket.getId());
+    } catch (Exception e) {
+        log.warn("Failed to retrieve worker report for ticket {}: {}", 
+                ticket.getId(), e.getMessage());
+    }
+
+    return TicketResponseDTO.builder()
+            .id(ticket.getId())
+            .title(ticket.getTitle())
+            .description(ticket.getDescription())
+            .createdBy(ticket.getCreatedBy() != null ? ticket.getCreatedBy().getId() : null)
+            .assignedToWorkerName(ticket.getAssignedToWorker() != null
+                    ? ticket.getAssignedToWorker().getFullName()
+                    : null)
+            .assignedBySupervisorName(ticket.getAssignedBySupervisor() != null
+                    ? ticket.getAssignedBySupervisor().getFullName()
+                    : null)
+            .screenName(ticket.getScreen() != null ? ticket.getScreen().getName() : null)
+            .companyName(ticket.getCompany() != null ? ticket.getCompany().getName() : null)
+            .status(ticket.getStatus() != null ? ticket.getStatus().name() : null)
+            .createdAt(ticket.getCreatedAt())
+            .attachmentFileName(ticket.getAttachmentFileName())
+            .location(ticket.getScreen() != null ? ticket.getScreen().getLocation() : null)
+            .screenType(ticket.getScreen() != null ? ticket.getScreen().getScreenType().toString() : null)
+            .workerReport(workerReport) // This ensures worker report is always included
+            .openedAt(ticket.getOpenedAt())
+            .inProgressAt(ticket.getInProgressAt())
+            .resolvedAt(ticket.getResolvedAt())
+            .closedAt(ticket.getClosedAt())
+            .ticketImageUrl(ticket.getTicketImageUrl())
+            .ticketImageName(ticket.getTicketImageName())
+            .serviceType(ticket.getServiceType() != null ? ticket.getServiceType().name() : null)
+            .serviceTypeDisplayName(ticket.getServiceType() != null ? ticket.getServiceType().getDisplayName() : null)
+            .build();
+}
 }

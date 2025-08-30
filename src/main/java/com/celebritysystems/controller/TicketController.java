@@ -125,9 +125,9 @@ public class TicketController {
                     ServiceType.valueOf(ticketDTO.getServiceType());
                 } catch (IllegalArgumentException e) {
                     return ResponseEntity.badRequest().body(
-                        new ErrorResponse("INVALID_SERVICE_TYPE", 
-                            "Invalid service type. Valid values are: " + 
-                            Arrays.toString(ServiceType.values())));
+                            new ErrorResponse("INVALID_SERVICE_TYPE",
+                                    "Invalid service type. Valid values are: " +
+                                            Arrays.toString(ServiceType.values())));
                 }
             }
 
@@ -320,6 +320,33 @@ public class TicketController {
         }
     }
 
+    @GetMapping("/screen/{screenId}")
+    public ResponseEntity<?> getTicketsByScreenId(@PathVariable Long screenId) {
+        log.info("Received request to get tickets with worker reports for screen ID: {}", screenId);
+
+        try {
+            List<TicketResponseDTO> tickets = ticketService.getTicketsWithWorkerReportsByScreenId(screenId);
+
+            if (tickets.isEmpty()) {
+                log.info("No tickets found for screen ID: {}", screenId);
+                return ResponseEntity.ok(tickets);
+            }
+
+            log.info("Successfully retrieved {} tickets with worker reports for screen ID: {}",
+                    tickets.size(), screenId);
+            return ResponseEntity.ok(tickets);
+
+        } catch (IllegalArgumentException e) {
+            log.error("Screen not found: {}", e.getMessage());
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            log.error("Failed to get tickets for screen ID {}: {}", screenId, e.getMessage(), e);
+            return ResponseEntity.internalServerError().body(
+                    new ErrorResponse("INTERNAL_SERVER_ERROR",
+                            "An unexpected error occurred: " + e.getMessage()));
+        }
+    }
+
     @DeleteMapping("/{ticketId}/worker-report")
     public ResponseEntity<?> deleteWorkerReport(@PathVariable Long ticketId) {
         log.info("Received request to delete worker report for ticket ID: {}", ticketId);
@@ -466,13 +493,13 @@ public class TicketController {
     @GetMapping("/service-types")
     public ResponseEntity<List<Map<String, String>>> getServiceTypes() {
         List<Map<String, String>> serviceTypes = Arrays.stream(ServiceType.values())
-            .map(type -> {
-                Map<String, String> typeInfo = new HashMap<>();
-                typeInfo.put("name", type.name());
-                typeInfo.put("displayName", type.getDisplayName());
-                return typeInfo;
-            })
-            .collect(Collectors.toList());
+                .map(type -> {
+                    Map<String, String> typeInfo = new HashMap<>();
+                    typeInfo.put("name", type.name());
+                    typeInfo.put("displayName", type.getDisplayName());
+                    return typeInfo;
+                })
+                .collect(Collectors.toList());
         return ResponseEntity.ok(serviceTypes);
     }
 
@@ -481,20 +508,18 @@ public class TicketController {
             @RequestParam(required = false) List<Long> screenIds,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        
-        log.info("Getting ticket analytics for screens: {}, period: {} to {}", 
+
+        log.info("Getting ticket analytics for screens: {}, period: {} to {}",
                 screenIds, startDate, endDate);
-        
+
         try {
-            List<TicketAnalyticsDTO> analytics = 
-                ticketService.getTicketAnalytics(screenIds, startDate, endDate);
+            List<TicketAnalyticsDTO> analytics = ticketService.getTicketAnalytics(screenIds, startDate, endDate);
             return ResponseEntity.ok(analytics);
         } catch (Exception e) {
             log.error("Failed to get ticket analytics: {}", e.getMessage(), e);
             return ResponseEntity.internalServerError().body(
-                new ErrorResponse("ANALYTICS_ERROR", 
-                    "Failed to retrieve ticket analytics: " + e.getMessage())
-            );
+                    new ErrorResponse("ANALYTICS_ERROR",
+                            "Failed to retrieve ticket analytics: " + e.getMessage()));
         }
     }
 
@@ -503,20 +528,18 @@ public class TicketController {
             @RequestParam(required = false) List<Long> screenIds,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-        
-        log.info("Getting ticket analytics summary for screens: {}, period: {} to {}", 
+
+        log.info("Getting ticket analytics summary for screens: {}, period: {} to {}",
                 screenIds, startDate, endDate);
-        
+
         try {
-            TicketAnalyticsSummaryDTO summary = 
-                ticketService.getTicketAnalyticsSummary(screenIds, startDate, endDate);
+            TicketAnalyticsSummaryDTO summary = ticketService.getTicketAnalyticsSummary(screenIds, startDate, endDate);
             return ResponseEntity.ok(summary);
         } catch (Exception e) {
             log.error("Failed to get ticket analytics summary: {}", e.getMessage(), e);
             return ResponseEntity.internalServerError().body(
-                new ErrorResponse("ANALYTICS_SUMMARY_ERROR", 
-                    "Failed to retrieve ticket analytics summary: " + e.getMessage())
-            );
+                    new ErrorResponse("ANALYTICS_SUMMARY_ERROR",
+                            "Failed to retrieve ticket analytics summary: " + e.getMessage()));
         }
     }
 }

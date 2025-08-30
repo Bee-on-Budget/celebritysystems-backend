@@ -46,7 +46,8 @@ public interface TicketService {
                                                LocalDate startDate, 
                                                LocalDate endDate);
     
-    
+    List<TicketResponseDTO> getTicketsWithWorkerReportsByScreenId(Long screenId);
+
     TicketAnalyticsSummaryDTO getTicketAnalyticsSummary(List<Long> screenIds, 
                                                         LocalDate startDate, 
                                                         LocalDate endDate);              

@@ -20,6 +20,8 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     List<Ticket> findByAssignedBySupervisorId(Long userId);
 
+    List<Ticket> findByScreenId(Long screenId);
+
     List<Ticket> findByCompanyId(Long companyId);
 
     List<Ticket> findByStatus(String status);
@@ -44,13 +46,11 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     List<Ticket> findByAssignedToWorkerIsNullAndAssignedBySupervisorIsNull();
 
     List<Ticket> findByScreenIdInAndCreatedAtBetween(
-        List<Long> screenIds,
-        LocalDateTime startDate,
-        LocalDateTime endDate
-    );
+            List<Long> screenIds,
+            LocalDateTime startDate,
+            LocalDateTime endDate);
 
     List<Ticket> findByCreatedAtBetween(
-        LocalDateTime startDate,
-        LocalDateTime endDate
-    );
+            LocalDateTime startDate,
+            LocalDateTime endDate);
 }
