@@ -2,6 +2,7 @@ package com.celebritysystems.controller;
 
 import com.celebritysystems.AuthControllers.AuthController;
 import com.celebritysystems.config.TokenProvider;
+import com.celebritysystems.dto.UserResponseDTO;
 import com.celebritysystems.entity.User;
 import com.celebritysystems.entity.enums.RoleInSystem;
 import com.celebritysystems.repository.UserRepository;
@@ -14,7 +15,6 @@ import org.springframework.data.domain.Sort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -128,7 +128,6 @@ public class UserController {
                 logger.warn("Username already taken: {}", user.getUsername());
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username already taken");
             }
-            // Removed player ID validation - multiple users can have same player ID
 
             User companyUser = userService.save(user);
             logger.info("User created successfully with username: {}", companyUser.getUsername());
@@ -175,8 +174,6 @@ public class UserController {
                 });
             }
             
-            // Removed player ID validation completely - multiple users can have same player ID
-            
             User updatedUser = userService.patchUser(id, updates);
             logger.info("User patched successfully with id: {}", id);
             return ResponseEntity.ok(updatedUser);
@@ -221,40 +218,15 @@ public class UserController {
                 });
     }
 
-    
-// Add this method to your UserController class
+       @GetMapping("/paginated")
+    public Page<UserResponseDTO> getAllUsersPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) RoleInSystem role,
+            @RequestParam(required = false) Long companyId) {
 
-@GetMapping("/paginated")
-public ResponseEntity<Page<User>> getUsersPaginated(
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size,
-        @RequestParam(defaultValue = "id") String sortBy,
-        @RequestParam(defaultValue = "asc") String sortDir,
-        @RequestParam(required = false) String search,
-        @RequestParam(required = false) RoleInSystem role,
-        @RequestParam(required = false) Long companyId) {
-    
-    logger.info("Fetching paginated users - page: {}, size: {}, sortBy: {}, sortDir: {}, search: {}, role: {}, companyId: {}", 
-                page, size, sortBy, sortDir, search, role, companyId);
-    
-    try {
-        // Create sort direction
-        Sort.Direction direction = sortDir.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        Sort sort = Sort.by(direction, sortBy);
-        
-        // Create pageable
-        Pageable pageable = PageRequest.of(page, size, sort);
-        
-        // Get paginated users
-        Page<User> users = userService.findAllPaginated(pageable, search, role, companyId);
-        
-        logger.debug("Found {} users out of {} total", users.getNumberOfElements(), users.getTotalElements());
-        return ResponseEntity.ok(users);
-        
-    } catch (Exception e) {
-        logger.error("Error fetching paginated users", e);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        Pageable pageable = PageRequest.of(page, size);
+        return userService.findAllPaginatedAsDTO(pageable, search, role, companyId);
     }
-}
-
 }
