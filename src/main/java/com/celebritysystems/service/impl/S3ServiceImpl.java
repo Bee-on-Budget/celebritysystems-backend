@@ -24,8 +24,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
@@ -47,12 +45,6 @@ public class S3ServiceImpl implements S3Service {
 
     @Value("${s3.endpoint}")
     private String endpoint;
-
-    private static final List<String> ALLOWED_FILE_TYPES = Arrays.asList(
-        "image/jpeg", "image/png", "image/gif", "image/webp",
-        "application/pdf", "text/plain", "application/msword",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    );
     
     private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
@@ -76,10 +68,13 @@ public class S3ServiceImpl implements S3Service {
             String fileKey = generateFileKey(keyPrefix, file.getOriginalFilename());
             log.info("Generated file key: {}", fileKey);
             
+            // Use application/octet-stream as default if content type is null
+            String contentType = file.getContentType() != null ? file.getContentType() : "application/octet-stream";
+            
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(bucketName)
                     .key(fileKey)
-                    .contentType(file.getContentType())
+                    .contentType(contentType)
                     .contentLength(file.getSize())
                     .metadata(Map.of(
                         "original-filename", file.getOriginalFilename(),
@@ -143,10 +138,8 @@ public class S3ServiceImpl implements S3Service {
             throw new IllegalArgumentException("File size exceeds maximum allowed size of " + MAX_FILE_SIZE + " bytes");
         }
         
-        String contentType = file.getContentType();
-        if (contentType == null || !ALLOWED_FILE_TYPES.contains(contentType.toLowerCase())) {
-            throw new IllegalArgumentException("File type not allowed: " + contentType);
-        }
+        // Removed file type validation - now accepts all file types
+        log.info("File validation passed for: {} (type: {})", file.getOriginalFilename(), file.getContentType());
     }
 
     @Override
