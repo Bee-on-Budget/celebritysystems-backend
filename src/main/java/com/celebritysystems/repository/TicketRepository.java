@@ -1,8 +1,11 @@
 package com.celebritysystems.repository;
 
 import com.celebritysystems.entity.Ticket;
+import com.celebritysystems.entity.enums.ServiceType;
 import com.celebritysystems.entity.enums.TicketStatus;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -53,4 +56,22 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
     List<Ticket> findByCreatedAtBetween(
             LocalDateTime startDate,
             LocalDateTime endDate);
+
+
+               @Query("SELECT t FROM Ticket t WHERE t.assignedToWorker IS NULL AND t.assignedBySupervisor IS NULL")
+    Page<Ticket> findPendingTicketsPaginated(Pageable pageable);
+
+    @Query("SELECT t FROM Ticket t WHERE " +
+           "(:status IS NULL OR t.status = :status) AND " +
+           "(:companyId IS NULL OR t.company.id = :companyId) AND " +
+           "(:screenId IS NULL OR t.screen.id = :screenId) AND " +
+           "(:assignedToWorkerId IS NULL OR t.assignedToWorker.id = :assignedToWorkerId) AND " +
+           "(:serviceType IS NULL OR t.serviceType = :serviceType)")
+    Page<Ticket> findTicketsWithFilters(
+            @Param("status") TicketStatus status,
+            @Param("companyId") Long companyId,
+            @Param("screenId") Long screenId,
+            @Param("assignedToWorkerId") Long assignedToWorkerId,
+            @Param("serviceType") ServiceType serviceType,
+            Pageable pageable);
 }

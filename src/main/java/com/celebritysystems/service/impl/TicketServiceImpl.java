@@ -321,12 +321,29 @@ public class TicketServiceImpl implements TicketService {
         return ticketRepository.countByAssignedToWorker_UsernameAndStatus(username, TicketStatus.CLOSED);
     }
 
-    @Override
-    public Page<TicketResponseDTO> getAllTicketsPaginated(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Ticket> tickets = ticketRepository.findAll(pageable);
-        return tickets.map(this::toTicketResponseDto);
+@Override
+public Page<TicketResponseDTO> getAllTicketsPaginated(int page, int size, String status, Long companyId, 
+                                                     Long screenId, Long assignedToWorkerId, String serviceType, Boolean pending) {
+    Pageable pageable = PageRequest.of(page, size);
+    Page<Ticket> tickets;
+    
+    // Handle pending tickets filter first (highest priority)
+    if (Boolean.TRUE.equals(pending)) {
+        tickets = ticketRepository.findPendingTicketsPaginated(pageable);
+    } else {
+        // Build dynamic query based on provided filters
+        tickets = ticketRepository.findTicketsWithFilters(
+            status != null ? TicketStatus.valueOf(status.toUpperCase()) : null,
+            companyId,
+            screenId,
+            assignedToWorkerId,
+            serviceType != null ? ServiceType.valueOf(serviceType.toUpperCase()) : null,
+            pageable
+        );
     }
+    
+    return tickets.map(this::toTicketResponseDto);
+}
 
     @Override
     public Long getTicketsCount() {

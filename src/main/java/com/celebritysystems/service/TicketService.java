@@ -29,8 +29,8 @@ public interface TicketService {
 
     long countTicketsAssignedToWorker(String username);
 
-    Page<TicketResponseDTO> getAllTicketsPaginated(int page, int size);
-
+Page<TicketResponseDTO> getAllTicketsPaginated(int page, int size, String status, Long companyId, 
+                                              Long screenId, Long assignedToWorkerId, String serviceType, Boolean pending);
     long countTicketsCompletedByWorker(String username);
 
     Long getTicketsCount();
