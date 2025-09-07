@@ -15,6 +15,7 @@ import com.celebritysystems.service.S3Service;
 import com.celebritysystems.service.TicketService;
 import com.celebritysystems.service.WorkerReportService;
 import com.celebritysystems.service.OneSignalService;
+import com.celebritysystems.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,7 +44,8 @@ public class TicketServiceImpl implements TicketService {
     private final ScreenRepository screenRepository;
     private final CompanyRepository companyRepository;
     private final WorkerReportService workerReportService;
-    private final OneSignalService oneSignalService; // Add OneSignal service
+    private final OneSignalService oneSignalService;
+    private final EmailService emailService;
     private final S3Service s3Service;
 
     @Override
@@ -68,10 +70,8 @@ public class TicketServiceImpl implements TicketService {
 
         if (ticketDTO.getFile() != null && !ticketDTO.getFile().isEmpty()) {
             try {
-                // Upload the general attachment file to S3
                 String fileUrl = s3Service.uploadFile(ticketDTO.getFile(), "ticket-attachments");
                 ticket.setAttachmentFileName(ticketDTO.getFile().getOriginalFilename());
-                // Note: You might want to store the S3 URL as well for downloads
                 log.info("Uploaded ticket attachment file: {}", ticketDTO.getFile().getOriginalFilename());
             } catch (Exception e) {
                 log.error("Failed to upload ticket attachment file", e);
@@ -83,7 +83,6 @@ public class TicketServiceImpl implements TicketService {
 
         Ticket savedTicket = ticketRepository.save(ticket);
 
-        // Send notification if ticket is assigned to a worker during creation
         if (savedTicket.getAssignedToWorker() != null) {
             sendTicketAssignmentNotification(savedTicket);
         }
@@ -94,21 +93,18 @@ public class TicketServiceImpl implements TicketService {
     @Override
     public TicketDTO updateTicket(Long id, CreateTicketDTO updatedTicketDTO) {
         return ticketRepository.findById(id).map(ticket -> {
-            // Store the previous assigned worker and status to detect changes
             User previousAssignedWorker = ticket.getAssignedToWorker();
             TicketStatus previousStatus = ticket.getStatus();
 
             ticket.setTitle(updatedTicketDTO.getTitle());
             ticket.setDescription(updatedTicketDTO.getDescription());
 
-            // Update status if provided
             TicketStatus newStatus = null;
             if (updatedTicketDTO.getStatus() != null) {
                 newStatus = TicketStatus.valueOf(updatedTicketDTO.getStatus());
                 ticket.setStatus(newStatus);
             }
 
-            // Update assigned worker if provided
             User newAssignedWorker = null;
             if (updatedTicketDTO.getAssignedToWorkerId() != null) {
                 newAssignedWorker = userRepository.findById(updatedTicketDTO.getAssignedToWorkerId()).orElse(null);
@@ -117,20 +113,17 @@ public class TicketServiceImpl implements TicketService {
                 ticket = updateTicketStatus(ticket, TicketStatus.IN_PROGRESS);
             }
 
-            // Update assigned supervisor if provided
             if (updatedTicketDTO.getAssignedBySupervisorId() != null) {
                 User assignedSupervisor = userRepository.findById(updatedTicketDTO.getAssignedBySupervisorId())
                         .orElse(null);
                 ticket.setAssignedBySupervisor(assignedSupervisor);
             }
 
-            // Update screen if provided
             if (updatedTicketDTO.getScreenId() != null) {
                 Screen screen = screenRepository.findById(updatedTicketDTO.getScreenId()).orElse(null);
                 ticket.setScreen(screen);
             }
 
-            // Update company if provided
             if (updatedTicketDTO.getCompanyId() != null) {
                 Company company = companyRepository.findById(updatedTicketDTO.getCompanyId()).orElse(null);
                 ticket.setCompany(company);
@@ -138,12 +131,10 @@ public class TicketServiceImpl implements TicketService {
 
             Ticket savedTicket = ticketRepository.save(ticket);
 
-            // Send notification if worker assignment changed
             if (hasWorkerAssignmentChanged(previousAssignedWorker, newAssignedWorker)) {
                 sendTicketAssignmentNotification(savedTicket);
             }
 
-            // Send notification to all company users if status changed
             if (hasStatusChanged(previousStatus, newStatus)) {
                 sendTicketStatusUpdateNotificationToCompany(savedTicket, previousStatus, newStatus);
             }
@@ -152,57 +143,41 @@ public class TicketServiceImpl implements TicketService {
         }).orElseThrow(() -> new IllegalArgumentException("Ticket not found with ID: " + id));
     }
 
-    /**
-     * Check if the worker assignment has changed
-     */
     private boolean hasWorkerAssignmentChanged(User previousWorker, User newWorker) {
-        // If both are null, no change
         if (previousWorker == null && newWorker == null) {
             return false;
         }
 
-        // If one is null and the other isn't, there's a change
         if (previousWorker == null || newWorker == null) {
             return true;
         }
 
-        // If both exist, check if they're different
         return !previousWorker.getId().equals(newWorker.getId());
     }
 
-    /**
-     * Check if the ticket status has changed
-     */
     private boolean hasStatusChanged(TicketStatus previousStatus, TicketStatus newStatus) {
-        // If both are null, no change
         if (previousStatus == null && newStatus == null) {
             return false;
         }
 
-        // If one is null and the other isn't, there's a change
         if (previousStatus == null || newStatus == null) {
             return true;
         }
 
-        // If both exist, check if they're different
         return !previousStatus.equals(newStatus);
     }
 
-    /**
-     * Send notification to the assigned worker about the new ticket
-     */
     private void sendTicketAssignmentNotification(Ticket ticket) {
         try {
-            if (ticket.getAssignedToWorker() != null && ticket.getAssignedToWorker().getPlayerId() != null) {
-                String playerId = ticket.getAssignedToWorker().getPlayerId();
-                String workerName = ticket.getAssignedToWorker().getFullName();
+            if (ticket.getAssignedToWorker() != null) {
+                User assignedWorker = ticket.getAssignedToWorker();
+                String workerName = assignedWorker.getFullName();
+                String workerEmail = assignedWorker.getEmail();
 
-                // Prepare notification content
                 String title = "New Ticket Assigned";
                 String message = String.format("Hi %s, a new ticket '%s' has been assigned to you.",
                         workerName, ticket.getTitle());
 
-                // Prepare additional data to send with notification
                 Map<String, Object> data = new HashMap<>();
                 data.put("ticketId", ticket.getId().toString());
                 data.put("ticketTitle", ticket.getTitle());
@@ -215,25 +190,32 @@ public class TicketServiceImpl implements TicketService {
                 data.put("createdBy", ticket.getCreatedBy() != null ? ticket.getCreatedBy().getFullName() : "");
                 data.put("notificationType", "TICKET_ASSIGNMENT");
 
-                // Send notification to the specific user
-                List<String> playerIds = List.of(playerId);
-                oneSignalService.sendWithData(title, message, data, playerIds);
+                if (assignedWorker.getPlayerId() != null && !assignedWorker.getPlayerId().trim().isEmpty()) {
+                    List<String> playerIds = List.of(assignedWorker.getPlayerId());
+                    oneSignalService.sendWithData(title, message, data, playerIds);
+                    log.info("Push notification sent to worker {} (playerId: {}) for ticket ID: {}",
+                            workerName, assignedWorker.getPlayerId(), ticket.getId());
+                } else {
+                    log.warn("Cannot send push notification: Worker has no playerId for ticket ID: {}", ticket.getId());
+                }
 
-                log.info("Notification sent to worker {} (playerId: {}) for ticket ID: {}",
-                        workerName, playerId, ticket.getId());
+                if (workerEmail != null && !workerEmail.trim().isEmpty()) {
+                    emailService.sendTicketAssignmentEmail(workerEmail, workerName, 
+                                                         ticket.getTitle(), ticket.getDescription(), data);
+                    log.info("Email notification sent to worker {} ({}) for ticket ID: {}",
+                            workerName, workerEmail, ticket.getId());
+                } else {
+                    log.warn("Cannot send email: Worker has no email for ticket ID: {}", ticket.getId());
+                }
 
             } else {
-                log.warn("Cannot send notification: Worker has no playerId for ticket ID: {}", ticket.getId());
+                log.warn("Cannot send notification: No assigned worker for ticket ID: {}", ticket.getId());
             }
         } catch (Exception e) {
             log.error("Failed to send ticket assignment notification for ticket ID: {}", ticket.getId(), e);
-            // Don't throw exception to avoid breaking the ticket assignment process
         }
     }
 
-    /**
-     * Send notification to all users in the company about ticket status update
-     */
     private void sendTicketStatusUpdateNotificationToCompany(Ticket ticket, TicketStatus previousStatus, TicketStatus newStatus) {
         try {
             if (ticket.getCompany() == null) {
@@ -241,27 +223,24 @@ public class TicketServiceImpl implements TicketService {
                 return;
             }
 
-            // Get all users from the same company who have playerIds
-            List<User> companyUsers = userRepository.findByCompanyIdAndPlayerIdIsNotNull(ticket.getCompany().getId());
+            List<User> companyUsers = userRepository.findByCompanyId(ticket.getCompany().getId());
 
             if (companyUsers.isEmpty()) {
-                log.warn("No users with playerIds found for company {} for ticket {}",
+                log.warn("No users found for company {} for ticket {}",
                         ticket.getCompany().getName(), ticket.getId());
                 return;
             }
 
-            // Extract playerIds from company users
             List<String> playerIds = companyUsers.stream()
                     .map(User::getPlayerId)
                     .filter(playerId -> playerId != null && !playerId.trim().isEmpty())
                     .collect(Collectors.toList());
 
-            if (playerIds.isEmpty()) {
-                log.warn("No valid playerIds found for company users for ticket {}", ticket.getId());
-                return;
-            }
+            List<String> emails = companyUsers.stream()
+                    .map(User::getEmail)
+                    .filter(email -> email != null && !email.trim().isEmpty())
+                    .collect(Collectors.toList());
 
-            // Prepare notification content
             String title = "Ticket Status Updated";
             String previousStatusStr = previousStatus != null ? previousStatus.name() : "No Status";
             String newStatusStr = newStatus != null ? newStatus.name() : "No Status";
@@ -269,7 +248,6 @@ public class TicketServiceImpl implements TicketService {
             String message = String.format("Ticket '%s' status changed from %s to %s",
                     ticket.getTitle(), previousStatusStr, newStatusStr);
 
-            // Prepare additional data to send with notification
             Map<String, Object> data = new HashMap<>();
             data.put("ticketId", ticket.getId().toString());
             data.put("ticketTitle", ticket.getTitle());
@@ -283,15 +261,25 @@ public class TicketServiceImpl implements TicketService {
             data.put("assignedWorker", ticket.getAssignedToWorker() != null ? ticket.getAssignedToWorker().getFullName() : "");
             data.put("notificationType", "TICKET_STATUS_UPDATE");
 
-            // Send notification to all company users
-            oneSignalService.sendWithData(title, message, data, playerIds);
+            if (!playerIds.isEmpty()) {
+                oneSignalService.sendWithData(title, message, data, playerIds);
+                log.info("Push notification sent to {} users in company '{}' for ticket ID: {}",
+                        playerIds.size(), ticket.getCompany().getName(), ticket.getId());
+            } else {
+                log.warn("No valid playerIds found for company users for ticket {}", ticket.getId());
+            }
 
-            log.info("Status update notification sent to {} users in company '{}' for ticket ID: {}",
-                    playerIds.size(), ticket.getCompany().getName(), ticket.getId());
+            if (!emails.isEmpty()) {
+                emailService.sendTicketStatusUpdateEmail(emails, ticket.getTitle(), 
+                                                       previousStatusStr, newStatusStr, data);
+                log.info("Email notifications sent to {} users in company '{}' for ticket ID: {}",
+                        emails.size(), ticket.getCompany().getName(), ticket.getId());
+            } else {
+                log.warn("No valid emails found for company users for ticket {}", ticket.getId());
+            }
 
         } catch (Exception e) {
             log.error("Failed to send ticket status update notification for ticket ID: {}", ticket.getId(), e);
-            // Don't throw exception to avoid breaking the ticket update process
         }
     }
 
@@ -321,29 +309,27 @@ public class TicketServiceImpl implements TicketService {
         return ticketRepository.countByAssignedToWorker_UsernameAndStatus(username, TicketStatus.CLOSED);
     }
 
-@Override
-public Page<TicketResponseDTO> getAllTicketsPaginated(int page, int size, String status, Long companyId, 
-                                                     Long screenId, Long assignedToWorkerId, String serviceType, Boolean pending) {
-    Pageable pageable = PageRequest.of(page, size);
-    Page<Ticket> tickets;
-    
-    // Handle pending tickets filter first (highest priority)
-    if (Boolean.TRUE.equals(pending)) {
-        tickets = ticketRepository.findPendingTicketsPaginated(pageable);
-    } else {
-        // Build dynamic query based on provided filters
-        tickets = ticketRepository.findTicketsWithFilters(
-            status != null ? TicketStatus.valueOf(status.toUpperCase()) : null,
-            companyId,
-            screenId,
-            assignedToWorkerId,
-            serviceType != null ? ServiceType.valueOf(serviceType.toUpperCase()) : null,
-            pageable
-        );
+    @Override
+    public Page<TicketResponseDTO> getAllTicketsPaginated(int page, int size, String status, Long companyId, 
+                                                         Long screenId, Long assignedToWorkerId, String serviceType, Boolean pending) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Ticket> tickets;
+        
+        if (Boolean.TRUE.equals(pending)) {
+            tickets = ticketRepository.findPendingTicketsPaginated(pageable);
+        } else {
+            tickets = ticketRepository.findTicketsWithFilters(
+                status != null ? TicketStatus.valueOf(status.toUpperCase()) : null,
+                companyId,
+                screenId,
+                assignedToWorkerId,
+                serviceType != null ? ServiceType.valueOf(serviceType.toUpperCase()) : null,
+                pageable
+            );
+        }
+        
+        return tickets.map(this::toTicketResponseDto);
     }
-    
-    return tickets.map(this::toTicketResponseDto);
-}
 
     @Override
     public Long getTicketsCount() {
@@ -355,14 +341,11 @@ public Page<TicketResponseDTO> getAllTicketsPaginated(int page, int size, String
         LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
         Map<String, Long> statusCounts = new HashMap<>();
 
-        // Initialize with all possible statuses at 0
         Arrays.stream(TicketStatus.values())
                 .forEach(status -> statusCounts.put(status.name(), 0L));
 
-        // Add "NULL" status for tickets with no status
         statusCounts.put("NULL", 0L);
 
-        // Get counts from last 30 days (excluding NULL statuses)
         List<Object[]> results = ticketRepository.countTicketsGroupByStatusSinceDate(thirtyDaysAgo);
         for (Object[] result : results) {
             TicketStatus status = (TicketStatus) result[0];
@@ -370,7 +353,6 @@ public Page<TicketResponseDTO> getAllTicketsPaginated(int page, int size, String
             statusCounts.put(status.name(), count);
         }
 
-        // Count NULL status tickets separately
         Long nullStatusCount = ticketRepository.countByStatusIsNullAndCreatedAtAfter(thirtyDaysAgo);
         statusCounts.put("NULL", nullStatusCount);
 
@@ -399,7 +381,7 @@ public Page<TicketResponseDTO> getAllTicketsPaginated(int page, int size, String
                 .createdAt(ticket.getCreatedAt())
                 .companyId(ticket.getCompany() != null ? ticket.getCompany().getId() : null)
                 .attachmentFileName(ticket.getAttachmentFileName())
-                .serviceType(ticket.getServiceType() != null ? ticket.getServiceType().name() : null)  // Add this line
+                .serviceType(ticket.getServiceType() != null ? ticket.getServiceType().name() : null)
                 .build();
     }
 
@@ -415,7 +397,6 @@ public Page<TicketResponseDTO> getAllTicketsPaginated(int page, int size, String
         Company company = dto.getCompanyId() != null ? companyRepository.findById(dto.getCompanyId()).orElse(null)
                 : null;
 
-        // File Upload Fields
         String ticketImageUrl = null;
         String ticketImageName = null;
         if (dto.getTicketImage() != null && !dto.getTicketImage().isEmpty()) {
@@ -434,19 +415,16 @@ public Page<TicketResponseDTO> getAllTicketsPaginated(int page, int size, String
                 .company(company)
                 .ticketImageUrl(ticketImageUrl)
                 .ticketImageName(ticketImageName)
-                .serviceType(dto.getServiceType() != null ? ServiceType.valueOf(dto.getServiceType()) : null)  // Add this line
+                .serviceType(dto.getServiceType() != null ? ServiceType.valueOf(dto.getServiceType()) : null)
                 .build();
     }
 
     private TicketResponseDTO toTicketResponseDto(Ticket ticket) {
-        // Get worker report if exists
         WorkerReportResponseDTO workerReport = null;
         try {
             workerReport = workerReportService.getWorkerReportByTicketId(ticket.getId());
         } catch (Exception e) {
             // Log warning but don't fail the ticket retrieval
-            // log.warn("Failed to retrieve worker report for ticket {}: {}",
-            // ticket.getId(), e.getMessage());
         }
 
         return TicketResponseDTO.builder()
@@ -467,15 +445,15 @@ public Page<TicketResponseDTO> getAllTicketsPaginated(int page, int size, String
                 .attachmentFileName(ticket.getAttachmentFileName())
                 .location(ticket.getScreen() != null ? ticket.getScreen().getLocation() : null)
                 .screenType(ticket.getScreen() != null ? ticket.getScreen().getScreenType().toString() : null)
-                .workerReport(workerReport) // Include worker report in response
+                .workerReport(workerReport)
                 .openedAt(ticket.getOpenedAt())
                 .inProgressAt(ticket.getInProgressAt())
                 .resolvedAt(ticket.getResolvedAt())
                 .closedAt(ticket.getClosedAt())
                 .ticketImageUrl(ticket.getTicketImageUrl())
                 .ticketImageName(ticket.getTicketImageName())
-                .serviceType(ticket.getServiceType() != null ? ticket.getServiceType().name() : null)  // Add this line
-                .serviceTypeDisplayName(ticket.getServiceType() != null ? ticket.getServiceType().getDisplayName() : null)  // Add this line
+                .serviceType(ticket.getServiceType() != null ? ticket.getServiceType().name() : null)
+                .serviceTypeDisplayName(ticket.getServiceType() != null ? ticket.getServiceType().getDisplayName() : null)
                 .build();
     }
 
@@ -505,76 +483,70 @@ public Page<TicketResponseDTO> getAllTicketsPaginated(int page, int size, String
         }
         return ticket;
     }
+    
     @Override
-public TicketDTO patchTicket(Long id, PatchTicketDTO patchTicketDTO) {
-    return ticketRepository.findById(id).map(ticket -> {
-        // Store the previous assigned worker and status to detect changes
-        User previousAssignedWorker = ticket.getAssignedToWorker();
-        TicketStatus previousStatus = ticket.getStatus();
-        
-        boolean hasChanges = false;
-
-        // Update status if provided
-        TicketStatus newStatus = null;
-        if (patchTicketDTO.hasStatus()) {
-            try {
-                newStatus = TicketStatus.valueOf(patchTicketDTO.getStatus());
-                ticket = updateTicketStatus(ticket, newStatus);
-                hasChanges = true;
-                log.info("Updated status to {} for ticket ID: {}", newStatus, id);
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Invalid status value: " + patchTicketDTO.getStatus());
-            }
-        }
-
-        // Update assigned worker if provided
-        User newAssignedWorker = null;
-        if (patchTicketDTO.hasAssignedToWorkerId()) {
-            newAssignedWorker = userRepository.findById(patchTicketDTO.getAssignedToWorkerId())
-                    .orElseThrow(() -> new IllegalArgumentException("Worker not found with ID: " + patchTicketDTO.getAssignedToWorkerId()));
-            ticket.setAssignedToWorker(newAssignedWorker);
+    public TicketDTO patchTicket(Long id, PatchTicketDTO patchTicketDTO) {
+        return ticketRepository.findById(id).map(ticket -> {
+            User previousAssignedWorker = ticket.getAssignedToWorker();
+            TicketStatus previousStatus = ticket.getStatus();
             
-            // Auto-update status to IN_PROGRESS when assigning a worker (if status not explicitly provided)
-            if (!patchTicketDTO.hasStatus()) {
-                ticket = updateTicketStatus(ticket, TicketStatus.IN_PROGRESS);
-                newStatus = TicketStatus.IN_PROGRESS;
-                log.info("Auto-updated status to IN_PROGRESS when assigning worker for ticket ID: {}", id);
+            boolean hasChanges = false;
+
+            TicketStatus newStatus = null;
+            if (patchTicketDTO.hasStatus()) {
+                try {
+                    newStatus = TicketStatus.valueOf(patchTicketDTO.getStatus());
+                    ticket = updateTicketStatus(ticket, newStatus);
+                    hasChanges = true;
+                    log.info("Updated status to {} for ticket ID: {}", newStatus, id);
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("Invalid status value: " + patchTicketDTO.getStatus());
+                }
             }
-            hasChanges = true;
-            log.info("Assigned worker {} to ticket ID: {}", newAssignedWorker.getFullName(), id);
-        }
 
-        // Update assigned supervisor if provided
-        if (patchTicketDTO.hasAssignedBySupervisorId()) {
-            User assignedSupervisor = userRepository.findById(patchTicketDTO.getAssignedBySupervisorId())
-                    .orElseThrow(() -> new IllegalArgumentException("Supervisor not found with ID: " + patchTicketDTO.getAssignedBySupervisorId()));
-            ticket.setAssignedBySupervisor(assignedSupervisor);
-            hasChanges = true;
-            log.info("Assigned supervisor {} to ticket ID: {}", assignedSupervisor.getFullName(), id);
-        }
+            User newAssignedWorker = null;
+            if (patchTicketDTO.hasAssignedToWorkerId()) {
+                newAssignedWorker = userRepository.findById(patchTicketDTO.getAssignedToWorkerId())
+                        .orElseThrow(() -> new IllegalArgumentException("Worker not found with ID: " + patchTicketDTO.getAssignedToWorkerId()));
+                ticket.setAssignedToWorker(newAssignedWorker);
+                
+                if (!patchTicketDTO.hasStatus()) {
+                    ticket = updateTicketStatus(ticket, TicketStatus.IN_PROGRESS);
+                    newStatus = TicketStatus.IN_PROGRESS;
+                    log.info("Auto-updated status to IN_PROGRESS when assigning worker for ticket ID: {}", id);
+                }
+                hasChanges = true;
+                log.info("Assigned worker {} to ticket ID: {}", newAssignedWorker.getFullName(), id);
+            }
 
-        // Only save if there were actual changes
-        if (!hasChanges) {
-            log.info("No changes detected for ticket ID: {}", id);
-            return toDTO(ticket);
-        }
+            if (patchTicketDTO.hasAssignedBySupervisorId()) {
+                User assignedSupervisor = userRepository.findById(patchTicketDTO.getAssignedBySupervisorId())
+                        .orElseThrow(() -> new IllegalArgumentException("Supervisor not found with ID: " + patchTicketDTO.getAssignedBySupervisorId()));
+                ticket.setAssignedBySupervisor(assignedSupervisor);
+                hasChanges = true;
+                log.info("Assigned supervisor {} to ticket ID: {}", assignedSupervisor.getFullName(), id);
+            }
 
-        Ticket savedTicket = ticketRepository.save(ticket);
+            if (!hasChanges) {
+                log.info("No changes detected for ticket ID: {}", id);
+                return toDTO(ticket);
+            }
 
-        // Send notifications only if relevant changes occurred
-        if (hasWorkerAssignmentChanged(previousAssignedWorker, newAssignedWorker)) {
-            sendTicketAssignmentNotification(savedTicket);
-        }
+            Ticket savedTicket = ticketRepository.save(ticket);
 
-        if (hasStatusChanged(previousStatus, newStatus)) {
-            sendTicketStatusUpdateNotificationToCompany(savedTicket, previousStatus, newStatus);
-        }
+            if (hasWorkerAssignmentChanged(previousAssignedWorker, newAssignedWorker)) {
+                sendTicketAssignmentNotification(savedTicket);
+            }
 
-        log.info("Successfully patched ticket with ID: {}", id);
-        return toDTO(savedTicket);
+            if (hasStatusChanged(previousStatus, newStatus)) {
+                sendTicketStatusUpdateNotificationToCompany(savedTicket, previousStatus, newStatus);
+            }
 
-    }).orElseThrow(() -> new IllegalArgumentException("Ticket not found with ID: " + id));
-}
+            log.info("Successfully patched ticket with ID: {}", id);
+            return toDTO(savedTicket);
+
+        }).orElseThrow(() -> new IllegalArgumentException("Ticket not found with ID: " + id));
+    }
 
     @Override
     public List<TicketAnalyticsDTO> getTicketAnalytics(List<Long> screenIds, 
@@ -607,7 +579,6 @@ public TicketDTO patchTicket(Long id, PatchTicketDTO patchTicketDTO) {
                                                               LocalDate endDate) {
         List<Ticket> tickets = getTicketsForAnalysis(screenIds, startDate, endDate);
         
-        // Calculate service type counts including null cases
         Map<String, Long> serviceTypeCounts = tickets.stream()
             .collect(Collectors.groupingBy(
                 ticket -> ticket.getServiceType() != null ? 
@@ -616,7 +587,6 @@ public TicketDTO patchTicket(Long id, PatchTicketDTO patchTicketDTO) {
                 Collectors.counting()
             ));
 
-        // Calculate average resolution time
         List<Duration> resolutionTimes = tickets.stream()
             .filter(ticket -> ticket.getOpenedAt() != null && ticket.getClosedAt() != null)
             .map(ticket -> Duration.between(ticket.getOpenedAt(), ticket.getClosedAt()))
@@ -624,7 +594,6 @@ public TicketDTO patchTicket(Long id, PatchTicketDTO patchTicketDTO) {
 
         Duration averageResolution = calculateAverageDuration(resolutionTimes);
 
-        // Calculate average time by service type handling null cases
         Map<String, Duration> averageTimeByServiceType = tickets.stream()
             .filter(ticket -> ticket.getOpenedAt() != null && ticket.getClosedAt() != null)
             .collect(Collectors.groupingBy(
@@ -697,64 +666,64 @@ public TicketDTO patchTicket(Long id, PatchTicketDTO patchTicketDTO) {
         if (minutes > 0 || hours > 0 || days > 0) {
             formatted.append(minutes).append(" minutes ");
         }
-        if (seconds > 0 && days == 0 && hours == 0) { // Only show seconds if less than an hour
+        if (seconds > 0 && days == 0 && hours == 0) {
             formatted.append(seconds).append(" seconds");
         }
         
         return formatted.toString().trim();
     }
+    
     @Override
-public List<TicketResponseDTO> getTicketsWithWorkerReportsByScreenId(Long screenId) {
-    log.info("Fetching tickets with worker reports for screen ID: {}", screenId);
-    
-    // Verify screen exists
-    if (!screenRepository.existsById(screenId)) {
-        throw new IllegalArgumentException("Screen not found with ID: " + screenId);
+    public List<TicketResponseDTO> getTicketsWithWorkerReportsByScreenId(Long screenId) {
+        log.info("Fetching tickets with worker reports for screen ID: {}", screenId);
+        
+        if (!screenRepository.existsById(screenId)) {
+            throw new IllegalArgumentException("Screen not found with ID: " + screenId);
+        }
+        
+        List<Ticket> tickets = ticketRepository.findByScreenId(screenId);
+        
+        return tickets.stream()
+                .map(this::toTicketResponseDtoWithWorkerReport)
+                .collect(Collectors.toList());
     }
     
-    List<Ticket> tickets = ticketRepository.findByScreenId(screenId);
-    
-    return tickets.stream()
-            .map(this::toTicketResponseDtoWithWorkerReport)
-            .collect(Collectors.toList());
-}
-private TicketResponseDTO toTicketResponseDtoWithWorkerReport(Ticket ticket) {
-    // Get worker report if exists
-    WorkerReportResponseDTO workerReport = null;
-    try {
-        workerReport = workerReportService.getWorkerReportByTicketId(ticket.getId());
-    } catch (Exception e) {
-        log.warn("Failed to retrieve worker report for ticket {}: {}", 
-                ticket.getId(), e.getMessage());
-    }
+    private TicketResponseDTO toTicketResponseDtoWithWorkerReport(Ticket ticket) {
+        WorkerReportResponseDTO workerReport = null;
+        try {
+            workerReport = workerReportService.getWorkerReportByTicketId(ticket.getId());
+        } catch (Exception e) {
+            log.warn("Failed to retrieve worker report for ticket {}: {}", 
+                    ticket.getId(), e.getMessage());
+        }
 
-    return TicketResponseDTO.builder()
-            .id(ticket.getId())
-            .title(ticket.getTitle())
-            .description(ticket.getDescription())
-            .createdBy(ticket.getCreatedBy() != null ? ticket.getCreatedBy().getId() : null)
-            .assignedToWorkerName(ticket.getAssignedToWorker() != null
-                    ? ticket.getAssignedToWorker().getFullName()
-                    : null)
-            .assignedBySupervisorName(ticket.getAssignedBySupervisor() != null
-                    ? ticket.getAssignedBySupervisor().getFullName()
-                    : null)
-            .screenName(ticket.getScreen() != null ? ticket.getScreen().getName() : null)
-            .companyName(ticket.getCompany() != null ? ticket.getCompany().getName() : null)
-            .status(ticket.getStatus() != null ? ticket.getStatus().name() : null)
-            .createdAt(ticket.getCreatedAt())
-            .attachmentFileName(ticket.getAttachmentFileName())
-            .location(ticket.getScreen() != null ? ticket.getScreen().getLocation() : null)
-            .screenType(ticket.getScreen() != null ? ticket.getScreen().getScreenType().toString() : null)
-            .workerReport(workerReport) // This ensures worker report is always included
-            .openedAt(ticket.getOpenedAt())
-            .inProgressAt(ticket.getInProgressAt())
-            .resolvedAt(ticket.getResolvedAt())
-            .closedAt(ticket.getClosedAt())
-            .ticketImageUrl(ticket.getTicketImageUrl())
-            .ticketImageName(ticket.getTicketImageName())
-            .serviceType(ticket.getServiceType() != null ? ticket.getServiceType().name() : null)
-            .serviceTypeDisplayName(ticket.getServiceType() != null ? ticket.getServiceType().getDisplayName() : null)
-            .build();
-}
+        return TicketResponseDTO.builder()
+                .id(ticket.getId())
+                .title(ticket.getTitle())
+                .description(ticket.getDescription())
+                .createdBy(ticket.getCreatedBy() != null ? ticket.getCreatedBy().getId() : null)
+                .assignedToWorkerName(ticket.getAssignedToWorker() != null
+                        ? ticket.getAssignedToWorker().getFullName()
+                        : null)
+                .assignedBySupervisorName(ticket.getAssignedBySupervisor() != null
+                        ? ticket.getAssignedBySupervisor().getFullName()
+                        : null)
+                .screenName(ticket.getScreen() != null ? ticket.getScreen().getName() : null)
+                .companyName(ticket.getCompany() != null ? ticket.getCompany().getName() : null)
+                .status(ticket.getStatus() != null ? ticket.getStatus().name() : null)
+                .createdAt(ticket.getCreatedAt())
+                .attachmentFileName(ticket.getAttachmentFileName())
+                .location(ticket.getScreen() != null ? ticket.getScreen().getLocation() : null)
+                .screenType(ticket.getScreen() != null ? ticket.getScreen().getScreenType().toString() : null)
+                .workerReport(workerReport)
+                .openedAt(ticket.getOpenedAt())
+                .inProgressAt(ticket.getInProgressAt())
+                .resolvedAt(ticket.getResolvedAt())
+                .closedAt(ticket.getClosedAt())
+                .ticketImageUrl(ticket.getTicketImageUrl())
+                .ticketImageName(ticket.getTicketImageName())
+                .serviceType(ticket.getServiceType() != null ? ticket.getServiceType().name() : null)
+                .serviceTypeDisplayName(ticket.getServiceType() != null ? ticket.getServiceType().getDisplayName() : null)
+                .build();
+    }
 }
