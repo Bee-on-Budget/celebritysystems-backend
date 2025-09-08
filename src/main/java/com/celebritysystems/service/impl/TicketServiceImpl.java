@@ -15,10 +15,13 @@ import com.celebritysystems.service.S3Service;
 import com.celebritysystems.service.TicketService;
 import com.celebritysystems.service.WorkerReportService;
 import com.celebritysystems.service.OneSignalService;
+import com.celebritysystems.service.PdfService;
 import com.celebritysystems.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
+import com.celebritysystems.service.PdfService;
+import com.celebritysystems.dto.WorkerReportResponseDTO;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +31,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +42,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class TicketServiceImpl implements TicketService {
+private final PdfService pdfService;
 
     private final TicketRepository ticketRepository;
     private final UserRepository userRepository;
@@ -155,18 +160,17 @@ public class TicketServiceImpl implements TicketService {
         return !previousWorker.getId().equals(newWorker.getId());
     }
 
-    private boolean hasStatusChanged(TicketStatus previousStatus, TicketStatus newStatus) {
-        if (previousStatus == null && newStatus == null) {
-            return false;
-        }
-
-        if (previousStatus == null || newStatus == null) {
-            return true;
-        }
-
-        return !previousStatus.equals(newStatus);
+private boolean hasStatusChanged(TicketStatus previousStatus, TicketStatus newStatus) {
+    if (previousStatus == null && newStatus == null) {
+        return false;
     }
 
+    if (previousStatus == null || newStatus == null) {
+        return true;
+    }
+
+    return !previousStatus.equals(newStatus);
+}
     private void sendTicketAssignmentNotification(Ticket ticket) {
         try {
             if (ticket.getAssignedToWorker() != null) {
@@ -216,73 +220,80 @@ public class TicketServiceImpl implements TicketService {
         }
     }
 
-    private void sendTicketStatusUpdateNotificationToCompany(Ticket ticket, TicketStatus previousStatus, TicketStatus newStatus) {
-        try {
-            if (ticket.getCompany() == null) {
-                log.warn("Cannot send company notification: Ticket {} has no associated company", ticket.getId());
-                return;
-            }
-
-            List<User> companyUsers = userRepository.findByCompanyId(ticket.getCompany().getId());
-
-            if (companyUsers.isEmpty()) {
-                log.warn("No users found for company {} for ticket {}",
-                        ticket.getCompany().getName(), ticket.getId());
-                return;
-            }
-
-            List<String> playerIds = companyUsers.stream()
-                    .map(User::getPlayerId)
-                    .filter(playerId -> playerId != null && !playerId.trim().isEmpty())
-                    .collect(Collectors.toList());
-
-            List<String> emails = companyUsers.stream()
-                    .map(User::getEmail)
-                    .filter(email -> email != null && !email.trim().isEmpty())
-                    .collect(Collectors.toList());
-
-            String title = "Ticket Status Updated";
-            String previousStatusStr = previousStatus != null ? previousStatus.name() : "No Status";
-            String newStatusStr = newStatus != null ? newStatus.name() : "No Status";
-
-            String message = String.format("Ticket '%s' status changed from %s to %s",
-                    ticket.getTitle(), previousStatusStr, newStatusStr);
-
-            Map<String, Object> data = new HashMap<>();
-            data.put("ticketId", ticket.getId().toString());
-            data.put("ticketTitle", ticket.getTitle());
-            data.put("ticketDescription", ticket.getDescription());
-            data.put("previousStatus", previousStatusStr);
-            data.put("newStatus", newStatusStr);
-            data.put("updatedAt", LocalDateTime.now().toString());
-            data.put("companyName", ticket.getCompany().getName());
-            data.put("screenName", ticket.getScreen() != null ? ticket.getScreen().getName() : "");
-            data.put("screenLocation", ticket.getScreen() != null ? ticket.getScreen().getLocation() : "");
-            data.put("assignedWorker", ticket.getAssignedToWorker() != null ? ticket.getAssignedToWorker().getFullName() : "");
-            data.put("notificationType", "TICKET_STATUS_UPDATE");
-
-            if (!playerIds.isEmpty()) {
-                oneSignalService.sendWithData(title, message, data, playerIds);
-                log.info("Push notification sent to {} users in company '{}' for ticket ID: {}",
-                        playerIds.size(), ticket.getCompany().getName(), ticket.getId());
-            } else {
-                log.warn("No valid playerIds found for company users for ticket {}", ticket.getId());
-            }
-
-            if (!emails.isEmpty()) {
-                emailService.sendTicketStatusUpdateEmail(emails, ticket.getTitle(), 
-                                                       previousStatusStr, newStatusStr, data);
-                log.info("Email notifications sent to {} users in company '{}' for ticket ID: {}",
-                        emails.size(), ticket.getCompany().getName(), ticket.getId());
-            } else {
-                log.warn("No valid emails found for company users for ticket {}", ticket.getId());
-            }
-
-        } catch (Exception e) {
-            log.error("Failed to send ticket status update notification for ticket ID: {}", ticket.getId(), e);
+ private void sendTicketStatusUpdateNotificationToCompany(Ticket ticket, TicketStatus previousStatus, TicketStatus newStatus) {
+    try {
+        // If ticket is being closed/completed, send special completion notification
+        if (newStatus == TicketStatus.CLOSED && previousStatus != TicketStatus.CLOSED) {
+            log.info("Ticket {} is being closed, sending completion notification with PDF", ticket.getId());
+            sendTicketCompletionNotificationToCompany(ticket);
+            return; // Don't send regular status update for completion
         }
-    }
 
+        // Regular status update logic (existing code)
+        if (ticket.getCompany() == null) {
+            log.warn("Cannot send company notification: Ticket {} has no associated company", ticket.getId());
+            return;
+        }
+
+        List<User> companyUsers = userRepository.findByCompanyId(ticket.getCompany().getId());
+
+        if (companyUsers.isEmpty()) {
+            log.warn("No users found for company {} for ticket {}",
+                    ticket.getCompany().getName(), ticket.getId());
+            return;
+        }
+
+        List<String> playerIds = companyUsers.stream()
+                .map(User::getPlayerId)
+                .filter(playerId -> playerId != null && !playerId.trim().isEmpty())
+                .collect(Collectors.toList());
+
+        List<String> emails = companyUsers.stream()
+                .map(User::getEmail)
+                .filter(email -> email != null && !email.trim().isEmpty())
+                .collect(Collectors.toList());
+
+        String title = "Ticket Status Updated";
+        String previousStatusStr = previousStatus != null ? previousStatus.name() : "No Status";
+        String newStatusStr = newStatus != null ? newStatus.name() : "No Status";
+
+        String message = String.format("Ticket '%s' status changed from %s to %s",
+                ticket.getTitle(), previousStatusStr, newStatusStr);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("ticketId", ticket.getId().toString());
+        data.put("ticketTitle", ticket.getTitle());
+        data.put("ticketDescription", ticket.getDescription());
+        data.put("previousStatus", previousStatusStr);
+        data.put("newStatus", newStatusStr);
+        data.put("updatedAt", LocalDateTime.now().toString());
+        data.put("companyName", ticket.getCompany().getName());
+        data.put("screenName", ticket.getScreen() != null ? ticket.getScreen().getName() : "");
+        data.put("screenLocation", ticket.getScreen() != null ? ticket.getScreen().getLocation() : "");
+        data.put("assignedWorker", ticket.getAssignedToWorker() != null ? ticket.getAssignedToWorker().getFullName() : "");
+        data.put("notificationType", "TICKET_STATUS_UPDATE");
+
+        if (!playerIds.isEmpty()) {
+            oneSignalService.sendWithData(title, message, data, playerIds);
+            log.info("Push notification sent to {} users in company '{}' for ticket ID: {}",
+                    playerIds.size(), ticket.getCompany().getName(), ticket.getId());
+        } else {
+            log.warn("No valid playerIds found for company users for ticket {}", ticket.getId());
+        }
+
+        if (!emails.isEmpty()) {
+            emailService.sendTicketStatusUpdateEmail(emails, ticket.getTitle(), 
+                                                   previousStatusStr, newStatusStr, data);
+            log.info("Email notifications sent to {} users in company '{}' for ticket ID: {}",
+                    emails.size(), ticket.getCompany().getName(), ticket.getId());
+        } else {
+            log.warn("No valid emails found for company users for ticket {}", ticket.getId());
+        }
+
+    } catch (Exception e) {
+        log.error("Failed to send ticket status update notification for ticket ID: {}", ticket.getId(), e);
+    }
+}
     @Override
     public void deleteTicket(Long id) {
         if (!ticketRepository.existsById(id)) {
@@ -726,4 +737,114 @@ public class TicketServiceImpl implements TicketService {
                 .serviceTypeDisplayName(ticket.getServiceType() != null ? ticket.getServiceType().getDisplayName() : null)
                 .build();
     }
+    private void sendTicketCompletionNotificationToCompany(Ticket ticket) {
+    try {
+        if (ticket.getCompany() == null) {
+            log.warn("Cannot send completion notification: Ticket {} has no associated company", ticket.getId());
+            return;
+        }
+
+        List<User> companyUsers = userRepository.findByCompanyId(ticket.getCompany().getId());
+
+        if (companyUsers.isEmpty()) {
+            log.warn("No users found for company {} for ticket completion {}",
+                    ticket.getCompany().getName(), ticket.getId());
+            return;
+        }
+
+        List<String> emails = companyUsers.stream()
+                .map(User::getEmail)
+                .filter(email -> email != null && !email.trim().isEmpty())
+                .collect(Collectors.toList());
+
+        if (emails.isEmpty()) {
+            log.warn("No valid emails found for company users for ticket completion {}", ticket.getId());
+            return;
+        }
+
+        // Get the worker report for this ticket
+        WorkerReportResponseDTO workerReport = null;
+        try {
+            workerReport = workerReportService.getWorkerReportByTicketId(ticket.getId());
+        } catch (Exception e) {
+            log.error("Failed to retrieve worker report for ticket completion email: {}", e.getMessage(), e);
+        }
+
+        // Generate PDF and send email
+        if (workerReport != null) {
+            try {
+                // Convert ticket to TicketResponseDTO for PDF generation
+                TicketResponseDTO ticketResponse = toTicketResponseDto(ticket);
+                
+                // Generate PDF
+                String pdfFileName = String.format("WorkerReport_Ticket_%d_%s.pdf", 
+                                                   ticket.getId(), 
+                                                   LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")));
+                Resource pdfAttachment = pdfService.generateWorkerReportPdf(workerReport, ticketResponse, pdfFileName);
+
+                // Prepare ticket data for email
+                Map<String, Object> ticketData = new HashMap<>();
+                ticketData.put("ticketId", ticket.getId().toString());
+                ticketData.put("ticketTitle", ticket.getTitle());
+                ticketData.put("ticketDescription", ticket.getDescription());
+                ticketData.put("companyName", ticket.getCompany().getName());
+                ticketData.put("screenName", ticket.getScreen() != null ? ticket.getScreen().getName() : "");
+                ticketData.put("screenLocation", ticket.getScreen() != null ? ticket.getScreen().getLocation() : "");
+                ticketData.put("assignedWorker", ticket.getAssignedToWorker() != null ? ticket.getAssignedToWorker().getFullName() : "");
+                ticketData.put("completedAt", LocalDateTime.now().toString());
+                ticketData.put("defectsFound", workerReport.getDefectsFound());
+                ticketData.put("solutionsProvided", workerReport.getSolutionsProvided());
+                ticketData.put("notificationType", "TICKET_COMPLETION");
+
+                // Send completion email with PDF attachment
+                emailService.sendTicketCompletionEmailWithPdf(emails, ticket.getTitle(), ticketData, pdfAttachment, pdfFileName);
+
+                log.info("Ticket completion email with PDF sent to {} users in company '{}' for ticket ID: {}",
+                        emails.size(), ticket.getCompany().getName(), ticket.getId());
+
+            } catch (Exception e) {
+                log.error("Failed to generate PDF or send completion email for ticket ID: {}", ticket.getId(), e);
+                // Fall back to sending completion email without PDF
+                sendTicketCompletionEmailWithoutPdf(ticket, emails);
+            }
+        } else {
+            log.warn("No worker report found for ticket completion {}, sending notification without PDF", ticket.getId());
+            sendTicketCompletionEmailWithoutPdf(ticket, emails);
+        }
+
+    } catch (Exception e) {
+        log.error("Failed to send ticket completion notification for ticket ID: {}", ticket.getId(), e);
+    }
+}
+
+// Fallback method to send completion email without PDF
+private void sendTicketCompletionEmailWithoutPdf(Ticket ticket, List<String> emails) {
+    try {
+        Map<String, Object> ticketData = new HashMap<>();
+        ticketData.put("ticketId", ticket.getId().toString());
+        ticketData.put("ticketTitle", ticket.getTitle());
+        ticketData.put("ticketDescription", ticket.getDescription());
+        ticketData.put("companyName", ticket.getCompany().getName());
+        ticketData.put("screenName", ticket.getScreen() != null ? ticket.getScreen().getName() : "");
+        ticketData.put("screenLocation", ticket.getScreen() != null ? ticket.getScreen().getLocation() : "");
+        ticketData.put("assignedWorker", ticket.getAssignedToWorker() != null ? ticket.getAssignedToWorker().getFullName() : "");
+        ticketData.put("completedAt", LocalDateTime.now().toString());
+        ticketData.put("defectsFound", "Please check the system for details");
+        ticketData.put("solutionsProvided", "Please check the system for details");
+
+        // Send regular status update email for completion
+        emailService.sendTicketStatusUpdateEmail(emails, ticket.getTitle(), 
+                                                "IN_PROGRESS", "CLOSED", ticketData);
+        
+        log.info("Fallback completion email sent to {} users in company '{}' for ticket ID: {}",
+                emails.size(), ticket.getCompany().getName(), ticket.getId());
+                
+    } catch (Exception e) {
+        log.error("Failed to send fallback completion email for ticket ID: {}", ticket.getId(), e);
+    }
+}
+
+
+
+
 }
