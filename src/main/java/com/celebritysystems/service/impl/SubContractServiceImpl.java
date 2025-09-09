@@ -1,11 +1,10 @@
 package com.celebritysystems.service.impl;
 
 import com.celebritysystems.dto.PaginatedResponse;
-import com.celebritysystems.dto.ScreenResponse;
 import com.celebritysystems.dto.subcontract.SubContractRequestDTO;
+import com.celebritysystems.dto.subcontract.SubContractResponseDTO;
 import com.celebritysystems.entity.Company;
 import com.celebritysystems.entity.Contract;
-import com.celebritysystems.entity.Screen;
 import com.celebritysystems.entity.SubContract;
 import com.celebritysystems.repository.CompanyRepository;
 import com.celebritysystems.repository.ContractRepository;
@@ -19,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class SubContractServiceImpl implements SubContractService {
@@ -41,7 +41,6 @@ public class SubContractServiceImpl implements SubContractService {
         }
         subContractRepository.deleteById(id);
     }
-
 
     @Override
     public void createSubContract(SubContractRequestDTO request) {
@@ -95,5 +94,48 @@ public class SubContractServiceImpl implements SubContractService {
         existingSubContract.setExpiredAt(request.getExpiredAt());
 
         subContractRepository.save(existingSubContract);
+    }
+
+    @Override
+    public SubContract getSubContractById(Long id) {
+        return subContractRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("SubContract not found with id: " + id));
+    }
+
+    @Override
+    public List<SubContract> getSubContractsByControllerCompanyId(Long controllerCompanyId) {
+        // Verify controller company exists
+        if (!companyRepository.existsById(controllerCompanyId)) {
+            throw new RuntimeException("Controller company not found with id: " + controllerCompanyId);
+        }
+        return subContractRepository.findByControllerCompanyId(controllerCompanyId);
+    }
+
+    @Override
+    public List<SubContract> getSubContractsByContractId(Long contractId) {
+        // Verify contract exists
+        if (!contractRepository.existsById(contractId)) {
+            throw new RuntimeException("Contract not found with id: " + contractId);
+        }
+        return subContractRepository.findByContractId(contractId);
+    }
+
+    @Override
+    public List<SubContractResponseDTO> getAllSubContractsWithNames() {
+        List<SubContract> subContracts = subContractRepository.findAllWithCompanyNames();
+        return subContracts.stream()
+                .map(this::convertToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    private SubContractResponseDTO convertToResponseDTO(SubContract subContract) {
+        return SubContractResponseDTO.builder()
+                .id(subContract.getId().longValue())
+                .mainCompanyName(subContract.getMainCompany().getName())
+                .controllerCompanyName(subContract.getControllerCompany().getName())
+                .contractId(subContract.getContract().getId())
+                .createdAt(subContract.getCreatedAt())
+                .expiredAt(subContract.getExpiredAt())
+                .build();
     }
 }

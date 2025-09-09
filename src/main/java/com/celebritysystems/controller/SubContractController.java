@@ -2,13 +2,12 @@ package com.celebritysystems.controller;
 
 import com.celebritysystems.dto.*;
 import com.celebritysystems.dto.subcontract.SubContractRequestDTO;
+import com.celebritysystems.dto.subcontract.SubContractResponseDTO;
 import com.celebritysystems.entity.SubContract;
-import com.celebritysystems.entity.enums.SolutionTypeInScreen;
 import com.celebritysystems.service.SubContractService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartException;
@@ -44,7 +43,7 @@ public class SubContractController {
     @GetMapping()
     public ResponseEntity<?> getSubContracts(@RequestParam(name = "page", defaultValue = "0") Integer page) {
         try {
-            log.info("Received SubContract request");
+            log.info("Received SubContract request for page: {}", page);
             PaginatedResponse<SubContract> subContractList = subContractService.getSubContracts(page);
             return ResponseEntity.ok(subContractList);
 
@@ -56,13 +55,66 @@ public class SubContractController {
         }
     }
 
+    // NEW ENDPOINT: Get subcontract by ID
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getSubContractById(@PathVariable Long id) {
+        try {
+            log.info("Fetching SubContract with id: {}", id);
+            SubContract subContract = subContractService.getSubContractById(id);
+            return ResponseEntity.ok(subContract);
+        } catch (Exception e) {
+            log.error("Error fetching SubContract with id: {}", id, e);
+            return ResponseEntity.status(500).body("Error fetching SubContract: " + e.getMessage());
+        }
+    }
+
+    // NEW ENDPOINT: Get subcontracts by controller company ID
+    @GetMapping("/controller-company/{controllerCompanyId}")
+    public ResponseEntity<?> getSubContractsByControllerCompany(@PathVariable Long controllerCompanyId) {
+        try {
+            log.info("Fetching SubContracts for controller company id: {}", controllerCompanyId);
+            List<SubContract> subContracts = subContractService.getSubContractsByControllerCompanyId(controllerCompanyId);
+            return ResponseEntity.ok(subContracts);
+        } catch (Exception e) {
+            log.error("Error fetching SubContracts for controller company id: {}", controllerCompanyId, e);
+            return ResponseEntity.status(500).body("Error fetching SubContracts: " + e.getMessage());
+        }
+    }
+
+    // NEW ENDPOINT: Get subcontracts by contract ID
+    @GetMapping("/contract/{contractId}")
+    public ResponseEntity<?> getSubContractsByContract(@PathVariable Long contractId) {
+        try {
+            log.info("Fetching SubContracts for contract id: {}", contractId);
+            List<SubContract> subContracts = subContractService.getSubContractsByContractId(contractId);
+            return ResponseEntity.ok(subContracts);
+        } catch (Exception e) {
+            log.error("Error fetching SubContracts for contract id: {}", contractId, e);
+            return ResponseEntity.status(500).body("Error fetching SubContracts: " + e.getMessage());
+        }
+    }
+
+    // NEW ENDPOINT: Get all subcontracts with company names
+    @GetMapping("/with-names")
+    public ResponseEntity<?> getAllSubContractsWithNames() {
+        try {
+            log.info("Fetching all SubContracts with company names");
+            List<SubContractResponseDTO> subContracts = subContractService.getAllSubContractsWithNames();
+            return ResponseEntity.ok(subContracts);
+        } catch (Exception e) {
+            log.error("Error fetching SubContracts with names", e);
+            return ResponseEntity.status(500).body("Error fetching SubContracts: " + e.getMessage());
+        }
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteSubContract(@PathVariable Long id) {
         try {
+            log.info("Deleting SubContract with id: {}", id);
             subContractService.deleteSubContract(id);
             return ResponseEntity.ok("SubContract deleted successfully");
         } catch (Exception e) {
-            log.error("Error deleting SubContract", e);
+            log.error("Error deleting SubContract with id: {}", id, e);
             return ResponseEntity.status(500).body("Error deleting SubContract: " + e.getMessage());
         }
     }
@@ -76,10 +128,8 @@ public class SubContractController {
             subContractService.updateSubContract(id, request);
             return ResponseEntity.ok("SubContract updated successfully");
         } catch (Exception e) {
-            log.error("Error updating SubContract", e);
+            log.error("Error updating SubContract with id: {}", id, e);
             return ResponseEntity.status(500).body("Error updating SubContract: " + e.getMessage());
         }
     }
-
-
 }
