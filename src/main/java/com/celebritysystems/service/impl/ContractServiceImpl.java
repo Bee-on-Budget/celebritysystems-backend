@@ -486,13 +486,11 @@ public class ContractServiceImpl implements ContractService {
 public List<ScreenResponse> getActiveScreensByCompanyAndContracts(Long companyId, List<Long> contractIds) {
     log.info("Fetching active screens for company: {} and contracts: {}", companyId, contractIds);
     
-    // Validate inputs
     if (contractIds == null || contractIds.isEmpty()) {
         log.warn("No contract IDs provided for company: {}", companyId);
         return List.of();
     }
     
-    // Get contracts by IDs and filter by company and active status
     List<Contract> activeContracts = contractIds.stream()
             .map(contractId -> {
                 try {
