@@ -29,7 +29,7 @@ public interface ContractService {
     List<ContractResponseDTO> getAllContractsWithNames();
     Page<Contract> findAllPaginated(int page, int size);
     Page<ContractResponseDTO> getAllContractsWithNamesPaginated(int page, int size);
-    
+    List<ScreenResponse> getActiveScreensByCompanyAndContracts(Long companyId, List<Long> contractIds);
     List<ScreenResponse> getScreensByCompany(Long companyId);
     List<ScreenResponse> getActiveScreensByCompany(Long companyId);
     List<Long> getScreenIdsByCompany(Long companyId);

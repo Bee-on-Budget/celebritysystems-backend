@@ -482,6 +482,53 @@ public class ContractServiceImpl implements ContractService {
                 .collect(Collectors.toList());
     }
 
+@Override
+public List<ScreenResponse> getActiveScreensByCompanyAndContracts(Long companyId, List<Long> contractIds) {
+    log.info("Fetching active screens for company: {} and contracts: {}", companyId, contractIds);
+    
+    // Validate inputs
+    if (contractIds == null || contractIds.isEmpty()) {
+        log.warn("No contract IDs provided for company: {}", companyId);
+        return List.of();
+    }
+    
+    // Get contracts by IDs and filter by company and active status
+    List<Contract> activeContracts = contractIds.stream()
+            .map(contractId -> {
+                try {
+                    return getContractById(contractId);
+                } catch (IllegalArgumentException e) {
+                    log.warn("Contract not found with ID: {}", contractId);
+                    return null;
+                }
+            })
+            .filter(Objects::nonNull)
+            .filter(contract -> contract.getCompanyId().equals(companyId)) // Ensure contract belongs to the company
+            .filter(contract -> contract.getExpiredAt().isAfter(LocalDateTime.now())) // Only active contracts
+            .collect(Collectors.toList());
+    
+    if (activeContracts.isEmpty()) {
+        log.info("No active contracts found for company: {} with provided contract IDs: {}", companyId, contractIds);
+        return List.of();
+    }
+    
+    return activeContracts.stream()
+            .filter(contract -> contract.getScreenIds() != null) 
+            .flatMap(contract -> contract.getScreenIds().stream())
+            .distinct() 
+            .map(screenId -> {
+                try {
+                    return screenService.getScreenById(screenId);
+                } catch (Exception e) {
+                    log.warn("Could not fetch screen with ID: {}, error: {}", screenId, e.getMessage());
+                    return Optional.<ScreenResponse>empty();
+                }
+            })
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .collect(Collectors.toList());
+}
+
     // Additional helper method to get active contracts for a specific company
     public List<Contract> getActiveContractsByCompany(Long companyId) {
         log.info("Fetching active contracts for company: {}", companyId);

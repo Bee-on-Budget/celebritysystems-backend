@@ -75,7 +75,14 @@ public class ContractController {
         List<ScreenResponse> screens = contractService.getActiveScreensByCompany(companyId);
         return ResponseEntity.ok(screens);
     }
-
+@GetMapping("/company/{companyId}/contracts/{contractIds}/screens/active")
+public ResponseEntity<List<ScreenResponse>> getActiveScreensByCompanyAndContracts(
+        @PathVariable Long companyId,
+        @PathVariable List<Long> contractIds) {
+    log.info("Fetching active screens for company: {} and contracts: {}", companyId, contractIds);
+    List<ScreenResponse> screens = contractService.getActiveScreensByCompanyAndContracts(companyId, contractIds);
+    return ResponseEntity.ok(screens);
+}
     // NEW METHOD: Get screen IDs only for a company
     @GetMapping("/company/{companyId}/screen-ids")
     public ResponseEntity<List<Long>> getScreenIdsByCompany(@PathVariable Long companyId) {
