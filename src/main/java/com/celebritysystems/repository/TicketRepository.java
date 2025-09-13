@@ -74,4 +74,12 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
             @Param("assignedToWorkerId") Long assignedToWorkerId,
             @Param("serviceType") ServiceType serviceType,
             Pageable pageable);
+
+    @Query(value = "SELECT DATE(created_at) as date, COUNT(*) as count " +
+                   "FROM ticket " +
+                   "WHERE created_at BETWEEN :startDate AND :endDate " +
+                   "GROUP BY DATE(created_at) " +
+                   "ORDER BY date", nativeQuery = true)
+    List<Object[]> getDailyTicketCreationStats(@Param("startDate") LocalDateTime startDate, 
+                                             @Param("endDate") LocalDateTime endDate);
 }

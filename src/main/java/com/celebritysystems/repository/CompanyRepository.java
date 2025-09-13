@@ -29,5 +29,13 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
             "FROM company GROUP BY year ORDER BY year", nativeQuery = true)
     List<Object[]> getAnnualCompanyRegistrationStats();
 
+    @Query(value = "SELECT DATE(created_at) as date, COUNT(*) as count " +
+                   "FROM company " +
+                   "WHERE created_at BETWEEN :startDate AND :endDate " +
+                   "GROUP BY DATE(created_at) " +
+                   "ORDER BY date", nativeQuery = true)
+    List<Object[]> getDailyCompanyCreationStats(@Param("startDate") java.time.LocalDateTime startDate, 
+                                              @Param("endDate") java.time.LocalDateTime endDate);
+
     Boolean existsByEmail(String email);
 }
