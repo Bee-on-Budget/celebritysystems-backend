@@ -19,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.util.List;
 
@@ -138,7 +139,7 @@ public class ScreenController {
     }
 
     @GetMapping("/{id}/download/{fileType}")
-    public ResponseEntity<Resource> downloadScreenFile(@PathVariable Long id, 
+    public ResponseEntity<byte[]> downloadScreenFile(@PathVariable Long id, 
                                                        @PathVariable String fileType) {
         log.info("Downloading {} file for screen with ID: {}", fileType, id);
         
@@ -177,20 +178,27 @@ public class ScreenController {
                 return ResponseEntity.notFound().build();
             }
             
-            Resource resource = s3Service.downloadFile(fileUrl);
+            byte[] fileContent = s3Service.getFileAsBytes(fileUrl);
             
             HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Content-Disposition");
             headers.add(HttpHeaders.CONTENT_DISPOSITION, 
                 "attachment; filename=\"" + (fileName != null ? fileName : fileType + "_file") + "\"");
             
+            // Set content type based on file extension
             String contentType = determineContentType(fileName);
             headers.setContentType(MediaType.parseMediaType(contentType));
+            headers.setContentLength(fileContent.length);
+            
+            // Additional headers to force download
+            headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+            headers.add("Pragma", "no-cache");
+            headers.add("Expires", "0");
 
             log.info("{} file downloaded successfully for screen ID: {}", fileType, id);
             return ResponseEntity.ok()
                     .headers(headers)
-                    .body(resource);
+                    .body(fileContent);
             
         } catch (Exception e) {
             log.error("Failed to download {} file for screen with ID: {}", fileType, id, e);

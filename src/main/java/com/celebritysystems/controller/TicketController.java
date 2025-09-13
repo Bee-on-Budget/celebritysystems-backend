@@ -25,10 +25,12 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -395,7 +397,7 @@ public ResponseEntity<Page<TicketResponseDTO>> getAllTicketsPaginated(
     // ==================== TICKET IMAGE DOWNLOAD ENDPOINT ====================
 
     @GetMapping("/{id}/image/download")
-    public ResponseEntity<Resource> downloadTicketImage(@PathVariable Long id) {
+    public ResponseEntity<byte[]> downloadTicketImage(@PathVariable Long id) {
         log.info("Downloading ticket image for ticket ID: {}", id);
 
         TicketResponseDTO ticket = ticketService.getTicketById(id);
@@ -404,20 +406,27 @@ public ResponseEntity<Page<TicketResponseDTO>> getAllTicketsPaginated(
         }
 
         try {
-            Resource resource = s3Service.downloadFile(ticket.getTicketImageUrl());
+            byte[] fileContent = s3Service.getFileAsBytes(ticket.getTicketImageUrl());
 
             HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Content-Disposition");
             headers.add(HttpHeaders.CONTENT_DISPOSITION,
                     "attachment; filename=\"" + ticket.getTicketImageName() + "\"");
 
+            // Set content type based on file extension
             String contentType = determineContentType(ticket.getTicketImageName());
             headers.setContentType(MediaType.parseMediaType(contentType));
+            headers.setContentLength(fileContent.length);
+            
+            // Additional headers to force download
+            headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+            headers.add("Pragma", "no-cache");
+            headers.add("Expires", "0");
 
             log.info("Ticket image downloaded successfully: {}", ticket.getTicketImageName());
             return ResponseEntity.ok()
                     .headers(headers)
-                    .body(resource);
+                    .body(fileContent);
 
         } catch (Exception e) {
             log.error("Failed to download ticket image for ID: {}", id, e);
