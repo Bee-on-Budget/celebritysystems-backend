@@ -397,39 +397,22 @@ public ResponseEntity<Page<TicketResponseDTO>> getAllTicketsPaginated(
     // ==================== TICKET IMAGE DOWNLOAD ENDPOINT ====================
 
     @GetMapping("/{id}/image/download")
-    public ResponseEntity<byte[]> downloadTicketImage(@PathVariable Long id) {
-        log.info("Downloading ticket image for ticket ID: {}", id);
+    public ResponseEntity<String> downloadTicketImage(@PathVariable Long id) {
+        log.info("Generating presigned URL for ticket image with ID: {}", id);
 
         TicketResponseDTO ticket = ticketService.getTicketById(id);
         if (ticket == null || ticket.getTicketImageUrl() == null) {
+            log.warn("Ticket not found or no image URL for ticket ID: {}", id);
             return ResponseEntity.notFound().build();
         }
 
         try {
-            byte[] fileContent = s3Service.getFileAsBytes(ticket.getTicketImageUrl());
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Content-Disposition");
-            headers.add(HttpHeaders.CONTENT_DISPOSITION,
-                    "attachment; filename=\"" + ticket.getTicketImageName() + "\"");
-
-            // Set content type based on file extension
-            String contentType = determineContentType(ticket.getTicketImageName());
-            headers.setContentType(MediaType.parseMediaType(contentType));
-            headers.setContentLength(fileContent.length);
-            
-            // Additional headers to force download
-            headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
-            headers.add("Pragma", "no-cache");
-            headers.add("Expires", "0");
-
-            log.info("Ticket image downloaded successfully: {}", ticket.getTicketImageName());
-            return ResponseEntity.ok()
-                    .headers(headers)
-                    .body(fileContent);
+            String presignedUrl = s3Service.generatePresignedUrl(ticket.getTicketImageUrl(), 60);
+            log.info("Generated presigned URL for ticket image with ID: {}", id);
+            return ResponseEntity.ok(presignedUrl);
 
         } catch (Exception e) {
-            log.error("Failed to download ticket image for ID: {}", id, e);
+            log.error("Failed to generate presigned URL for ticket image with ID: {}", id, e);
             return ResponseEntity.internalServerError().build();
         }
     }

@@ -139,77 +139,8 @@ public class ScreenController {
     }
 
     @GetMapping("/{id}/download/{fileType}")
-    public ResponseEntity<byte[]> downloadScreenFile(@PathVariable Long id, 
+    public ResponseEntity<String> downloadScreenFile(@PathVariable Long id, 
                                                        @PathVariable String fileType) {
-        log.info("Downloading {} file for screen with ID: {}", fileType, id);
-        
-        ScreenResponse screen = screenService.getScreenById(id)
-                .orElse(null);
-        if (screen == null) {
-            log.warn("Screen not found with ID: {}", id);
-            return ResponseEntity.notFound().build();
-        }
-
-        try {
-            String fileUrl = null;
-            String fileName = null;
-            
-            switch (fileType.toLowerCase()) {
-                case "connection" -> {
-                    fileUrl = screen.getConnectionFileUrl();
-                    fileName = screen.getConnectionFileName();
-                }
-                case "config" -> {
-                    fileUrl = screen.getConfigFileUrl();
-                    fileName = screen.getConfigFileName();
-                }
-                case "version" -> {
-                    fileUrl = screen.getVersionFileUrl();
-                    fileName = screen.getVersionFileName();
-                }
-                default -> {
-                    log.warn("Invalid file type requested: {}", fileType);
-                    return ResponseEntity.badRequest().build();
-                }
-            }
-            
-            if (fileUrl == null || fileUrl.isEmpty()) {
-                log.warn("No {} file found for screen ID: {}", fileType, id);
-                return ResponseEntity.notFound().build();
-            }
-            
-            byte[] fileContent = s3Service.getFileAsBytes(fileUrl);
-            
-            HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, "Content-Disposition");
-            headers.add(HttpHeaders.CONTENT_DISPOSITION, 
-                "attachment; filename=\"" + (fileName != null ? fileName : fileType + "_file") + "\"");
-            
-            // Set content type based on file extension
-            String contentType = determineContentType(fileName);
-            headers.setContentType(MediaType.parseMediaType(contentType));
-            headers.setContentLength(fileContent.length);
-            
-            // Additional headers to force download
-            headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
-            headers.add("Pragma", "no-cache");
-            headers.add("Expires", "0");
-
-            log.info("{} file downloaded successfully for screen ID: {}", fileType, id);
-            return ResponseEntity.ok()
-                    .headers(headers)
-                    .body(fileContent);
-            
-        } catch (Exception e) {
-            log.error("Failed to download {} file for screen with ID: {}", fileType, id, e);
-            return ResponseEntity.internalServerError().build();
-        }
-    }
-
-    @GetMapping("/{id}/presigned-url/{fileType}")
-    public ResponseEntity<String> getScreenFilePresignedUrl(@PathVariable Long id, 
-                                                            @PathVariable String fileType,
-                                                            @RequestParam(defaultValue = "60") int expirationMinutes) {
         log.info("Generating presigned URL for {} file of screen with ID: {}", fileType, id);
         
         ScreenResponse screen = screenService.getScreenById(id)
@@ -237,7 +168,7 @@ public class ScreenController {
                 return ResponseEntity.notFound().build();
             }
             
-            String presignedUrl = s3Service.generatePresignedUrl(fileUrl, expirationMinutes);
+            String presignedUrl = s3Service.generatePresignedUrl(fileUrl, 60);
             log.info("Generated presigned URL for {} file of screen ID: {}", fileType, id);
             
             return ResponseEntity.ok(presignedUrl);
