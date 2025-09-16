@@ -1,0 +1,536 @@
+2025-09-12 00:34:36 INFO  com.celebritysystems.Main - Starting Main using Java 21.0.7 with PID 18924 (C:\Users\samia\Spring Boot Projects\celebritysystems-backend\target\classes started by samia in C:\Users\samia\Spring Boot Projects\celebritysystems-backend) 
+2025-09-12 00:34:36 INFO  com.celebritysystems.Main - No active profile set, falling back to 1 default profile: "default" 
+2025-09-12 00:34:37 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode. 
+2025-09-12 00:34:37 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 110 ms. Found 10 JPA repository interfaces. 
+2025-09-12 00:34:38 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http) 
+2025-09-12 00:34:38 INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"] 
+2025-09-12 00:34:38 INFO  o.a.catalina.core.StandardService - Starting service [Tomcat] 
+2025-09-12 00:34:38 INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.40] 
+2025-09-12 00:34:38 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext 
+2025-09-12 00:34:38 INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2187 ms 
+2025-09-12 00:34:39 INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer 
+2025-09-12 00:34:39 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting... 
+2025-09-12 00:34:41 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting... 
+2025-09-12 00:34:42 ERROR o.s.o.j.LocalContainerEntityManagerFactoryBean - Failed to initialize JPA EntityManagerFactory: [PersistenceUnit: default] Unable to build Hibernate SessionFactory; nested exception is org.hibernate.exception.JDBCConnectionException: Unable to open JDBC Connection for DDL execution [Communications link failure
+
+The last packet sent successfully to the server was 0 milliseconds ago. The driver has not received any packets from the server.] [n/a] 
+2025-09-12 00:34:42 WARN  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: [PersistenceUnit: default] Unable to build Hibernate SessionFactory; nested exception is org.hibernate.exception.JDBCConnectionException: Unable to open JDBC Connection for DDL execution [Communications link failure
+
+The last packet sent successfully to the server was 0 milliseconds ago. The driver has not received any packets from the server.] [n/a] 
+2025-09-12 00:34:42 INFO  o.a.catalina.core.StandardService - Stopping service [Tomcat] 
+2025-09-12 00:34:42 INFO  o.s.b.a.l.ConditionEvaluationReportLogger - 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled. 
+2025-09-12 00:34:42 ERROR o.s.boot.SpringApplication - Application run failed org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: [PersistenceUnit: default] Unable to build Hibernate SessionFactory; nested exception is org.hibernate.exception.JDBCConnectionException: Unable to open JDBC Connection for DDL execution [Communications link failure
+
+The last packet sent successfully to the server was 0 milliseconds ago. The driver has not received any packets from the server.] [n/a]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1818)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:607)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:529)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:207)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:970)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:627)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:753)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1362)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1351)
+	at com.celebritysystems.Main.main(Main.java:17)
+Caused by: jakarta.persistence.PersistenceException: [PersistenceUnit: default] Unable to build Hibernate SessionFactory; nested exception is org.hibernate.exception.JDBCConnectionException: Unable to open JDBC Connection for DDL execution [Communications link failure
+
+The last packet sent successfully to the server was 0 milliseconds ago. The driver has not received any packets from the server.] [n/a]
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:431)
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:400)
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:366)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1865)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1814)
+	... 15 common frames omitted
+Caused by: org.hibernate.exception.JDBCConnectionException: Unable to open JDBC Connection for DDL execution [Communications link failure
+
+The last packet sent successfully to the server was 0 milliseconds ago. The driver has not received any packets from the server.] [n/a]
+	at org.hibernate.exception.internal.SQLStateConversionDelegate.convert(SQLStateConversionDelegate.java:100)
+	at org.hibernate.exception.internal.StandardSQLExceptionConverter.convert(StandardSQLExceptionConverter.java:58)
+	at org.hibernate.engine.jdbc.spi.SqlExceptionHelper.convert(SqlExceptionHelper.java:108)
+	at org.hibernate.engine.jdbc.spi.SqlExceptionHelper.convert(SqlExceptionHelper.java:94)
+	at org.hibernate.resource.transaction.backend.jdbc.internal.DdlTransactionIsolatorNonJtaImpl.getIsolatedConnection(DdlTransactionIsolatorNonJtaImpl.java:74)
+	at org.hibernate.resource.transaction.backend.jdbc.internal.DdlTransactionIsolatorNonJtaImpl.getIsolatedConnection(DdlTransactionIsolatorNonJtaImpl.java:39)
+	at org.hibernate.tool.schema.internal.exec.ImprovedExtractionContextImpl.getJdbcConnection(ImprovedExtractionContextImpl.java:63)
+	at org.hibernate.tool.schema.internal.exec.ImprovedExtractionContextImpl.getJdbcDatabaseMetaData(ImprovedExtractionContextImpl.java:70)
+	at org.hibernate.tool.schema.extract.internal.InformationExtractorJdbcDatabaseMetaDataImpl.processTableResultSet(InformationExtractorJdbcDatabaseMetaDataImpl.java:65)
+	at org.hibernate.tool.schema.extract.internal.AbstractInformationExtractorImpl.getTables(AbstractInformationExtractorImpl.java:570)
+	at org.hibernate.tool.schema.extract.internal.DatabaseInformationImpl.getTablesInformation(DatabaseInformationImpl.java:122)
+	at org.hibernate.tool.schema.internal.GroupedSchemaMigratorImpl.performTablesMigration(GroupedSchemaMigratorImpl.java:72)
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.performMigration(AbstractSchemaMigrator.java:233)
+	at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.doMigration(AbstractSchemaMigrator.java:112)
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.performDatabaseAction(SchemaManagementToolCoordinator.java:280)
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.lambda$process$5(SchemaManagementToolCoordinator.java:144)
+	at java.base/java.util.HashMap.forEach(HashMap.java:1429)
+	at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.process(SchemaManagementToolCoordinator.java:141)
+	at org.hibernate.boot.internal.SessionFactoryObserverForSchemaExport.sessionFactoryCreated(SessionFactoryObserverForSchemaExport.java:37)
+	at org.hibernate.internal.SessionFactoryObserverChain.sessionFactoryCreated(SessionFactoryObserverChain.java:35)
+	at org.hibernate.internal.SessionFactoryImpl.<init>(SessionFactoryImpl.java:324)
+	at org.hibernate.boot.internal.SessionFactoryBuilderImpl.build(SessionFactoryBuilderImpl.java:463)
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1517)
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:66)
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:390)
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:419)
+	... 19 common frames omitted
+Caused by: com.mysql.cj.jdbc.exceptions.CommunicationsException: Communications link failure
+
+The last packet sent successfully to the server was 0 milliseconds ago. The driver has not received any packets from the server.
+	at com.mysql.cj.jdbc.exceptions.SQLError.createCommunicationsException(SQLError.java:165)
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:55)
+	at com.mysql.cj.jdbc.ConnectionImpl.createNewIO(ConnectionImpl.java:837)
+	at com.mysql.cj.jdbc.ConnectionImpl.<init>(ConnectionImpl.java:420)
+	at com.mysql.cj.jdbc.ConnectionImpl.getInstance(ConnectionImpl.java:238)
+	at com.mysql.cj.jdbc.NonRegisteringDriver.connect(NonRegisteringDriver.java:180)
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:137)
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:360)
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:202)
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:461)
+	at com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:550)
+	at com.zaxxer.hikari.pool.HikariPool.<init>(HikariPool.java:98)
+	at com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:111)
+	at org.hibernate.engine.jdbc.connections.internal.DatasourceConnectionProviderImpl.getConnection(DatasourceConnectionProviderImpl.java:126)
+	at org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator$ConnectionProviderJdbcConnectionAccess.obtainConnection(JdbcEnvironmentInitiator.java:467)
+	at org.hibernate.resource.transaction.backend.jdbc.internal.DdlTransactionIsolatorNonJtaImpl.getIsolatedConnection(DdlTransactionIsolatorNonJtaImpl.java:46)
+	... 40 common frames omitted
+Caused by: com.mysql.cj.exceptions.CJCommunicationsException: Communications link failure
+
+The last packet sent successfully to the server was 0 milliseconds ago. The driver has not received any packets from the server.
+	at java.base/jdk.internal.reflect.DirectConstructorHandleAccessor.newInstance(DirectConstructorHandleAccessor.java:62)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:502)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:486)
+	at com.mysql.cj.exceptions.ExceptionFactory.createException(ExceptionFactory.java:52)
+	at com.mysql.cj.exceptions.ExceptionFactory.createException(ExceptionFactory.java:95)
+	at com.mysql.cj.exceptions.ExceptionFactory.createException(ExceptionFactory.java:140)
+	at com.mysql.cj.exceptions.ExceptionFactory.createCommunicationsException(ExceptionFactory.java:156)
+	at com.mysql.cj.protocol.a.NativeSocketConnection.connect(NativeSocketConnection.java:79)
+	at com.mysql.cj.NativeSession.connect(NativeSession.java:142)
+	at com.mysql.cj.jdbc.ConnectionImpl.connectOneTryOnly(ConnectionImpl.java:961)
+	at com.mysql.cj.jdbc.ConnectionImpl.createNewIO(ConnectionImpl.java:825)
+	... 53 common frames omitted
+Caused by: java.net.ConnectException: Connection refused: getsockopt
+	at java.base/sun.nio.ch.Net.pollConnect(Native Method)
+	at java.base/sun.nio.ch.Net.pollConnectNow(Net.java:682)
+	at java.base/sun.nio.ch.NioSocketImpl.timedFinishConnect(NioSocketImpl.java:542)
+	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:592)
+	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:327)
+	at java.base/java.net.Socket.connect(Socket.java:757)
+	at com.mysql.cj.protocol.StandardSocketFactory.connect(StandardSocketFactory.java:144)
+	at com.mysql.cj.protocol.a.NativeSocketConnection.connect(NativeSocketConnection.java:53)
+	... 56 common frames omitted
+
+2025-09-12 00:35:30 INFO  com.celebritysystems.Main - Starting Main using Java 21.0.7 with PID 28212 (C:\Users\samia\Spring Boot Projects\celebritysystems-backend\target\classes started by samia in C:\Users\samia\Spring Boot Projects\celebritysystems-backend) 
+2025-09-12 00:35:30 INFO  com.celebritysystems.Main - No active profile set, falling back to 1 default profile: "default" 
+2025-09-12 00:35:31 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode. 
+2025-09-12 00:35:31 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 90 ms. Found 10 JPA repository interfaces. 
+2025-09-12 00:35:32 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http) 
+2025-09-12 00:35:32 INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"] 
+2025-09-12 00:35:32 INFO  o.a.catalina.core.StandardService - Starting service [Tomcat] 
+2025-09-12 00:35:32 INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.40] 
+2025-09-12 00:35:32 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext 
+2025-09-12 00:35:32 INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1828 ms 
+2025-09-12 00:35:32 INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer 
+2025-09-12 00:35:32 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting... 
+2025-09-12 00:35:32 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@fceab5d 
+2025-09-12 00:35:32 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed. 
+2025-09-12 00:35:34 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default' 
+2025-09-12 00:35:34 INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used. 
+2025-09-12 00:35:35 INFO  c.celebritysystems.config.S3Config - Configuring S3Client with endpoint: https://nbg1.your-objectstorage.com, region: eu-central 
+2025-09-12 00:35:35 INFO  c.celebritysystems.config.S3Config - Configuring S3Presigner with endpoint: https://nbg1.your-objectstorage.com, region: eu-central 
+2025-09-12 00:35:36 WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning 
+2025-09-12 00:35:36 INFO  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager 
+2025-09-12 00:35:37 INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"] 
+2025-09-12 00:35:37 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/' 
+2025-09-12 00:35:37 INFO  com.celebritysystems.Main - Started Main in 7.551 seconds (process running for 7.916) 
+2025-09-12 00:37:12 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet' 
+2025-09-12 00:37:12 INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet' 
+2025-09-12 00:37:12 INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 2 ms 
+2025-09-12 00:37:12 INFO  c.c.AuthControllers.AuthController - Login attempt received for email: company@gmail.com 
+2025-09-12 00:37:12 INFO  c.c.AuthControllers.AuthController - Login successful for email: company@gmail.com 
+2025-09-12 00:37:13 INFO  c.c.AuthControllers.AuthController - Attempt to patch user with id: 4 with updates: [playerId] 
+2025-09-12 00:37:13 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-12 00:37:13 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-12 00:37:13 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-12 00:37:13 INFO  c.c.AuthControllers.AuthController - User patched successfully with id: 4 
+2025-09-12 01:37:51 INFO  c.c.AuthControllers.AuthController - Login attempt received for email: company@gmail.com 
+2025-09-12 01:37:51 INFO  c.c.AuthControllers.AuthController - Login successful for email: company@gmail.com 
+2025-09-12 01:37:51 INFO  c.c.AuthControllers.AuthController - Attempt to patch user with id: 4 with updates: [playerId] 
+2025-09-12 01:37:51 INFO  c.c.AuthControllers.AuthController - User patched successfully with id: 4 
+2025-09-12 01:37:51 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-12 01:37:51 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-12 01:37:51 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-12 02:06:21 INFO  o.s.api.AbstractOpenApiResource - Init duration for springdoc-openapi is: 1572 ms 
+2025-09-12 02:17:39 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-12 02:17:39 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-12 02:17:39 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-12 02:18:53 WARN  o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.multipart.MaxUploadSizeExceededException: Maximum upload size exceeded] 
+2025-09-12 02:20:04 INFO  c.c.controller.TicketController - Received request to create new ticket with service type: EMERGENCY_SERVICE 
+2025-09-12 02:20:04 INFO  c.c.service.impl.S3ServiceImpl - Starting file upload: ticket_media_1757632804225.jpg (size: 137847 bytes, type: image/jpeg) 
+2025-09-12 02:20:04 INFO  c.c.service.impl.S3ServiceImpl - File validation passed for: ticket_media_1757632804225.jpg (type: image/jpeg) 
+2025-09-12 02:20:05 INFO  c.c.service.impl.S3ServiceImpl - Bucket celebritysystems exists and is accessible 
+2025-09-12 02:20:05 INFO  c.c.service.impl.S3ServiceImpl - Generated file key: celebritysystems/ticket-files/ticket-image/2025/09/12/07d2eb49-ticket_media_1757632804225.jpg 
+2025-09-12 02:20:05 INFO  c.c.service.impl.S3ServiceImpl - Uploading file to bucket: celebritysystems, key: celebritysystems/ticket-files/ticket-image/2025/09/12/07d2eb49-ticket_media_1757632804225.jpg 
+2025-09-12 02:20:07 INFO  c.c.service.impl.S3ServiceImpl - File uploaded successfully to S3: https://nbg1.your-objectstorage.com/celebritysystems/celebritysystems/ticket-files/ticket-image/2025/09/12/07d2eb49-ticket_media_1757632804225.jpg 
+2025-09-12 02:20:07 INFO  c.c.controller.TicketController - Successfully created ticket with ID: 17 
+2025-09-12 02:20:07 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-12 02:20:07 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-12 02:20:07 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-12 02:20:41 INFO  c.c.controller.TicketController - Received request to create new ticket with service type: EMERGENCY_SERVICE 
+2025-09-12 02:20:41 INFO  c.c.service.impl.S3ServiceImpl - Starting file upload: ticket_media_1757632841216.jpg (size: 51204 bytes, type: image/jpeg) 
+2025-09-12 02:20:41 INFO  c.c.service.impl.S3ServiceImpl - File validation passed for: ticket_media_1757632841216.jpg (type: image/jpeg) 
+2025-09-12 02:20:41 INFO  c.c.service.impl.S3ServiceImpl - Bucket celebritysystems exists and is accessible 
+2025-09-12 02:20:41 INFO  c.c.service.impl.S3ServiceImpl - Generated file key: celebritysystems/ticket-files/ticket-image/2025/09/12/ce3aaa61-ticket_media_1757632841216.jpg 
+2025-09-12 02:20:41 INFO  c.c.service.impl.S3ServiceImpl - Uploading file to bucket: celebritysystems, key: celebritysystems/ticket-files/ticket-image/2025/09/12/ce3aaa61-ticket_media_1757632841216.jpg 
+2025-09-12 02:20:44 INFO  c.c.service.impl.S3ServiceImpl - File uploaded successfully to S3: https://nbg1.your-objectstorage.com/celebritysystems/celebritysystems/ticket-files/ticket-image/2025/09/12/ce3aaa61-ticket_media_1757632841216.jpg 
+2025-09-12 02:20:44 INFO  c.c.controller.TicketController - Successfully created ticket with ID: 18 
+2025-09-12 02:20:44 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-12 02:20:44 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-12 02:20:44 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-12 02:21:44 INFO  c.c.controller.TicketController - Received request to create new ticket with service type: EMERGENCY_SERVICE 
+2025-09-12 02:21:44 INFO  c.c.service.impl.S3ServiceImpl - Starting file upload: ticket_media_1757632901063.mp4 (size: 7148985 bytes, type: video/mp4) 
+2025-09-12 02:21:44 INFO  c.c.service.impl.S3ServiceImpl - File validation passed for: ticket_media_1757632901063.mp4 (type: video/mp4) 
+2025-09-12 02:21:44 INFO  c.c.service.impl.S3ServiceImpl - Bucket celebritysystems exists and is accessible 
+2025-09-12 02:21:44 INFO  c.c.service.impl.S3ServiceImpl - Generated file key: celebritysystems/ticket-files/ticket-image/2025/09/12/971840e3-ticket_media_1757632901063.mp4 
+2025-09-12 02:21:44 INFO  c.c.service.impl.S3ServiceImpl - Uploading file to bucket: celebritysystems, key: celebritysystems/ticket-files/ticket-image/2025/09/12/971840e3-ticket_media_1757632901063.mp4 
+2025-09-12 02:23:01 INFO  c.c.service.impl.S3ServiceImpl - File uploaded successfully to S3: https://nbg1.your-objectstorage.com/celebritysystems/celebritysystems/ticket-files/ticket-image/2025/09/12/971840e3-ticket_media_1757632901063.mp4 
+2025-09-12 02:23:01 INFO  c.c.controller.TicketController - Successfully created ticket with ID: 19 
+2025-09-12 02:23:11 INFO  c.c.controller.TicketController - Received request to create new ticket with service type: EMERGENCY_SERVICE 
+2025-09-12 02:23:11 INFO  c.c.service.impl.S3ServiceImpl - Starting file upload: ticket_media_1757632988728.mp4 (size: 7148985 bytes, type: video/mp4) 
+2025-09-12 02:23:11 INFO  c.c.service.impl.S3ServiceImpl - File validation passed for: ticket_media_1757632988728.mp4 (type: video/mp4) 
+2025-09-12 02:23:11 INFO  c.c.service.impl.S3ServiceImpl - Bucket celebritysystems exists and is accessible 
+2025-09-12 02:23:11 INFO  c.c.service.impl.S3ServiceImpl - Generated file key: celebritysystems/ticket-files/ticket-image/2025/09/12/36be0e31-ticket_media_1757632988728.mp4 
+2025-09-12 02:23:11 INFO  c.c.service.impl.S3ServiceImpl - Uploading file to bucket: celebritysystems, key: celebritysystems/ticket-files/ticket-image/2025/09/12/36be0e31-ticket_media_1757632988728.mp4 
+2025-09-12 02:25:45 INFO  c.c.service.impl.S3ServiceImpl - File uploaded successfully to S3: https://nbg1.your-objectstorage.com/celebritysystems/celebritysystems/ticket-files/ticket-image/2025/09/12/36be0e31-ticket_media_1757632988728.mp4 
+2025-09-12 02:25:45 INFO  c.c.controller.TicketController - Successfully created ticket with ID: 20 
+2025-09-12 02:38:00 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-12 02:38:00 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-12 02:38:00 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-12 02:39:19 INFO  c.c.controller.TicketController - Received request to create new ticket with service type: EMERGENCY_SERVICE 
+2025-09-12 02:39:19 INFO  c.c.service.impl.S3ServiceImpl - Starting file upload: ticket_video_1757633955415.mp4 (size: 8862486 bytes, type: video/mp4) 
+2025-09-12 02:39:19 INFO  c.c.service.impl.S3ServiceImpl - File validation passed for: ticket_video_1757633955415.mp4 (type: video/mp4) 
+2025-09-12 02:39:20 INFO  c.c.service.impl.S3ServiceImpl - Bucket celebritysystems exists and is accessible 
+2025-09-12 02:39:20 INFO  c.c.service.impl.S3ServiceImpl - Generated file key: celebritysystems/ticket-files/ticket-image/2025/09/12/c04046c8-ticket_video_1757633955415.mp4 
+2025-09-12 02:39:20 INFO  c.c.service.impl.S3ServiceImpl - Uploading file to bucket: celebritysystems, key: celebritysystems/ticket-files/ticket-image/2025/09/12/c04046c8-ticket_video_1757633955415.mp4 
+2025-09-12 02:40:53 INFO  c.c.service.impl.S3ServiceImpl - File uploaded successfully to S3: https://nbg1.your-objectstorage.com/celebritysystems/celebritysystems/ticket-files/ticket-image/2025/09/12/c04046c8-ticket_video_1757633955415.mp4 
+2025-09-12 02:40:53 INFO  c.c.controller.TicketController - Successfully created ticket with ID: 21 
+2025-09-12 02:40:53 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-12 02:40:53 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-12 02:40:53 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-12 02:52:54 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-12 02:52:54 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-12 02:52:54 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-12 03:02:42 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-12 03:02:42 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-12 03:02:42 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-12 03:03:51 INFO  c.c.controller.TicketController - Received request to create new ticket with service type: EMERGENCY_SERVICE 
+2025-09-12 03:03:51 INFO  c.c.service.impl.S3ServiceImpl - Starting file upload: ticket_video_1757635430209.mp4 (size: 4396345 bytes, type: video/mp4) 
+2025-09-12 03:03:51 INFO  c.c.service.impl.S3ServiceImpl - File validation passed for: ticket_video_1757635430209.mp4 (type: video/mp4) 
+2025-09-12 03:03:51 INFO  c.c.service.impl.S3ServiceImpl - Bucket celebritysystems exists and is accessible 
+2025-09-12 03:03:51 INFO  c.c.service.impl.S3ServiceImpl - Generated file key: celebritysystems/ticket-files/ticket-image/2025/09/12/f9104c3c-ticket_video_1757635430209.mp4 
+2025-09-12 03:03:51 INFO  c.c.service.impl.S3ServiceImpl - Uploading file to bucket: celebritysystems, key: celebritysystems/ticket-files/ticket-image/2025/09/12/f9104c3c-ticket_video_1757635430209.mp4 
+2025-09-12 03:04:38 INFO  c.c.service.impl.S3ServiceImpl - File uploaded successfully to S3: https://nbg1.your-objectstorage.com/celebritysystems/celebritysystems/ticket-files/ticket-image/2025/09/12/f9104c3c-ticket_video_1757635430209.mp4 
+2025-09-12 03:04:38 INFO  c.c.controller.TicketController - Successfully created ticket with ID: 22 
+2025-09-12 03:04:39 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-12 03:04:39 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-12 03:04:39 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-12 03:19:16 INFO  c.c.AuthControllers.AuthController - Attempt to patch user with id: 4 with updates: [playerId] 
+2025-09-12 03:19:16 INFO  c.c.AuthControllers.AuthController - User patched successfully with id: 4 
+2025-09-12 03:19:32 INFO  c.c.AuthControllers.AuthController - Login attempt received for email: worker@gmail.com 
+2025-09-12 03:19:32 INFO  c.c.AuthControllers.AuthController - Login successful for email: worker@gmail.com 
+2025-09-12 03:19:32 INFO  c.c.AuthControllers.AuthController - Attempt to patch user with id: 2 with updates: [playerId] 
+2025-09-12 03:19:32 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 03:19:32 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 03:19:32 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 03:19:33 ERROR c.c.AuthControllers.AuthController - Error patching user with id: 2 org.springframework.dao.DataIntegrityViolationException: could not execute statement [Duplicate entry '' for key 'UKpsfb18v1ityecxvh3x7thgkwx'] [update users set can_edit=?,can_read=?,company_id=?,created_at=?,email=?,full_name=?,password=?,player_id=?,role=?,updated_at=?,username=? where id=?]; SQL [update users set can_edit=?,can_read=?,company_id=?,created_at=?,email=?,full_name=?,password=?,player_id=?,role=?,updated_at=?,username=? where id=?]; constraint [UKpsfb18v1ityecxvh3x7thgkwx]
+	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.convertHibernateAccessException(HibernateJpaDialect.java:294)
+	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.convertHibernateAccessException(HibernateJpaDialect.java:256)
+	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.translateExceptionIfPossible(HibernateJpaDialect.java:241)
+	at org.springframework.orm.jpa.JpaTransactionManager.doCommit(JpaTransactionManager.java:566)
+	at org.springframework.transaction.support.AbstractPlatformTransactionManager.processCommit(AbstractPlatformTransactionManager.java:795)
+	at org.springframework.transaction.support.AbstractPlatformTransactionManager.commit(AbstractPlatformTransactionManager.java:758)
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.commitTransactionAfterReturning(TransactionAspectSupport.java:698)
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:416)
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:119)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:728)
+	at com.celebritysystems.service.impl.UserServiceImpl$$SpringCGLIB$$0.patchUser(<generated>)
+	at com.celebritysystems.controller.UserController.patchUser(UserController.java:177)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:359)
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:724)
+	at com.celebritysystems.controller.UserController$$SpringCGLIB$$0.patchUser(<generated>)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:258)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:191)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:118)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:986)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:891)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:888)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:195)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108)
+	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:231)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:365)
+	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:101)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:126)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:120)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:131)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:85)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:179)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at com.celebritysystems.config.JwtAuthenticationFilter.doFilterInternal(JwtAuthenticationFilter.java:63)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90)
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233)
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.servlet.handler.HandlerMappingIntrospector.lambda$createCacheFilter$3(HandlerMappingIntrospector.java:243)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74)
+	at org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebMvcSecurityConfiguration.java:238)
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:362)
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:278)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:483)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:116)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:398)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:903)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1740)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1189)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:658)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+Caused by: org.hibernate.exception.ConstraintViolationException: could not execute statement [Duplicate entry '' for key 'UKpsfb18v1ityecxvh3x7thgkwx'] [update users set can_edit=?,can_read=?,company_id=?,created_at=?,email=?,full_name=?,password=?,player_id=?,role=?,updated_at=?,username=? where id=?]
+	at org.hibernate.dialect.MySQLDialect.lambda$buildSQLExceptionConversionDelegate$3(MySQLDialect.java:1245)
+	at org.hibernate.exception.internal.StandardSQLExceptionConverter.convert(StandardSQLExceptionConverter.java:58)
+	at org.hibernate.engine.jdbc.spi.SqlExceptionHelper.convert(SqlExceptionHelper.java:108)
+	at org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.executeUpdate(ResultSetReturnImpl.java:197)
+	at org.hibernate.engine.jdbc.mutation.internal.AbstractMutationExecutor.performNonBatchedMutation(AbstractMutationExecutor.java:134)
+	at org.hibernate.engine.jdbc.mutation.internal.MutationExecutorSingleNonBatched.performNonBatchedOperations(MutationExecutorSingleNonBatched.java:55)
+	at org.hibernate.engine.jdbc.mutation.internal.AbstractMutationExecutor.execute(AbstractMutationExecutor.java:55)
+	at org.hibernate.persister.entity.mutation.UpdateCoordinatorStandard.doStaticUpdate(UpdateCoordinatorStandard.java:781)
+	at org.hibernate.persister.entity.mutation.UpdateCoordinatorStandard.performUpdate(UpdateCoordinatorStandard.java:328)
+	at org.hibernate.persister.entity.mutation.UpdateCoordinatorStandard.update(UpdateCoordinatorStandard.java:245)
+	at org.hibernate.action.internal.EntityUpdateAction.execute(EntityUpdateAction.java:169)
+	at org.hibernate.engine.spi.ActionQueue.executeActions(ActionQueue.java:644)
+	at org.hibernate.engine.spi.ActionQueue.executeActions(ActionQueue.java:511)
+	at org.hibernate.event.internal.AbstractFlushingEventListener.performExecutions(AbstractFlushingEventListener.java:414)
+	at org.hibernate.event.internal.DefaultFlushEventListener.onFlush(DefaultFlushEventListener.java:41)
+	at org.hibernate.event.service.internal.EventListenerGroupImpl.fireEventOnEachListener(EventListenerGroupImpl.java:127)
+	at org.hibernate.internal.SessionImpl.doFlush(SessionImpl.java:1429)
+	at org.hibernate.internal.SessionImpl.managedFlush(SessionImpl.java:491)
+	at org.hibernate.internal.SessionImpl.flushBeforeTransactionCompletion(SessionImpl.java:2354)
+	at org.hibernate.internal.SessionImpl.beforeTransactionCompletion(SessionImpl.java:1978)
+	at org.hibernate.engine.jdbc.internal.JdbcCoordinatorImpl.beforeTransactionCompletion(JdbcCoordinatorImpl.java:439)
+	at org.hibernate.resource.transaction.backend.jdbc.internal.JdbcResourceLocalTransactionCoordinatorImpl.beforeCompletionCallback(JdbcResourceLocalTransactionCoordinatorImpl.java:169)
+	at org.hibernate.resource.transaction.backend.jdbc.internal.JdbcResourceLocalTransactionCoordinatorImpl$TransactionDriverControlImpl.commit(JdbcResourceLocalTransactionCoordinatorImpl.java:267)
+	at org.hibernate.engine.transaction.internal.TransactionImpl.commit(TransactionImpl.java:101)
+	at org.springframework.orm.jpa.JpaTransactionManager.doCommit(JpaTransactionManager.java:562)
+	... 110 common frames omitted
+Caused by: java.sql.SQLIntegrityConstraintViolationException: Duplicate entry '' for key 'UKpsfb18v1ityecxvh3x7thgkwx'
+	at com.mysql.cj.jdbc.exceptions.SQLError.createSQLException(SQLError.java:109)
+	at com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping.translateException(SQLExceptionsMapping.java:114)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeInternal(ClientPreparedStatement.java:988)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1166)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdateInternal(ClientPreparedStatement.java:1101)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeLargeUpdate(ClientPreparedStatement.java:1467)
+	at com.mysql.cj.jdbc.ClientPreparedStatement.executeUpdate(ClientPreparedStatement.java:1084)
+	at com.zaxxer.hikari.pool.ProxyPreparedStatement.executeUpdate(ProxyPreparedStatement.java:61)
+	at com.zaxxer.hikari.pool.HikariProxyPreparedStatement.executeUpdate(HikariProxyPreparedStatement.java)
+	at org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.executeUpdate(ResultSetReturnImpl.java:194)
+	... 131 common frames omitted
+
+2025-09-12 03:32:32 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 03:32:32 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 03:32:32 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 03:35:02 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 03:35:02 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 03:35:02 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 03:35:12 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 03:35:12 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 03:35:12 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 03:45:22 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 03:45:22 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 03:45:22 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 03:45:22 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 03:45:22 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 03:45:22 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 03:46:36 INFO  c.c.controller.TicketController - Received request to create worker report for ticket ID: 9 
+2025-09-12 03:46:36 INFO  c.c.s.impl.WorkerReportServiceImpl - Received request to create worker report for ticket ID With workerReportDTO: WorkerReportDTO(date=2025-09-12T03:46:34.899153, checklist={"Data Cables (Cat6/RJ45)":"OK","Power Cable":"OK","Power Supplies":"OK","LED Modules":"OK","Cooling Systems":"OK","Service Lights & Sockets":"OK","Operating Computers":"OK","Software":"OK","Power DBs":"OK","Media Converters":"OK","Control Systems":"OK","Video Processors":"OK"}, dateTime=2025-09-12T03:46:34.901972, defectsFound=no, solutionsProvided=everything is ok , technicianSignatures=null, solutionImage=org.springframework.web.multipart.support.StandardMultipartHttpServletRequest$StandardMultipartFile@33b0019f) 
+2025-09-12 03:46:36 INFO  c.c.s.impl.WorkerReportServiceImpl - Received request to create worker report for ticket ID With SolutionsProvided: everything is ok  
+2025-09-12 03:46:36 INFO  c.c.service.impl.S3ServiceImpl - Starting file upload: ticket_video_1757637994908.mp4 (size: 1382046 bytes, type: video/mp4) 
+2025-09-12 03:46:36 INFO  c.c.service.impl.S3ServiceImpl - File validation passed for: ticket_video_1757637994908.mp4 (type: video/mp4) 
+2025-09-12 03:46:36 INFO  c.c.service.impl.S3ServiceImpl - Bucket celebritysystems exists and is accessible 
+2025-09-12 03:46:36 INFO  c.c.service.impl.S3ServiceImpl - Generated file key: celebritysystems/ticket-files/solution-image/2025/09/12/151ff294-ticket_video_1757637994908.mp4 
+2025-09-12 03:46:36 INFO  c.c.service.impl.S3ServiceImpl - Uploading file to bucket: celebritysystems, key: celebritysystems/ticket-files/solution-image/2025/09/12/151ff294-ticket_video_1757637994908.mp4 
+2025-09-12 03:46:59 INFO  c.c.service.impl.S3ServiceImpl - File uploaded successfully to S3: https://nbg1.your-objectstorage.com/celebritysystems/celebritysystems/ticket-files/solution-image/2025/09/12/151ff294-ticket_video_1757637994908.mp4 
+2025-09-12 03:46:59 INFO  c.c.controller.TicketController - Successfully created worker report for ticket ID: 9 
+2025-09-12 03:46:59 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 03:46:59 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 03:46:59 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 03:47:57 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 03:47:57 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 03:47:58 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 03:47:58 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 03:47:58 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 03:47:58 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 03:48:12 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 03:48:12 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 03:48:12 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 03:48:12 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 03:48:12 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 03:48:12 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 03:50:34 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 03:50:34 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 03:50:34 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 03:50:35 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 03:50:35 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 03:50:35 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 03:51:31 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 03:51:31 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 03:51:31 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 03:51:31 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 03:51:31 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 03:51:31 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 03:59:03 INFO  c.c.AuthControllers.AuthController - Login attempt received for email: admin@gmail.com 
+2025-09-12 03:59:03 INFO  c.c.AuthControllers.AuthController - Login successful for email: admin@gmail.com 
+2025-09-12 03:59:20 INFO  c.c.controller.TicketController - Downloading ticket image for ticket ID: 7 
+2025-09-12 03:59:21 INFO  c.c.service.impl.S3ServiceImpl - File downloaded successfully from S3: https://nbg1.your-objectstorage.com/celebritysystems/celebritysystems/ticket-files/ticket-image/2025/08/22/487f6aeb-scaled_479d40cd-fe48-4b48-b9c3-1247a313171e1812234738937057440.jpg 
+2025-09-12 03:59:21 INFO  c.c.controller.TicketController - Ticket image downloaded successfully: scaled_479d40cd-fe48-4b48-b9c3-1247a313171e1812234738937057440.jpg 
+2025-09-12 04:31:40 WARN  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=21m34s65ms555µs600ns). 
+2025-09-12 04:35:56 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-12 04:35:56 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-12 04:35:56 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-12 04:37:26 INFO  c.c.AuthControllers.AuthController - Attempt to patch user with id: 4 with updates: [playerId] 
+2025-09-12 04:37:26 INFO  c.c.AuthControllers.AuthController - User patched successfully with id: 4 
+2025-09-12 04:37:35 INFO  c.c.AuthControllers.AuthController - Login attempt received for email: worker@gmail.com 
+2025-09-12 04:37:35 INFO  c.c.AuthControllers.AuthController - Login successful for email: worker@gmail.com 
+2025-09-12 04:37:36 INFO  c.c.AuthControllers.AuthController - Attempt to patch user with id: 2 with updates: [playerId] 
+2025-09-12 04:37:36 INFO  c.c.AuthControllers.AuthController - User patched successfully with id: 2 
+2025-09-12 04:37:36 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 04:37:36 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 04:37:36 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 04:38:08 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 04:38:08 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 04:38:08 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 04:40:30 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 04:40:30 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 04:40:30 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 04:50:35 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 04:50:35 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 04:50:35 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 04:50:35 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 04:50:35 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 04:50:35 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 04:52:07 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 04:52:08 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 04:52:08 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 04:52:15 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 04:52:15 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 04:52:16 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 04:52:16 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 04:52:16 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 04:52:16 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 04:53:38 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 04:53:38 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 04:53:38 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 04:56:58 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 04:56:58 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 04:56:58 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 04:57:05 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 04:57:05 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 04:57:05 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 04:57:05 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 04:57:06 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 04:57:06 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 05:04:22 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 05:04:22 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 05:04:22 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 05:04:30 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 05:04:30 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 05:04:30 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 05:04:30 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 05:04:30 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 05:04:30 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 05:05:20 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 05:05:20 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 05:05:20 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 05:05:40 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 05:05:40 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 05:05:40 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 05:05:47 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 05:05:47 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 05:05:47 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 05:05:47 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 05:05:47 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 05:05:47 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 05:06:00 INFO  c.c.controller.TicketController - Received request to getTicketsByWorkerName with username: worker 
+2025-09-12 05:06:00 INFO  c.c.controller.TicketController - Received request to get ticket counts for worker: worker 
+2025-09-12 05:06:00 INFO  c.c.controller.TicketController - Successfully retrieved ticket counts for worker: worker 
+2025-09-12 05:06:39 INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete 
+2025-09-12 05:06:39 INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete 
+2025-09-12 05:06:39 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default' 
+2025-09-12 05:06:39 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated... 
+2025-09-12 05:06:39 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed. 

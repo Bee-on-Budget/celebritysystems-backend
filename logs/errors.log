@@ -1,0 +1,285 @@
+2025-09-16 18:38:39 INFO  com.celebritysystems.Main - Starting Main using Java 21.0.7 with PID 2636 (C:\Users\samia\Spring Boot Projects\celebritysystems-backend\target\classes started by samia in C:\Users\samia\Spring Boot Projects\celebritysystems-backend) 
+2025-09-16 18:38:39 INFO  com.celebritysystems.Main - No active profile set, falling back to 1 default profile: "default" 
+2025-09-16 18:38:41 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode. 
+2025-09-16 18:38:41 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 111 ms. Found 10 JPA repository interfaces. 
+2025-09-16 18:38:42 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http) 
+2025-09-16 18:38:42 INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"] 
+2025-09-16 18:38:42 INFO  o.a.catalina.core.StandardService - Starting service [Tomcat] 
+2025-09-16 18:38:42 INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.40] 
+2025-09-16 18:38:42 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext 
+2025-09-16 18:38:42 INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2414 ms 
+2025-09-16 18:38:43 INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer 
+2025-09-16 18:38:43 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting... 
+2025-09-16 18:38:43 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@27a90ce5 
+2025-09-16 18:38:43 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed. 
+2025-09-16 18:38:44 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default' 
+2025-09-16 18:38:45 INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used. 
+2025-09-16 18:38:45 INFO  c.celebritysystems.config.S3Config - Configuring S3Client with endpoint: https://nbg1.your-objectstorage.com, region: eu-central 
+2025-09-16 18:38:46 INFO  c.celebritysystems.config.S3Config - Configuring S3Presigner with endpoint: https://nbg1.your-objectstorage.com, region: eu-central 
+2025-09-16 18:38:47 WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning 
+2025-09-16 18:38:47 INFO  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager 
+2025-09-16 18:38:47 INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"] 
+2025-09-16 18:38:47 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/' 
+2025-09-16 18:38:48 INFO  com.celebritysystems.Main - Started Main in 8.916 seconds (process running for 14.935) 
+2025-09-16 18:48:14 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet' 
+2025-09-16 18:48:14 INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet' 
+2025-09-16 18:48:14 INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 90 ms 
+2025-09-16 18:48:15 INFO  c.c.AuthControllers.AuthController - Login attempt received for email: company@gmail.com 
+2025-09-16 18:48:15 INFO  c.c.AuthControllers.AuthController - Login successful for email: company@gmail.com 
+2025-09-16 18:48:15 INFO  c.c.AuthControllers.AuthController - Attempt to patch user with id: 4 with updates: [playerId] 
+2025-09-16 18:48:15 INFO  c.c.AuthControllers.AuthController - User patched successfully with id: 4 
+2025-09-16 18:48:15 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 4 
+2025-09-16 18:48:15 WARN  o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.method.annotation.MethodArgumentTypeMismatchException: Method parameter 'contractIds': Failed to convert value of type 'java.lang.String' to required type 'java.util.List'; For input string: "[2]"] 
+2025-09-16 18:48:15 WARN  c.c.controller.TicketController - No tickets found for company with id: 4 
+2025-09-16 18:48:15 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 18:51:21 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 18:51:21 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 18:51:23 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 4 
+2025-09-16 18:51:23 WARN  c.c.controller.TicketController - No tickets found for company with id: 4 
+2025-09-16 18:51:23 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 18:51:23 WARN  o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.method.annotation.MethodArgumentTypeMismatchException: Method parameter 'contractIds': Failed to convert value of type 'java.lang.String' to required type 'java.util.List'; For input string: "[2]"] 
+2025-09-16 18:51:25 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 4 
+2025-09-16 18:51:25 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 18:51:25 WARN  o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.method.annotation.MethodArgumentTypeMismatchException: Method parameter 'contractIds': Failed to convert value of type 'java.lang.String' to required type 'java.util.List'; For input string: "[2]"] 
+2025-09-16 18:51:25 WARN  c.c.controller.TicketController - No tickets found for company with id: 4 
+2025-09-16 18:51:28 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-16 18:51:28 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 18:51:28 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 18:51:28 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 18:52:14 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 4 
+2025-09-16 18:52:14 WARN  o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.method.annotation.MethodArgumentTypeMismatchException: Method parameter 'contractIds': Failed to convert value of type 'java.lang.String' to required type 'java.util.List'; For input string: "[2]"] 
+2025-09-16 18:52:14 WARN  c.c.controller.TicketController - No tickets found for company with id: 4 
+2025-09-16 18:52:14 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 18:52:24 INFO  c.c.AuthControllers.AuthController - Attempt to patch user with id: 4 with updates: [playerId] 
+2025-09-16 18:52:24 INFO  c.c.AuthControllers.AuthController - User patched successfully with id: 4 
+2025-09-16 18:52:33 INFO  c.c.AuthControllers.AuthController - Login attempt received for email: company@gmail.com 
+2025-09-16 18:52:33 INFO  c.c.AuthControllers.AuthController - Login successful for email: company@gmail.com 
+2025-09-16 18:52:33 INFO  c.c.AuthControllers.AuthController - Attempt to patch user with id: 4 with updates: [playerId] 
+2025-09-16 18:52:33 INFO  c.c.AuthControllers.AuthController - User patched successfully with id: 4 
+2025-09-16 18:52:33 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-16 18:52:33 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 18:52:33 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 18:52:33 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 18:56:58 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 18:56:58 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 4 
+2025-09-16 18:56:58 WARN  o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.method.annotation.MethodArgumentTypeMismatchException: Method parameter 'contractIds': Failed to convert value of type 'java.lang.String' to required type 'java.util.List'; For input string: "[2]"] 
+2025-09-16 18:56:58 WARN  c.c.controller.TicketController - No tickets found for company with id: 4 
+2025-09-16 18:57:00 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 18:57:00 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 18:57:01 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 4 
+2025-09-16 18:57:01 WARN  c.c.controller.TicketController - No tickets found for company with id: 4 
+2025-09-16 18:57:01 WARN  o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.method.annotation.MethodArgumentTypeMismatchException: Method parameter 'contractIds': Failed to convert value of type 'java.lang.String' to required type 'java.util.List'; For input string: "[2]"] 
+2025-09-16 18:57:01 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 18:57:10 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-16 18:57:10 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 18:57:10 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 18:57:10 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 18:58:48 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-16 18:58:48 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 18:58:48 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 18:58:48 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 18:58:52 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 18:58:52 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 18:58:54 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-16 18:58:54 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 18:58:54 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 18:58:54 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 18:58:58 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 18:58:58 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 18:58:59 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-16 18:58:59 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 18:58:59 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 18:58:59 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 18:59:01 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 18:59:01 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 18:59:02 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-16 18:59:02 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 18:59:02 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 18:59:02 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 18:59:03 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 18:59:03 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 18:59:04 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 18:59:04 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 18:59:04 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-16 18:59:04 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 18:59:07 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 4 
+2025-09-16 18:59:07 WARN  o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.method.annotation.MethodArgumentTypeMismatchException: Method parameter 'contractIds': Failed to convert value of type 'java.lang.String' to required type 'java.util.List'; For input string: "[2]"] 
+2025-09-16 18:59:07 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 18:59:07 WARN  c.c.controller.TicketController - No tickets found for company with id: 4 
+2025-09-16 18:59:09 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 18:59:09 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 18:59:10 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 4 
+2025-09-16 18:59:10 WARN  c.c.controller.TicketController - No tickets found for company with id: 4 
+2025-09-16 18:59:10 WARN  o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.method.annotation.MethodArgumentTypeMismatchException: Method parameter 'contractIds': Failed to convert value of type 'java.lang.String' to required type 'java.util.List'; For input string: "[2]"] 
+2025-09-16 18:59:10 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 18:59:11 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 18:59:11 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 18:59:12 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 18:59:12 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 18:59:12 INFO  c.c.controller.CompanyController - Fetching company by ID: 1 
+2025-09-16 18:59:14 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 4 
+2025-09-16 18:59:14 WARN  c.c.controller.TicketController - No tickets found for company with id: 4 
+2025-09-16 18:59:14 WARN  o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.method.annotation.MethodArgumentTypeMismatchException: Method parameter 'contractIds': Failed to convert value of type 'java.lang.String' to required type 'java.util.List'; For input string: "[2]"] 
+2025-09-16 18:59:14 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 18:59:19 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-16 18:59:19 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 18:59:19 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 18:59:19 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 18:59:25 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-16 18:59:25 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 18:59:25 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 18:59:25 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 18:59:28 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-16 18:59:28 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 18:59:28 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 18:59:28 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 18:59:30 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 4 
+2025-09-16 18:59:30 WARN  o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.method.annotation.MethodArgumentTypeMismatchException: Method parameter 'contractIds': Failed to convert value of type 'java.lang.String' to required type 'java.util.List'; For input string: "[2]"] 
+2025-09-16 18:59:30 WARN  c.c.controller.TicketController - No tickets found for company with id: 4 
+2025-09-16 18:59:30 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 18:59:31 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-16 18:59:31 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 18:59:31 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 18:59:31 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 18:59:33 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 4 
+2025-09-16 18:59:33 WARN  c.c.controller.TicketController - No tickets found for company with id: 4 
+2025-09-16 18:59:33 WARN  o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.method.annotation.MethodArgumentTypeMismatchException: Method parameter 'contractIds': Failed to convert value of type 'java.lang.String' to required type 'java.util.List'; For input string: "[2]"] 
+2025-09-16 18:59:33 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 18:59:34 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-16 18:59:34 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 18:59:34 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 18:59:34 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 18:59:36 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-16 18:59:36 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 18:59:36 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 18:59:36 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 18:59:38 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 4 
+2025-09-16 18:59:38 WARN  o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.method.annotation.MethodArgumentTypeMismatchException: Method parameter 'contractIds': Failed to convert value of type 'java.lang.String' to required type 'java.util.List'; For input string: "[2]"] 
+2025-09-16 18:59:38 WARN  c.c.controller.TicketController - No tickets found for company with id: 4 
+2025-09-16 18:59:38 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 18:59:39 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 18:59:39 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 18:59:40 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 4 
+2025-09-16 18:59:40 WARN  o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.method.annotation.MethodArgumentTypeMismatchException: Method parameter 'contractIds': Failed to convert value of type 'java.lang.String' to required type 'java.util.List'; For input string: "[2]"] 
+2025-09-16 18:59:40 WARN  c.c.controller.TicketController - No tickets found for company with id: 4 
+2025-09-16 18:59:40 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 18:59:42 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 18:59:42 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-16 18:59:42 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 18:59:42 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 18:59:44 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 18:59:44 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 18:59:46 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-16 18:59:46 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 18:59:46 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 18:59:46 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 19:10:49 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 19:10:49 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 19:17:36 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-16 19:17:36 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 19:17:36 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 19:17:36 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 19:17:38 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 19:17:38 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 19:17:46 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-16 19:17:46 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 19:17:46 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 19:17:46 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 19:17:50 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 4 
+2025-09-16 19:17:50 WARN  o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.method.annotation.MethodArgumentTypeMismatchException: Method parameter 'contractIds': Failed to convert value of type 'java.lang.String' to required type 'java.util.List'; For input string: "[2]"] 
+2025-09-16 19:17:50 WARN  c.c.controller.TicketController - No tickets found for company with id: 4 
+2025-09-16 19:17:50 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 19:17:51 WARN  o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.method.annotation.MethodArgumentTypeMismatchException: Method parameter 'contractIds': Failed to convert value of type 'java.lang.String' to required type 'java.util.List'; For input string: "[2]"] 
+2025-09-16 19:18:05 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 4 
+2025-09-16 19:18:05 WARN  o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.method.annotation.MethodArgumentTypeMismatchException: Method parameter 'contractIds': Failed to convert value of type 'java.lang.String' to required type 'java.util.List'; For input string: "[2]"] 
+2025-09-16 19:18:05 WARN  c.c.controller.TicketController - No tickets found for company with id: 4 
+2025-09-16 19:18:05 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 19:18:13 WARN  o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.method.annotation.MethodArgumentTypeMismatchException: Method parameter 'contractIds': Failed to convert value of type 'java.lang.String' to required type 'java.util.List'; For input string: "[2]"] 
+2025-09-16 19:19:25 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 4 
+2025-09-16 19:19:25 WARN  o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.method.annotation.MethodArgumentTypeMismatchException: Method parameter 'contractIds': Failed to convert value of type 'java.lang.String' to required type 'java.util.List'; For input string: "[2]"] 
+2025-09-16 19:19:25 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 19:19:25 WARN  c.c.controller.TicketController - No tickets found for company with id: 4 
+2025-09-16 19:19:29 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 19:19:29 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 19:19:33 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 4 
+2025-09-16 19:19:33 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 19:19:33 WARN  o.s.w.s.m.s.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.method.annotation.MethodArgumentTypeMismatchException: Method parameter 'contractIds': Failed to convert value of type 'java.lang.String' to required type 'java.util.List'; For input string: "[2]"] 
+2025-09-16 19:19:33 WARN  c.c.controller.TicketController - No tickets found for company with id: 4 
+2025-09-16 19:24:49 INFO  o.s.api.AbstractOpenApiResource - Init duration for springdoc-openapi is: 1209 ms 
+2025-09-16 19:31:54 INFO  o.s.b.w.e.tomcat.GracefulShutdown - Commencing graceful shutdown. Waiting for active requests to complete 
+2025-09-16 19:31:54 INFO  o.s.b.w.e.tomcat.GracefulShutdown - Graceful shutdown complete 
+2025-09-16 19:31:54 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default' 
+2025-09-16 19:31:54 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown initiated... 
+2025-09-16 19:31:54 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Shutdown completed. 
+2025-09-16 19:32:09 INFO  com.celebritysystems.Main - Starting Main using Java 21.0.7 with PID 26336 (C:\Users\samia\Spring Boot Projects\celebritysystems-backend\target\classes started by samia in C:\Users\samia\Spring Boot Projects\celebritysystems-backend) 
+2025-09-16 19:32:09 INFO  com.celebritysystems.Main - No active profile set, falling back to 1 default profile: "default" 
+2025-09-16 19:32:10 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode. 
+2025-09-16 19:32:10 INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 93 ms. Found 10 JPA repository interfaces. 
+2025-09-16 19:32:11 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http) 
+2025-09-16 19:32:11 INFO  o.a.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"] 
+2025-09-16 19:32:11 INFO  o.a.catalina.core.StandardService - Starting service [Tomcat] 
+2025-09-16 19:32:11 INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.40] 
+2025-09-16 19:32:11 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext 
+2025-09-16 19:32:11 INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 2312 ms 
+2025-09-16 19:32:12 INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer 
+2025-09-16 19:32:12 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting... 
+2025-09-16 19:32:12 INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@5960f17 
+2025-09-16 19:32:12 INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed. 
+2025-09-16 19:32:13 INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default' 
+2025-09-16 19:32:13 INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used. 
+2025-09-16 19:32:15 INFO  c.celebritysystems.config.S3Config - Configuring S3Client with endpoint: https://nbg1.your-objectstorage.com, region: eu-central 
+2025-09-16 19:32:15 INFO  c.celebritysystems.config.S3Config - Configuring S3Presigner with endpoint: https://nbg1.your-objectstorage.com, region: eu-central 
+2025-09-16 19:32:16 WARN  o.s.b.a.o.j.JpaBaseConfiguration$JpaWebConfiguration - spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning 
+2025-09-16 19:32:16 INFO  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager 
+2025-09-16 19:32:16 INFO  o.a.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"] 
+2025-09-16 19:32:17 INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/' 
+2025-09-16 19:32:17 INFO  com.celebritysystems.Main - Started Main in 8.617 seconds (process running for 10.624) 
+2025-09-16 19:46:52 WARN  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=3m39s491ms640µs600ns). 
+2025-09-16 19:48:31 INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet' 
+2025-09-16 19:48:31 INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet' 
+2025-09-16 19:48:31 INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms 
+2025-09-16 19:49:44 INFO  c.c.AuthControllers.AuthController - Login attempt received for email: company@gmail.com 
+2025-09-16 19:49:44 INFO  c.c.AuthControllers.AuthController - Login successful for email: company@gmail.com 
+2025-09-16 19:49:45 INFO  c.c.AuthControllers.AuthController - Attempt to patch user with id: 4 with updates: [playerId] 
+2025-09-16 19:49:45 INFO  c.c.AuthControllers.AuthController - User patched successfully with id: 4 
+2025-09-16 19:49:45 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-16 19:49:45 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 19:49:45 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 19:49:45 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 19:49:48 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 19:49:48 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 19:49:50 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-16 19:49:50 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 19:49:50 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 19:49:50 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 19:49:55 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 4 
+2025-09-16 19:49:55 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 19:49:55 WARN  c.c.controller.TicketController - No tickets found for company with id: 4 
+2025-09-16 19:53:04 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 4 
+2025-09-16 19:53:04 WARN  c.c.controller.TicketController - No tickets found for company with id: 4 
+2025-09-16 19:53:04 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 19:53:04 INFO  c.c.controller.ContractController - Fetching active screens for company: 4 and contracts: [2] 
+2025-09-16 19:53:04 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 4 and contracts: [2] 
+2025-09-16 19:53:04 INFO  c.c.service.impl.ContractServiceImpl - Fetching contract with ID: 2 
+2025-09-16 19:53:04 INFO  c.c.service.impl.ContractServiceImpl - No active contracts found for company: 4 with provided contract IDs: [2] 
+2025-09-16 19:55:41 INFO  c.c.AuthControllers.AuthController - Attempt to patch user with id: 4 with updates: [playerId] 
+2025-09-16 19:55:41 INFO  c.c.AuthControllers.AuthController - User patched successfully with id: 4 
+2025-09-16 19:55:54 INFO  c.c.AuthControllers.AuthController - Login attempt received for email: company@gmail.com 
+2025-09-16 19:55:54 INFO  c.c.AuthControllers.AuthController - Login successful for email: company@gmail.com 
+2025-09-16 19:55:55 INFO  c.c.AuthControllers.AuthController - Attempt to patch user with id: 4 with updates: [playerId] 
+2025-09-16 19:55:55 INFO  c.c.AuthControllers.AuthController - User patched successfully with id: 4 
+2025-09-16 19:55:55 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 1 
+2025-09-16 19:55:55 INFO  c.c.controller.ContractController - Fetching active screens for company: 1 
+2025-09-16 19:55:55 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 1 
+2025-09-16 19:55:55 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 19:56:31 INFO  c.c.controller.TicketController - Received request to getTicketsByCompanyId with Id: 4 
+2025-09-16 19:56:31 INFO  c.c.controller.ContractController - Fetching active screens for company: 4 and contracts: [2] 
+2025-09-16 19:56:31 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 4 and contracts: [2] 
+2025-09-16 19:56:31 INFO  c.c.service.impl.ContractServiceImpl - Fetching contract with ID: 2 
+2025-09-16 19:56:31 INFO  c.c.controller.SubContractController - Fetching SubContracts for controller company id: 1 
+2025-09-16 19:56:31 WARN  c.c.controller.TicketController - No tickets found for company with id: 4 
+2025-09-16 19:56:31 INFO  c.c.service.impl.ContractServiceImpl - No active contracts found for company: 4 with provided contract IDs: [2] 
+2025-09-16 19:57:38 INFO  c.c.controller.ContractController - Fetching active screens for company: 4 and contracts: [2] 
+2025-09-16 19:57:38 INFO  c.c.service.impl.ContractServiceImpl - Fetching active screens for company: 4 and contracts: [2] 
+2025-09-16 19:57:38 INFO  c.c.service.impl.ContractServiceImpl - Fetching contract with ID: 2 
+2025-09-16 19:57:38 INFO  c.c.service.impl.ContractServiceImpl - No active contracts found for company: 4 with provided contract IDs: [2] 
