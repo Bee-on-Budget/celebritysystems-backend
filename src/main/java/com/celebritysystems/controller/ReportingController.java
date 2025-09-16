@@ -1,7 +1,9 @@
 package com.celebritysystems.controller;
 
 import com.celebritysystems.dto.Reports.*;
+import com.celebritysystems.dto.statistics.DailyActivityResponseDTO;
 import com.celebritysystems.service.ReportingService;
+import com.celebritysystems.service.DailyActivityService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,6 +25,7 @@ import java.util.Map;
 public class ReportingController {
 
     private final ReportingService reportingService;
+    private final DailyActivityService dailyActivityService;
 
     @PostMapping("/generate")
     public ResponseEntity<?> generateReport(@Valid @RequestBody ReportingRequestDTO request) {
@@ -231,6 +234,27 @@ public class ReportingController {
             return ResponseEntity.internalServerError().body(
                 new ErrorResponse("COMPONENTS_LIST_ERROR", 
                     "Failed to retrieve available components: " + e.getMessage())
+            );
+        }
+    }
+
+    @GetMapping("/daily-activity")
+    public ResponseEntity<?> getDailyActivityStats(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        
+        log.info("Getting daily activity stats from {} to {}", startDate, endDate);
+        
+        try {
+            DailyActivityResponseDTO response = dailyActivityService.getDailyActivityStats(startDate, endDate);
+            log.info("Successfully retrieved daily activity stats for {} days", 
+                    response.getDailyStats().size());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Failed to get daily activity stats: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().body(
+                new ErrorResponse("DAILY_ACTIVITY_ERROR", 
+                    "Failed to retrieve daily activity stats: " + e.getMessage())
             );
         }
     }
