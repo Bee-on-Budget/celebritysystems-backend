@@ -5,13 +5,10 @@ import com.celebritysystems.entity.Module;
 import com.celebritysystems.entity.Screen;
 import com.celebritysystems.entity.enums.ScreenType;
 import com.celebritysystems.entity.enums.SolutionTypeInScreen;
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,7 +28,13 @@ public class ScreenResponse {
 
     private SolutionTypeInScreen solutionType;
 
-    private String pixelScreen;
+    private Double pixelPitchWidth;
+    private Double pixelPitchHeight;
+
+    private Double screenWidth;
+    private Double screenHeight;
+
+//    private String pixelScreen;
 
     private String description;
 
@@ -47,23 +50,23 @@ public class ScreenResponse {
 
     private Long spareReceivingCardQuantity;
 
-    private String cable;
+    //power
+    private String mainPowerCable;
+    private Long mainPowerCableQuantity;
+    private Long spareMainPowerCableQuantity;
 
-    private Long cableQuantity;
+    private String loopPowerCable;
+    private Long loopPowerCableQuantity;
+    private Long spareLoopPowerCableQuantity;
 
-    private Long spareCableQuantity;
+    //data
+    private String mainDataCable;
+    private Long mainDataCableQuantity;
+    private Long spareMainDataCableQuantity;
 
-    private String powerCable;
-
-    private Long powerCableQuantity;
-
-    private Long sparePowerCableQuantity;
-
-    private String dataCable;
-
-    private Long dataCableQuantity;
-
-    private Long spareDataCableQuantity;
+    private String loopDataCable;
+    private Long loopDataCableQuantity;
+    private Long spareLoopDataCableQuantity;
 
     private String media;
 
@@ -79,7 +82,7 @@ public class ScreenResponse {
     private Long hubQuantity;
 
     private Long spareHubQuantity;
-    private Double resolution;
+    private String resolution;
 
     private LocalDateTime createdAt;
 
@@ -101,7 +104,13 @@ public class ScreenResponse {
         this.screenType = screen.getScreenType();
         this.location = screen.getLocation();
         this.solutionType = screen.getSolutionType();
-        this.pixelScreen = screen.getPixelScreen();
+//        this.pixelScreen = screen.getPixelScreen();
+
+        this.pixelPitchWidth = screen.getPixelPitchWidth();
+        this.pixelPitchHeight = screen.getPixelPitchHeight();
+        this.screenWidth = screen.getScreenWidth();
+        this.screenHeight = screen.getScreenHeight();
+
         this.description = screen.getDescription();
         this.powerSupply = screen.getPowerSupply();
         this.powerSupplyQuantity = screen.getPowerSupplyQuantity();
@@ -109,15 +118,24 @@ public class ScreenResponse {
         this.receivingCard = screen.getReceivingCard();
         this.receivingCardQuantity = screen.getReceivingCardQuantity();
         this.spareReceivingCardQuantity = screen.getSpareReceivingCardQuantity();
-        this.cable = screen.getCable();
-        this.cableQuantity = screen.getCableQuantity();
-        this.spareCableQuantity = screen.getSpareCableQuantity();
-        this.powerCable = screen.getPowerCable();
-        this.powerCableQuantity = screen.getPowerCableQuantity();
-        this.sparePowerCableQuantity = screen.getSparePowerCableQuantity();
-        this.dataCable = screen.getDataCable();
-        this.dataCableQuantity = screen.getDataCableQuantity();
-        this.spareDataCableQuantity = screen.getSpareDataCableQuantity();
+        //power cable
+        this.mainPowerCable = screen.getMainPowerCable();
+        this.mainPowerCableQuantity = screen.getMainPowerCableQuantity();
+        this.spareMainPowerCableQuantity = screen.getSpareMainPowerCableQuantity();
+
+        this.loopPowerCable = screen.getLoopPowerCable();
+        this.loopPowerCableQuantity = screen.getLoopPowerCableQuantity();
+        this.spareLoopPowerCableQuantity = screen.getSpareLoopPowerCableQuantity();
+
+        //data cable
+        this.mainDataCable = screen.getMainDataCable();
+        this.mainDataCableQuantity = screen.getMainDataCableQuantity();
+        this.spareMainDataCableQuantity = screen.getSpareMainDataCableQuantity();
+
+        this.loopDataCable = screen.getLoopDataCable();
+        this.loopDataCableQuantity = screen.getLoopDataCableQuantity();
+        this.spareLoopDataCableQuantity = screen.getSpareLoopDataCableQuantity();
+
         this.media = screen.getMedia();
         this.mediaQuantity = screen.getMediaQuantity();
         this.spareMediaQuantity = screen.getSpareMediaQuantity();
@@ -130,7 +148,7 @@ public class ScreenResponse {
         this.createdAt = screen.getCreatedAt();
         this.moduleList = screen.getModuleList();
         this.cabinList = screen.getCabinList();
-        
+
         // Map file-related fields
         this.connectionFileUrl = screen.getConnectionFileUrl();
         this.connectionFileName = screen.getConnectionFileName();

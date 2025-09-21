@@ -16,8 +16,8 @@ public class ModuleServiceImpl implements ModuleService {
     @Override
     public Optional<Module> createModule(ModuleDto moduleRequest) {
         Module module = Module.builder()
-                .height(moduleRequest.getHeight())
-                .width(moduleRequest.getWidth())
+                .pixelHeight(moduleRequest.getPixelHeight())
+                .pixelWidth(moduleRequest.getPixelWidth())
                 .quantity(moduleRequest.getQuantity())
                 .build();
 

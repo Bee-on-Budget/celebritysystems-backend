@@ -15,14 +15,14 @@ public class CabinDto {
     private String cabinetName;
     private Long quantity;
 
-    private Long heightQuantity;
-    private Long widthQuantity;
+    private Long cabinsByHeight;
+    private Long cabinsByWidth;
 
-    private Double height;
-    private Double width;
+    private Double pixelHeight;
+    private Double pixelWidth;
 
-    private Boolean isHeight = false;
-    private Boolean isWidth = false;
+//    private Boolean isHeight = false;
+//    private Boolean isWidth = false;
 
     private ModuleDto moduleDto;
 }

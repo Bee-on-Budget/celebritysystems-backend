@@ -13,12 +13,12 @@ public class ModuleDto {
     private String moduleBatchNumber;
     private Long quantity;
 
-    private Long heightQuantity;
-    private Long widthQuantity;
+    private Long moduleByHeight;
+    private Long moduleByWidth;
 
-    private Double height;
-    private Double width;
+    private Double pixelHeight;
+    private Double pixelWidth;
 
-    private Boolean isHeight = false;
-    private Boolean isWidth = false;
+//    private Boolean isHeight = false;
+//    private Boolean isWidth = false;
 }

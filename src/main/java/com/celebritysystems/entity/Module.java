@@ -25,21 +25,18 @@ public class Module {
     private Long quantity;
 
     @Column(name = "height_quantity", nullable = false)
-    private Long heightQuantity;
+    private Long moduleByHeight;
 
     @Column(name = "width_quantity", nullable = false)
-    private Long widthQuantity;
+    private Long moduleByWidth;
 
-    private Double height;
+    private Double pixelHeight;
 
-    private Double width;
+    private Double pixelWidth;
 
-    @Column(name = "is_height", nullable = true)
-    private Boolean isHeight;
-
-    @Column(name = "is_width", nullable = true)
-    private Boolean isWidth;
-
-//    @OneToOne(mappedBy = "module", cascade = CascadeType.ALL)
-//    private Screen screen;
+//    @Column(name = "is_height", nullable = true)
+//    private Boolean isHeight;
+//
+//    @Column(name = "is_width", nullable = true)
+//    private Boolean isWidth;
 }

@@ -34,7 +34,16 @@ public class Screen {
     @Enumerated(EnumType.STRING)
     private SolutionTypeInScreen solutionType;
 
-    private String pixelScreen;
+    //    private String pixelScreen;
+    @Column(name = "pixel_pitch_width")
+    private Double pixelPitchWidth;
+    @Column(name = "pixel_pitch_height")
+    private Double pixelPitchHeight;
+
+    @Column(name = "screen_width")
+    private Double screenWidth;
+    @Column(name = "screen_height")
+    private Double screenHeight;
 
     private String batchScreen;
 
@@ -59,59 +68,62 @@ public class Screen {
     @Column(name = "spare_receiving_card_quantity")
     private Long spareReceivingCardQuantity;
 
-    @Column(name = "cable")
-    private String cable;
+    //power
+    @Column(name = "main_powe_cable")
+    private String mainPowerCable;
+    @Column(name = "main_power_cable_quantity")
+    private Long mainPowerCableQuantity;
+    @Column(name = "spare_main_power_cable_quantity")
+    private Long spareMainPowerCableQuantity;
 
-    @Column(name = "cable_quantity")
-    private Long cableQuantity;
+    @Column(name = "loop_power_cable")
+    private String loopPowerCable;
+    @Column(name = "loop_power_cable_quantity")
+    private Long loopPowerCableQuantity;
+    @Column(name = "spare_loop_power_cable_quantity")
+    private Long spareLoopPowerCableQuantity;
 
-    @Column(name = "spare_cable_quantity")
-    private Long spareCableQuantity;
+    //data
+    @Column(name = "main_data_cable")
+    private String mainDataCable;
+    @Column(name = "main_data_cable_quantity")
+    private Long mainDataCableQuantity;
+    @Column(name = "spare_main_data_cable_quantity")
+    private Long spareMainDataCableQuantity;
 
-    @Column(name = "power_cable")
-    private String powerCable;
+    @Column(name = "loop_data_cable")
+    private String loopDataCable;
+    @Column(name = "loop_data_cable_quantity")
+    private Long loopDataCableQuantity;
+    @Column(name = "spare_loop_data_cable_quantity")
+    private Long spareLoopDataCableQuantity;
 
-    @Column(name = "power_cable_quantity")
-    private Long powerCableQuantity;
-
-    @Column(name = "spare_power_cable_quantity")
-    private Long sparePowerCableQuantity;
-
-    @Column(name = "data_cable")
-    private String dataCable;
-
-    @Column(name = "data_cable_quantity")
-    private Long dataCableQuantity;
-
-    @Column(name = "spare_data_cable_quantity")
-    private Long spareDataCableQuantity;
-
-    @Column(name = "media",nullable = true)
+    @Column(name = "media", nullable = true)
     private String media;
 
-    @Column(name = "media_quantity",nullable = true)
+    @Column(name = "media_quantity", nullable = true)
     private Long mediaQuantity;
 
-    @Column(name = "spare_media_quantity",nullable = true)
+    @Column(name = "spare_media_quantity", nullable = true)
     private Long spareMediaQuantity;
 
-    @Column(name = "fan",nullable = true)
+    @Column(name = "fan", nullable = true)
     private String fan;
 
-    @Column(name = "fan_quantity",nullable = true)
+    @Column(name = "fan_quantity", nullable = true)
     private Long fanQuantity;
 
-    @Column(name = "hub",nullable = true)
+    @Column(name = "hub", nullable = true)
     private String hub;
 
-    @Column(name = "hub_quantity",nullable = true)
+    @Column(name = "hub_quantity", nullable = true)
     private Long hubQuantity;
 
-    @Column(name = "spare_hub_quantity",nullable = true)
+    @Column(name = "spare_hub_quantity", nullable = true)
     private Long spareHubQuantity;
 
     @Column(name = "resolution")
-    private Double resolution;
+    private String resolution;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -121,19 +133,19 @@ public class Screen {
 
     @Column(name = "connection_file_url")
     private String connectionFileUrl;
-    
+
     @Column(name = "connection_file_name")
     private String connectionFileName;
 
     @Column(name = "config_file_url")
     private String configFileUrl;
-    
+
     @Column(name = "config_file_name")
     private String configFileName;
 
     @Column(name = "version_file_url")
     private String versionFileUrl;
-    
+
     @Column(name = "version_file_name")
     private String versionFileName;
 

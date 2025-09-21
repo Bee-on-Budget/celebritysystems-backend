@@ -20,8 +20,17 @@ public class CreateScreenRequestDto {
     private SolutionTypeInScreen solutionTypeInScreen;
     private String location;
 
-    private String pixelScreen;
+    //    private String pixelScreen;
     private String batchScreen;
+
+    private double screenWidth;
+    private double screenHeight;
+
+    private double resolutionWidth;
+    private double resolutionHeight;
+
+    private double pixelPitchWidth;
+    private double pixelPitchHeight;
 
     private String description;
 
@@ -37,23 +46,23 @@ public class CreateScreenRequestDto {
 
     private Long spareReceivingCardQuantity;
 
-    private String cable;
+    //power
+    private String mainPowerCable;
+    private Long mainPowerCableQuantity;
+    private Long spareMainPowerCableQuantity;
 
-    private Long cableQuantity;
+    private String loopPowerCable;
+    private Long loopPowerCableQuantity;
+    private Long spareLoopPowerCableQuantity;
 
-    private Long spareCableQuantity;
+    //data
+    private String mainDataCable;
+    private Long mainDataCableQuantity;
+    private Long spareMainDataCableQuantity;
 
-    private String powerCable;
-
-    private Long powerCableQuantity;
-
-    private Long sparePowerCableQuantity;
-
-    private String dataCable;
-
-    private Long dataCableQuantity;
-
-    private Long spareDataCableQuantity;
+    private String loopDataCable;
+    private Long loopDataCableQuantity;
+    private Long spareLoopDataCableQuantity;
 
     private String media;
     private Long mediaQuantity;
@@ -70,7 +79,7 @@ public class CreateScreenRequestDto {
     private MultipartFile configFile;
     private MultipartFile versionFile;
 
-//    private String moduleBatchNumber;
+    //    private String moduleBatchNumber;
 //    private Long moduleQuantity;
 //    private Double moduleHeight;
 //    private Double moduleWidth;

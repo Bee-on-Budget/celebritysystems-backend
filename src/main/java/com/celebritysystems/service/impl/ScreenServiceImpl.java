@@ -50,68 +50,70 @@ public class ScreenServiceImpl implements ScreenService {
         // Create Screen
         Screen screen = mapScreenDtoToEntity(screenDTO);
 
+        double heightResolution = screenDTO.getScreenHeight();
+        double widthResolution = screenDTO.getScreenWidth();
+
         if (screenDTO.getSolutionTypeInScreen() == SolutionTypeInScreen.MODULE_SOLUTION) {
             log.info("I am in : {  if (screenDTO.getSolutionTypeInScreen() == SolutionTypeInScreen.MODULE_SOLUTION) }");
 
             List<Module> moduleList = new ArrayList<>();
-            double resolution;
-            double heightResolution = 0;
-            double widthResolution = 0;
+            String resolution;
 
             for (ModuleDto dto : moduleDtoList) {
                 Module module = new Module();
                 module.setQuantity(dto.getQuantity());
                 module.setBatchNumber(dto.getModuleBatchNumber());
-                module.setHeightQuantity(dto.getHeightQuantity());
-                module.setWidthQuantity(dto.getWidthQuantity());
-                module.setHeight(dto.getHeight());
-                module.setWidth(dto.getWidth());
+                module.setModuleByHeight(dto.getModuleByHeight());
+                module.setModuleByWidth(dto.getModuleByWidth());
+                module.setPixelHeight(dto.getPixelHeight());
+                module.setPixelWidth(dto.getPixelWidth());
 
-                // Calculate and add to resolution
-                if(dto.getIsHeight().equals(Boolean.TRUE)){
-                    log.info("I Have a TRUE State }");
+//                // Calculate and add to resolution
+//                heightResolution += dto.getHeight() * dto.getHeightQuantity();
+//                widthResolution += dto.getWidth() * dto.getWidthQuantity();
 
-                    heightResolution += dto.getHeight() * dto.getHeightQuantity();
-                }
-                if(dto.getIsWidth().equals(Boolean.TRUE)){
-                    log.info("I Have a False State }");
-
-                    widthResolution += dto.getWidth() * dto.getWidthQuantity();
-                }
+//                if(dto.getIsHeight().equals(Boolean.TRUE)){
+//                    log.info("I Have a TRUE State }");
+//
+//                    heightResolution += dto.getHeight() * dto.getHeightQuantity();
+//                }
+//                if(dto.getIsWidth().equals(Boolean.TRUE)){
+//                    log.info("I Have a False State }");
+//
+//                    widthResolution += dto.getWidth() * dto.getWidthQuantity();
+//                }
 
                 moduleList.add(module);
             }
             screen.setModuleList(moduleRepository.saveAll(moduleList));
-            resolution = heightResolution * widthResolution;
+            resolution = (int) widthResolution + "X" + (int) heightResolution;
             screen.setResolution(resolution);
         }
 
         /////////////////////////////////////
         if (screenDTO.getSolutionTypeInScreen() == SolutionTypeInScreen.CABINET_SOLUTION) {
             List<Cabin> cabinets = new ArrayList<>();
-            double resolution;
-            double heightResolution = 0;
-            double widthResolution = 0;
+            String resolution;
 
             for (CabinDto dto : cabinDtoList) {
                 Cabin cabinet = new Cabin();
                 cabinet.setCabinName(dto.getCabinetName());
                 cabinet.setQuantity(dto.getQuantity());
-                cabinet.setHeightQuantity(dto.getHeightQuantity());
-                cabinet.setWidthQuantity(dto.getWidthQuantity());
-                cabinet.setHeight(dto.getHeight());
-                cabinet.setWidth(dto.getWidth());
-                
-                cabinet.setIsHeight(dto.getIsHeight());
-                cabinet.setIsWidth(dto.getIsWidth());
+                cabinet.setCabinsByHeight(dto.getCabinsByHeight());
+                cabinet.setCabinsByWidth(dto.getCabinsByWidth());
+                cabinet.setPixelHeight(dto.getPixelHeight());
+                cabinet.setPixelWidth(dto.getPixelWidth());
 
-                //Calculate resolution from Cabinets
-                if(dto.getIsHeight().equals(Boolean.TRUE)){
-                    heightResolution += dto.getHeight() * dto.getHeightQuantity();
-                }
-                if(dto.getIsWidth().equals(Boolean.TRUE)){
-                    widthResolution += dto.getWidth() * dto.getWidthQuantity();
-                }
+//                cabinet.setIsHeight(dto.getIsHeight());
+//                cabinet.setIsWidth(dto.getIsWidth());
+
+//                //Calculate resolution from Cabinets
+//                if(dto.getIsHeight().equals(Boolean.TRUE)){
+//                    heightResolution += dto.getHeight() * dto.getHeightQuantity();
+//                }
+//                if(dto.getIsWidth().equals(Boolean.TRUE)){
+//                    widthResolution += dto.getWidth() * dto.getWidthQuantity();
+//                }
 
                 if (dto.getModuleDto() == null) {
                     cabinets.add(cabinet);
@@ -120,10 +122,10 @@ public class ScreenServiceImpl implements ScreenService {
 
                 Module tempModule = new Module();
                 tempModule.setBatchNumber(dto.getModuleDto().getModuleBatchNumber());
-                tempModule.setHeightQuantity(dto.getHeightQuantity());
-                tempModule.setWidthQuantity(dto.getWidthQuantity());
-                tempModule.setWidth(dto.getModuleDto().getWidth());
-                tempModule.setHeight(dto.getModuleDto().getHeight());
+                tempModule.setModuleByHeight(dto.getCabinsByHeight());
+                tempModule.setModuleByWidth(dto.getCabinsByWidth());
+                tempModule.setPixelWidth(dto.getModuleDto().getPixelWidth());
+                tempModule.setPixelHeight(dto.getModuleDto().getPixelHeight());
                 tempModule.setQuantity(dto.getModuleDto().getQuantity());
 
                 cabinet.setModule(moduleRepository.save(tempModule));
@@ -131,7 +133,8 @@ public class ScreenServiceImpl implements ScreenService {
                 cabinets.add(cabinet);
             }
             screen.setCabinList(cabinRepository.saveAll(cabinets));
-            resolution = heightResolution * widthResolution;
+            resolution = (int) widthResolution + "X" + (int) heightResolution;
+            ;
             screen.setResolution(resolution);
         }
         ////////////////////////////////////
@@ -167,7 +170,7 @@ public class ScreenServiceImpl implements ScreenService {
         screen.setSolutionType(dto.getSolutionTypeInScreen());
         screen.setLocation(dto.getLocation());
         screen.setDescription(dto.getDescription());
-        screen.setPixelScreen(dto.getPixelScreen());
+//        screen.setPixelScreen(dto.getPixelScreen());
         screen.setBatchScreen(dto.getBatchScreen());
 
         // Power Supply Section
@@ -180,20 +183,25 @@ public class ScreenServiceImpl implements ScreenService {
         screen.setReceivingCardQuantity(dto.getReceivingCardQuantity());
         screen.setSpareReceivingCardQuantity(dto.getSpareReceivingCardQuantity());
 
-        // Cable Section
-        screen.setCable(dto.getCable());
-        screen.setCableQuantity(dto.getCableQuantity());
-        screen.setSpareCableQuantity(dto.getSpareCableQuantity());
+        //Main Power Cable Section
+        screen.setMainPowerCable(dto.getMainPowerCable());
+        screen.setMainPowerCableQuantity(dto.getMainPowerCableQuantity());
+        screen.setSpareMainPowerCableQuantity(dto.getSpareMainPowerCableQuantity());
 
-        // Power Cable Section
-        screen.setPowerCable(dto.getPowerCable());
-        screen.setPowerCableQuantity(dto.getPowerCableQuantity());
-        screen.setSparePowerCableQuantity(dto.getSparePowerCableQuantity());
+        //Loop Power Cable Section
+        screen.setLoopPowerCable(dto.getLoopPowerCable());
+        screen.setLoopPowerCableQuantity(dto.getLoopPowerCableQuantity());
+        screen.setSpareLoopPowerCableQuantity(dto.getSpareLoopPowerCableQuantity());
 
-        // Data Cable Section
-        screen.setDataCable(dto.getDataCable());
-        screen.setDataCableQuantity(dto.getDataCableQuantity());
-        screen.setSpareDataCableQuantity(dto.getSpareDataCableQuantity());
+        //Main Data Cable Section
+        screen.setMainDataCable(dto.getMainDataCable());
+        screen.setMainDataCableQuantity(dto.getMainDataCableQuantity());
+        screen.setSpareMainDataCableQuantity(dto.getSpareMainDataCableQuantity());
+
+        //Loop Data Cable Section
+        screen.setLoopDataCable(dto.getLoopDataCable());
+        screen.setLoopDataCableQuantity(dto.getLoopDataCableQuantity());
+        screen.setSpareLoopDataCableQuantity(dto.getSpareLoopDataCableQuantity());
 
         // Fan section
         screen.setFan(dto.getFan());
@@ -210,13 +218,13 @@ public class ScreenServiceImpl implements ScreenService {
             screen.setConnectionFileUrl(connectionUrl);
             screen.setConnectionFileName(dto.getConnectionFile().getOriginalFilename());
         }
-        
+
         if (dto.getConfigFile() != null && !dto.getConfigFile().isEmpty()) {
             String configUrl = s3Service.uploadFile(dto.getConfigFile(), "screen-files/config");
             screen.setConfigFileUrl(configUrl);
             screen.setConfigFileName(dto.getConfigFile().getOriginalFilename());
         }
-        
+
         if (dto.getVersionFile() != null && !dto.getVersionFile().isEmpty()) {
             String versionUrl = s3Service.uploadFile(dto.getVersionFile(), "screen-files/version");
             screen.setVersionFileUrl(versionUrl);
@@ -269,7 +277,7 @@ public class ScreenServiceImpl implements ScreenService {
                     screenResponse.setLocation(screen.getLocation());
                     screenResponse.setScreenType(screen.getScreenType());
                     screenResponse.setSolutionType(screen.getSolutionType());
-                    screenResponse.setPixelScreen(screen.getPixelScreen());
+//                    screenResponse.setPixelScreen(screen.getPixelScreen());
                     screenResponse.setDescription(screen.getDescription());
                     screenResponse.setPowerSupply(screen.getPowerSupply());
                     screenResponse.setPowerSupplyQuantity(screen.getPowerSupplyQuantity());
@@ -277,15 +285,23 @@ public class ScreenServiceImpl implements ScreenService {
                     screenResponse.setReceivingCard(screen.getReceivingCard());
                     screenResponse.setReceivingCardQuantity(screen.getReceivingCardQuantity());
                     screenResponse.setSpareReceivingCardQuantity(screen.getSpareReceivingCardQuantity());
-                    screenResponse.setCable(screen.getCable());
-                    screenResponse.setCableQuantity(screen.getCableQuantity());
-                    screenResponse.setSpareCableQuantity(screen.getSpareCableQuantity());
-                    screenResponse.setPowerCable(screen.getPowerCable());
-                    screenResponse.setPowerCableQuantity(screen.getPowerCableQuantity());
-                    screenResponse.setSparePowerCableQuantity(screen.getSparePowerCableQuantity());
-                    screenResponse.setDataCable(screen.getDataCable());
-                    screenResponse.setDataCableQuantity(screen.getDataCableQuantity());
-                    screenResponse.setSpareDataCableQuantity(screen.getSpareDataCableQuantity());
+
+                    screenResponse.setMainPowerCable(screen.getMainPowerCable());
+                    screenResponse.setMainPowerCableQuantity(screen.getMainPowerCableQuantity());
+                    screenResponse.setSpareMainPowerCableQuantity(screen.getSpareMainPowerCableQuantity());
+
+                    screenResponse.setLoopPowerCable(screen.getLoopPowerCable());
+                    screenResponse.setLoopPowerCableQuantity(screen.getLoopPowerCableQuantity());
+                    screenResponse.setSpareLoopPowerCableQuantity(screen.getSpareLoopPowerCableQuantity());
+
+                    screenResponse.setMainDataCable(screen.getMainDataCable());
+                    screenResponse.setMainDataCableQuantity(screen.getMainDataCableQuantity());
+                    screenResponse.setSpareMainDataCableQuantity(screen.getSpareMainDataCableQuantity());
+
+                    screenResponse.setLoopDataCable(screen.getLoopDataCable());
+                    screenResponse.setLoopDataCableQuantity(screen.getLoopDataCableQuantity());
+                    screenResponse.setSpareLoopDataCableQuantity(screen.getSpareLoopDataCableQuantity());
+
                     screenResponse.setMedia(screen.getMedia());
                     screenResponse.setMediaQuantity(screen.getMediaQuantity());
                     screenResponse.setSpareMediaQuantity(screen.getSpareMediaQuantity());
@@ -298,7 +314,7 @@ public class ScreenServiceImpl implements ScreenService {
                     screenResponse.setCreatedAt(screen.getCreatedAt());
                     screenResponse.setModuleList(screen.getModuleList());
                     screenResponse.setCabinList(screen.getCabinList());
-                    
+
                     // Add file URL and filename fields
                     screenResponse.setConnectionFileUrl(screen.getConnectionFileUrl());
                     screenResponse.setConnectionFileName(screen.getConnectionFileName());
@@ -306,7 +322,7 @@ public class ScreenServiceImpl implements ScreenService {
                     screenResponse.setConfigFileName(screen.getConfigFileName());
                     screenResponse.setVersionFileUrl(screen.getVersionFileUrl());
                     screenResponse.setVersionFileName(screen.getVersionFileName());
-                    
+
                     return screenResponse;
                 });
     }
@@ -334,10 +350,10 @@ public class ScreenServiceImpl implements ScreenService {
     public List<ScreenResponse> getScreensWithoutContracts() {
         // Get all screens
         List<Screen> allScreens = screenRepository.findAll();
-        
+
         // Get all screens that are in active contracts
         List<Long> screensInContracts = contractRepository.findActiveContractScreenIds();
-        
+
         // Filter screens that are not in active contracts
         return allScreens.stream()
                 .filter(screen -> !screensInContracts.contains(screen.getId()))

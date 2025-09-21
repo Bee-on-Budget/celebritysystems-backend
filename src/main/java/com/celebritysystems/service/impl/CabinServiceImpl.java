@@ -17,8 +17,8 @@ public class CabinServiceImpl implements CabinService {
     @Override
     public Optional<Cabin> createCabin(CabinDto cabinRequest) {
         Cabin cabin = Cabin.builder()
-                .height(cabinRequest.getHeight())
-                .width(cabinRequest.getWidth())
+                .pixelHeight(cabinRequest.getPixelHeight())
+                .pixelWidth(cabinRequest.getPixelWidth())
                 .quantity(cabinRequest.getQuantity())
                 .build();
 

@@ -22,25 +22,23 @@ public class Cabin {
     @Column(name = "quantity", nullable = true)
     private Long quantity;
 
-    @Column(name = "height_quantity", nullable = false)
-    private Long heightQuantity;
+    @Column(name = "cabins_by_height", nullable = false)
+    private Long cabinsByHeight;
 
-    @Column(name = "width_quantity", nullable = false)
-    private Long widthQuantity;
+    @Column(name = "cabins_by_width", nullable = false)
+    private Long cabinsByWidth;
 
-    private Double height;
+    private Double pixelHeight;
 
-    private Double width;
+    private Double pixelWidth;
 
-    @Column(name = "is_height", nullable = true, columnDefinition = "TINYINT(1)")
-    private Boolean isHeight;  
-    
-    @Column(name = "is_width", nullable = true, columnDefinition = "TINYINT(1)")
-    private Boolean isWidth;  
+//    @Column(name = "is_height", nullable = true, columnDefinition = "TINYINT(1)")
+//    private Boolean isHeight;
+//
+//    @Column(name = "is_width", nullable = true, columnDefinition = "TINYINT(1)")
+//    private Boolean isWidth;
 
-    //    @OneToOne(mappedBy = "cabin", cascade = CascadeType.ALL)
-//    private Module module;
     @OneToOne
-    @JoinColumn(name = "module_id",nullable = true)
+    @JoinColumn(name = "module_id", nullable = true)
     private Module module;
 }
