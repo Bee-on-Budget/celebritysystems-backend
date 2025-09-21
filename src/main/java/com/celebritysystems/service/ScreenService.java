@@ -30,4 +30,6 @@ public interface ScreenService {
     void deleteScreen(Long id);
 
     Long getScreensCount();
+
+    Screen patchScreenResolution(Long screenId, PatchScreenResolutionDTO patchScreenResolutionDTO);
 }

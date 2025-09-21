@@ -134,7 +134,7 @@ public class ScreenServiceImpl implements ScreenService {
             }
             screen.setCabinList(cabinRepository.saveAll(cabinets));
             resolution = (int) widthResolution + "X" + (int) heightResolution;
-            ;
+
             screen.setResolution(resolution);
         }
         ////////////////////////////////////
@@ -344,6 +344,34 @@ public class ScreenServiceImpl implements ScreenService {
     @Override
     public Long getScreensCount() {
         return screenRepository.count();
+    }
+
+    @Override
+    public Screen patchScreenResolution(Long screenId, PatchScreenResolutionDTO patchScreenResolutionDTO) {
+        log.info("Patching screen for screen ID: {}", screenId);
+
+        Screen existingScreen = screenRepository.findById(screenId)
+                .orElseThrow(() -> new IllegalArgumentException("screen not found for ID: " + screenId));
+
+        double resolutionWidth = 0;
+        double resolutionHeight = 0;
+
+        // Only update fields that are not null in the patch DTO
+        if (patchScreenResolutionDTO.getResolutionWidth() != null) {
+            resolutionWidth = patchScreenResolutionDTO.getResolutionWidth();
+        }
+
+        if (patchScreenResolutionDTO.getResolutionHeight() != null) {
+            resolutionHeight = patchScreenResolutionDTO.getResolutionHeight();
+        }
+
+        String resolution = (int) resolutionWidth + "X" + (int) resolutionHeight;
+
+        existingScreen.setResolution(resolution);
+        Screen updatedScreen = screenRepository.save(existingScreen);
+        log.info("Successfully patched screen for screen ID: {}", screenId);
+
+        return updatedScreen;
     }
 
     @Override

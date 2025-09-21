@@ -10,6 +10,10 @@ import com.celebritysystems.service.S3Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
@@ -59,6 +63,34 @@ public class ScreenController {
         } catch (JsonProcessingException e) {
             log.error("Error creating screen", e);
             return ResponseEntity.status(500).body("Error creating screen: " + e.getMessage());
+        }
+    }
+
+    @PatchMapping()
+    public ResponseEntity<?> patchScreenResolution(
+            @PathVariable Long screenId,
+            @Valid @RequestBody PatchScreenResolutionDTO patchScreenResolutionDTO) {
+
+        log.info("Received PATCH request to update screen resolution for screen ID: {}", screenId);
+
+        try {
+            log.debug("screen PATCH payload for screen ID {}: {}", screenId, patchScreenResolutionDTO.toString());
+
+            Screen patchedScreen = screenService.patchScreenResolution(screenId,
+                    patchScreenResolutionDTO);
+            log.info("Successfully patched screen for screen ID: {}", screenId);
+
+            return ResponseEntity.ok(patchedScreen);
+
+        } catch (IllegalArgumentException e) {
+            log.error("Validation error in screen patch: {}", e.getMessage(), e);
+            return ResponseEntity.badRequest().body(
+                    new ScreenController.ErrorResponse("VALIDATION_ERROR", e.getMessage()));
+        } catch (Exception e) {
+            log.error("Unexpected error during screen patch: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().body(
+                    new ScreenController.ErrorResponse("INTERNAL_SERVER_ERROR",
+                            "An unexpected error occurred: " + e.getMessage()));
         }
     }
 
@@ -197,5 +229,15 @@ public class ScreenController {
             case "config" -> "text/plain";
             default -> "application/octet-stream";
         };
+    }
+
+    // ==================== ERROR RESPONSE CLASS ====================
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    private static class ErrorResponse {
+        private String errorCode;
+        private String message;
     }
 }
