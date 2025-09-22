@@ -46,29 +46,24 @@ public class TicketAttachmentController {
     }
 
     @GetMapping("/{id}/download")
-    public ResponseEntity<Resource> downloadAttachment(@PathVariable Long id) {
-        log.info("Downloading attachment with ID: {}", id);
+    public ResponseEntity<String> downloadAttachment(@PathVariable Long id) {
+        
+        log.info("Generating presigned URL for attachment with ID: {}", id);
         
         TicketAttachmentDTO attachment = ticketAttachmentService.getAttachmentById(id);
         if (attachment == null || attachment.getFileUrl() == null) {
+            log.warn("Attachment not found or no file URL for attachment ID: {}", id);
             return ResponseEntity.notFound().build();
         }
 
         try {
-            Resource resource = s3Service.downloadFile(attachment.getFileUrl());
+            // Return the direct S3 URL without expiration
+            String fileUrl = attachment.getFileUrl();
+            log.info("Retrieved file URL for attachment with ID: {}", id);
+            return ResponseEntity.ok(fileUrl);
             
-            HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_DISPOSITION, 
-                "attachment; filename=\"" + attachment.getFileName() + "\"");
-            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-
-            log.info("Attachment downloaded successfully: {}", attachment.getFileName());
-            return ResponseEntity.ok()
-                    .headers(headers)
-                    .body(resource);
-                    
         } catch (Exception e) {
-            log.error("Failed to download attachment with ID: {}", id, e);
+            log.error("Failed to get file URL for attachment with ID: {}", id, e);
             return ResponseEntity.internalServerError().build();
         }
     }

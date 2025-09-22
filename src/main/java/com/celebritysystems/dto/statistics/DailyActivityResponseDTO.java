@@ -22,3 +22,4 @@ public class DailyActivityResponseDTO {
     private long totalCompaniesCreated;
     private long totalActivity;
 }
+

@@ -19,3 +19,4 @@ public class DailyActivityStatsDTO {
     private long companiesCreated;
     private long totalActivity;
 }
+

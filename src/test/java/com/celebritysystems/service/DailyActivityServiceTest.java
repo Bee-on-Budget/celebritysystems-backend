@@ -63,3 +63,4 @@ public class DailyActivityServiceTest {
         assertEquals(expectedTotal, result.getTotalActivity());
     }
 }
+
