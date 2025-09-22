@@ -33,6 +33,8 @@ public class TokenProvider {
                 .claim("email", user.getEmail())
                 .claim("username", user.getUsername())
                 .claim("role", user.getRole())
+                .claim("canRead", user.getCanRead() != null ? user.getCanRead() : false)
+                .claim("canEdit", user.getCanEdit() != null ? user.getCanEdit() : false)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate);
 
@@ -57,7 +59,7 @@ public class TokenProvider {
         return parseToken(token).get("username", String.class);
     }
 
-    // New method to get company ID from JWT
+    // Method to get company ID from JWT
     public Long getCompanyIdFromJWT(String token) {
         Claims claims = parseToken(token);
         Object companyId = claims.get("companyId");
@@ -69,6 +71,18 @@ public class TokenProvider {
             }
         }
         return null;
+    }
+
+    // New method to get canRead permission from JWT
+    public Boolean getCanReadFromJWT(String token) {
+        Claims claims = parseToken(token);
+        return claims.get("canRead", Boolean.class);
+    }
+
+    // New method to get canEdit permission from JWT
+    public Boolean getCanEditFromJWT(String token) {
+        Claims claims = parseToken(token);
+        return claims.get("canEdit", Boolean.class);
     }
 
     public Set<String> getRolesFromJWT(String token) {
