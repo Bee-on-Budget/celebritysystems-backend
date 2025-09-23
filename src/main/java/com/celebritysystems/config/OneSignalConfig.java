@@ -54,6 +54,7 @@ public class OneSignalConfig {
         return new RestTemplate();
     }
     
+    
     @Bean
     public JavaMailSender javaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
