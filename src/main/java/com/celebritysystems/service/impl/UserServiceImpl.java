@@ -245,41 +245,42 @@ public class UserServiceImpl implements UserService {
         };
     }
 
-    private Specification<User> createUserSpecificationWithJoin(String search, RoleInSystem role, Long companyId) {
-        return (root, query, criteriaBuilder) -> {
-            List<Predicate> predicates = new ArrayList<>();
+private Specification<User> createUserSpecificationWithJoin(String search, RoleInSystem role, Long companyId) {
+    return (root, query, criteriaBuilder) -> {
+        List<Predicate> predicates = new ArrayList<>();
 
-            // Add LEFT JOIN FETCH for company to avoid N+1 queries
-            if (query != null) {
-                query.distinct(true);
-                root.fetch("company", JoinType.LEFT);
-            }
+        // Add LEFT JOIN FETCH for company to avoid N+1 queries
+        // CRITICAL: Only apply fetch when NOT in a count query
+        if (query != null && query.getResultType() != Long.class && query.getResultType() != long.class) {
+            query.distinct(true);
+            root.fetch("company", JoinType.LEFT);
+        }
 
-            // Search in username, email, or fullName
-            if (search != null && !search.trim().isEmpty()) {
-                String searchPattern = "%" + search.toLowerCase() + "%";
-                Predicate searchPredicate = criteriaBuilder.or(
-                        criteriaBuilder.like(criteriaBuilder.lower(root.get("username")), searchPattern),
-                        criteriaBuilder.like(criteriaBuilder.lower(root.get("email")), searchPattern),
-                        criteriaBuilder.like(criteriaBuilder.lower(root.get("fullName")), searchPattern));
-                predicates.add(searchPredicate);
-            }
+        // Search in username, email, or fullName
+        if (search != null && !search.trim().isEmpty()) {
+            String searchPattern = "%" + search.toLowerCase() + "%";
+            Predicate searchPredicate = criteriaBuilder.or(
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("username")), searchPattern),
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("email")), searchPattern),
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("fullName")), searchPattern));
+            predicates.add(searchPredicate);
+        }
 
-            // Filter by role
-            if (role != null) {
-                predicates.add(criteriaBuilder.equal(root.get("role"), role));
-            }
+        // Filter by role
+        if (role != null) {
+            predicates.add(criteriaBuilder.equal(root.get("role"), role));
+        }
 
-            // Filter by company
-            if (companyId != null) {
-                Join<User, Company> companyJoin = root.join("company", JoinType.LEFT);
-                predicates.add(criteriaBuilder.equal(companyJoin.get("id"), companyId));
-            }
+        // Filter by company
+        if (companyId != null) {
+            // Use join for filtering (not fetch)
+            Join<User, Company> companyJoin = root.join("company", JoinType.LEFT);
+            predicates.add(criteriaBuilder.equal(companyJoin.get("id"), companyId));
+        }
 
-            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-        };
-    }
-
+        return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+    };
+}
     @Override
     public Optional<User> getUserByUsername(String username) {
         return userRepository.findByUsername(username);
