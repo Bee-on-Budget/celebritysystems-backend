@@ -220,34 +220,35 @@ public class TicketController {
         }
     }
 
-@GetMapping("/paginated")
-public ResponseEntity<Page<TicketResponseDTO>> getAllTicketsPaginated(
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "10") int size,
-        @RequestParam(required = false) String status,
-        @RequestParam(required = false) Long companyId,
-        @RequestParam(required = false) Long screenId,
-        @RequestParam(required = false) Long assignedToWorkerId,
-        @RequestParam(required = false) String serviceType,
-        @RequestParam(required = false) Boolean pending) {
-    
-    log.info("Fetching tickets page {} with size {} and filters - status: {}, companyId: {}, screenId: {}, assignedToWorkerId: {}, serviceType: {}, pending: {}", 
-             page, size, status, companyId, screenId, assignedToWorkerId, serviceType, pending);
-    
-    try {
-        Page<TicketResponseDTO> tickets = ticketService.getAllTicketsPaginated(
-            page, size, status, companyId, screenId, assignedToWorkerId, serviceType, pending);
-        
-        log.info("Successfully retrieved page {} of tickets with {} items", page, tickets.getNumberOfElements());
-        return ResponseEntity.ok(tickets);
-    } catch (IllegalArgumentException e) {
-        log.error("Validation error in paginated tickets: {}", e.getMessage(), e);
-        return ResponseEntity.badRequest().build();
-    } catch (Exception e) {
-        log.error("Failed to retrieve paginated tickets: {}", e.getMessage(), e);
-        return ResponseEntity.internalServerError().build();
+    @GetMapping("/paginated")
+    public ResponseEntity<Page<TicketResponseDTO>> getAllTicketsPaginated(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) Long companyId,
+            @RequestParam(required = false) Long screenId,
+            @RequestParam(required = false) Long assignedToWorkerId,
+            @RequestParam(required = false) String serviceType,
+            @RequestParam(required = false) Boolean pending) {
+
+        log.info(
+                "Fetching tickets page {} with size {} and filters - status: {}, companyId: {}, screenId: {}, assignedToWorkerId: {}, serviceType: {}, pending: {}",
+                page, size, status, companyId, screenId, assignedToWorkerId, serviceType, pending);
+
+        try {
+            Page<TicketResponseDTO> tickets = ticketService.getAllTicketsPaginated(
+                    page, size, status, companyId, screenId, assignedToWorkerId, serviceType, pending);
+
+            log.info("Successfully retrieved page {} of tickets with {} items", page, tickets.getNumberOfElements());
+            return ResponseEntity.ok(tickets);
+        } catch (IllegalArgumentException e) {
+            log.error("Validation error in paginated tickets: {}", e.getMessage(), e);
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            log.error("Failed to retrieve paginated tickets: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().build();
+        }
     }
-}
 
     @GetMapping("/company/{companyId}")
     public ResponseEntity<List<TicketResponseDTO>> getTicketsByCompanyId(@PathVariable Long companyId) {
@@ -451,6 +452,18 @@ public ResponseEntity<Page<TicketResponseDTO>> getAllTicketsPaginated(
         try {
             log.debug("Ticket PATCH payload for ID {}: {}", id, patchTicketDTO.toString());
 
+            // Validate service type if provided
+            if (patchTicketDTO.hasServiceType()) {
+                try {
+                    ServiceType.valueOf(patchTicketDTO.getServiceType().toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    return ResponseEntity.badRequest().body(
+                            new ErrorResponse("INVALID_SERVICE_TYPE",
+                                    "Invalid service type. Valid values are: " +
+                                            Arrays.toString(ServiceType.values())));
+                }
+            }
+
             TicketDTO updatedTicket = ticketService.patchTicket(id, patchTicketDTO);
             log.info("Successfully patched ticket with ID: {}", id);
 
@@ -466,7 +479,6 @@ public ResponseEntity<Page<TicketResponseDTO>> getAllTicketsPaginated(
                             "An unexpected error occurred: " + e.getMessage()));
         }
     }
-
     // ==================== HELPER METHODS ====================
 
     private String determineContentType(String fileName) {

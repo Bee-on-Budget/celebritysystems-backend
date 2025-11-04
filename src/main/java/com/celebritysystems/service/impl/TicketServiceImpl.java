@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class TicketServiceImpl implements TicketService {
-private final PdfService pdfService;
+    private final PdfService pdfService;
 
     private final TicketRepository ticketRepository;
     private final UserRepository userRepository;
@@ -83,7 +83,7 @@ private final PdfService pdfService;
                 throw new RuntimeException("Failed to process file upload", e);
             }
         }
-        
+
         ticket = updateTicketStatus(ticket, TicketStatus.OPEN);
 
         Ticket savedTicket = ticketRepository.save(ticket);
@@ -160,17 +160,18 @@ private final PdfService pdfService;
         return !previousWorker.getId().equals(newWorker.getId());
     }
 
-private boolean hasStatusChanged(TicketStatus previousStatus, TicketStatus newStatus) {
-    if (previousStatus == null && newStatus == null) {
-        return false;
+    private boolean hasStatusChanged(TicketStatus previousStatus, TicketStatus newStatus) {
+        if (previousStatus == null && newStatus == null) {
+            return false;
+        }
+
+        if (previousStatus == null || newStatus == null) {
+            return true;
+        }
+
+        return !previousStatus.equals(newStatus);
     }
 
-    if (previousStatus == null || newStatus == null) {
-        return true;
-    }
-
-    return !previousStatus.equals(newStatus);
-}
     private void sendTicketAssignmentNotification(Ticket ticket) {
         try {
             if (ticket.getAssignedToWorker() != null) {
@@ -204,8 +205,8 @@ private boolean hasStatusChanged(TicketStatus previousStatus, TicketStatus newSt
                 }
 
                 if (workerEmail != null && !workerEmail.trim().isEmpty()) {
-                    emailService.sendTicketAssignmentEmail(workerEmail, workerName, 
-                                                         ticket.getTitle(), ticket.getDescription(), data);
+                    emailService.sendTicketAssignmentEmail(workerEmail, workerName,
+                            ticket.getTitle(), ticket.getDescription(), data);
                     log.info("Email notification sent to worker {} ({}) for ticket ID: {}",
                             workerName, workerEmail, ticket.getId());
                 } else {
@@ -220,80 +221,83 @@ private boolean hasStatusChanged(TicketStatus previousStatus, TicketStatus newSt
         }
     }
 
- private void sendTicketStatusUpdateNotificationToCompany(Ticket ticket, TicketStatus previousStatus, TicketStatus newStatus) {
-    try {
-        // If ticket is being closed/completed, send special completion notification
-        if (newStatus == TicketStatus.CLOSED && previousStatus != TicketStatus.CLOSED) {
-            log.info("Ticket {} is being closed, sending completion notification with PDF", ticket.getId());
-            sendTicketCompletionNotificationToCompany(ticket);
-            return; // Don't send regular status update for completion
+    private void sendTicketStatusUpdateNotificationToCompany(Ticket ticket, TicketStatus previousStatus,
+            TicketStatus newStatus) {
+        try {
+            // If ticket is being closed/completed, send special completion notification
+            if (newStatus == TicketStatus.CLOSED && previousStatus != TicketStatus.CLOSED) {
+                log.info("Ticket {} is being closed, sending completion notification with PDF", ticket.getId());
+                sendTicketCompletionNotificationToCompany(ticket);
+                return; // Don't send regular status update for completion
+            }
+
+            // Regular status update logic (existing code)
+            if (ticket.getCompany() == null) {
+                log.warn("Cannot send company notification: Ticket {} has no associated company", ticket.getId());
+                return;
+            }
+
+            List<User> companyUsers = userRepository.findByCompanyId(ticket.getCompany().getId());
+
+            if (companyUsers.isEmpty()) {
+                log.warn("No users found for company {} for ticket {}",
+                        ticket.getCompany().getName(), ticket.getId());
+                return;
+            }
+
+            List<String> playerIds = companyUsers.stream()
+                    .map(User::getPlayerId)
+                    .filter(playerId -> playerId != null && !playerId.trim().isEmpty())
+                    .collect(Collectors.toList());
+
+            List<String> emails = companyUsers.stream()
+                    .map(User::getEmail)
+                    .filter(email -> email != null && !email.trim().isEmpty())
+                    .collect(Collectors.toList());
+
+            String title = "Ticket Status Updated";
+            String previousStatusStr = previousStatus != null ? previousStatus.name() : "No Status";
+            String newStatusStr = newStatus != null ? newStatus.name() : "No Status";
+
+            String message = String.format("Ticket '%s' status changed from %s to %s",
+                    ticket.getTitle(), previousStatusStr, newStatusStr);
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("ticketId", ticket.getId().toString());
+            data.put("ticketTitle", ticket.getTitle());
+            data.put("ticketDescription", ticket.getDescription());
+            data.put("previousStatus", previousStatusStr);
+            data.put("newStatus", newStatusStr);
+            data.put("updatedAt", LocalDateTime.now().toString());
+            data.put("companyName", ticket.getCompany().getName());
+            data.put("screenName", ticket.getScreen() != null ? ticket.getScreen().getName() : "");
+            data.put("screenLocation", ticket.getScreen() != null ? ticket.getScreen().getLocation() : "");
+            data.put("assignedWorker",
+                    ticket.getAssignedToWorker() != null ? ticket.getAssignedToWorker().getFullName() : "");
+            data.put("notificationType", "TICKET_STATUS_UPDATE");
+
+            if (!playerIds.isEmpty()) {
+                oneSignalService.sendWithData(title, message, data, playerIds);
+                log.info("Push notification sent to {} users in company '{}' for ticket ID: {}",
+                        playerIds.size(), ticket.getCompany().getName(), ticket.getId());
+            } else {
+                log.warn("No valid playerIds found for company users for ticket {}", ticket.getId());
+            }
+
+            if (!emails.isEmpty()) {
+                emailService.sendTicketStatusUpdateEmail(emails, ticket.getTitle(),
+                        previousStatusStr, newStatusStr, data);
+                log.info("Email notifications sent to {} users in company '{}' for ticket ID: {}",
+                        emails.size(), ticket.getCompany().getName(), ticket.getId());
+            } else {
+                log.warn("No valid emails found for company users for ticket {}", ticket.getId());
+            }
+
+        } catch (Exception e) {
+            log.error("Failed to send ticket status update notification for ticket ID: {}", ticket.getId(), e);
         }
-
-        // Regular status update logic (existing code)
-        if (ticket.getCompany() == null) {
-            log.warn("Cannot send company notification: Ticket {} has no associated company", ticket.getId());
-            return;
-        }
-
-        List<User> companyUsers = userRepository.findByCompanyId(ticket.getCompany().getId());
-
-        if (companyUsers.isEmpty()) {
-            log.warn("No users found for company {} for ticket {}",
-                    ticket.getCompany().getName(), ticket.getId());
-            return;
-        }
-
-        List<String> playerIds = companyUsers.stream()
-                .map(User::getPlayerId)
-                .filter(playerId -> playerId != null && !playerId.trim().isEmpty())
-                .collect(Collectors.toList());
-
-        List<String> emails = companyUsers.stream()
-                .map(User::getEmail)
-                .filter(email -> email != null && !email.trim().isEmpty())
-                .collect(Collectors.toList());
-
-        String title = "Ticket Status Updated";
-        String previousStatusStr = previousStatus != null ? previousStatus.name() : "No Status";
-        String newStatusStr = newStatus != null ? newStatus.name() : "No Status";
-
-        String message = String.format("Ticket '%s' status changed from %s to %s",
-                ticket.getTitle(), previousStatusStr, newStatusStr);
-
-        Map<String, Object> data = new HashMap<>();
-        data.put("ticketId", ticket.getId().toString());
-        data.put("ticketTitle", ticket.getTitle());
-        data.put("ticketDescription", ticket.getDescription());
-        data.put("previousStatus", previousStatusStr);
-        data.put("newStatus", newStatusStr);
-        data.put("updatedAt", LocalDateTime.now().toString());
-        data.put("companyName", ticket.getCompany().getName());
-        data.put("screenName", ticket.getScreen() != null ? ticket.getScreen().getName() : "");
-        data.put("screenLocation", ticket.getScreen() != null ? ticket.getScreen().getLocation() : "");
-        data.put("assignedWorker", ticket.getAssignedToWorker() != null ? ticket.getAssignedToWorker().getFullName() : "");
-        data.put("notificationType", "TICKET_STATUS_UPDATE");
-
-        if (!playerIds.isEmpty()) {
-            oneSignalService.sendWithData(title, message, data, playerIds);
-            log.info("Push notification sent to {} users in company '{}' for ticket ID: {}",
-                    playerIds.size(), ticket.getCompany().getName(), ticket.getId());
-        } else {
-            log.warn("No valid playerIds found for company users for ticket {}", ticket.getId());
-        }
-
-        if (!emails.isEmpty()) {
-            emailService.sendTicketStatusUpdateEmail(emails, ticket.getTitle(), 
-                                                   previousStatusStr, newStatusStr, data);
-            log.info("Email notifications sent to {} users in company '{}' for ticket ID: {}",
-                    emails.size(), ticket.getCompany().getName(), ticket.getId());
-        } else {
-            log.warn("No valid emails found for company users for ticket {}", ticket.getId());
-        }
-
-    } catch (Exception e) {
-        log.error("Failed to send ticket status update notification for ticket ID: {}", ticket.getId(), e);
     }
-}
+
     @Override
     public void deleteTicket(Long id) {
         if (!ticketRepository.existsById(id)) {
@@ -321,24 +325,23 @@ private boolean hasStatusChanged(TicketStatus previousStatus, TicketStatus newSt
     }
 
     @Override
-    public Page<TicketResponseDTO> getAllTicketsPaginated(int page, int size, String status, Long companyId, 
-                                                         Long screenId, Long assignedToWorkerId, String serviceType, Boolean pending) {
+    public Page<TicketResponseDTO> getAllTicketsPaginated(int page, int size, String status, Long companyId,
+            Long screenId, Long assignedToWorkerId, String serviceType, Boolean pending) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Ticket> tickets;
-        
+
         if (Boolean.TRUE.equals(pending)) {
             tickets = ticketRepository.findPendingTicketsPaginated(pageable);
         } else {
             tickets = ticketRepository.findTicketsWithFilters(
-                status != null ? TicketStatus.valueOf(status.toUpperCase()) : null,
-                companyId,
-                screenId,
-                assignedToWorkerId,
-                serviceType != null ? ServiceType.valueOf(serviceType.toUpperCase()) : null,
-                pageable
-            );
+                    status != null ? TicketStatus.valueOf(status.toUpperCase()) : null,
+                    companyId,
+                    screenId,
+                    assignedToWorkerId,
+                    serviceType != null ? ServiceType.valueOf(serviceType.toUpperCase()) : null,
+                    pageable);
         }
-        
+
         return tickets.map(this::toTicketResponseDto);
     }
 
@@ -464,7 +467,8 @@ private boolean hasStatusChanged(TicketStatus previousStatus, TicketStatus newSt
                 .ticketImageUrl(ticket.getTicketImageUrl())
                 .ticketImageName(ticket.getTicketImageName())
                 .serviceType(ticket.getServiceType() != null ? ticket.getServiceType().name() : null)
-                .serviceTypeDisplayName(ticket.getServiceType() != null ? ticket.getServiceType().getDisplayName() : null)
+                .serviceTypeDisplayName(
+                        ticket.getServiceType() != null ? ticket.getServiceType().getDisplayName() : null)
                 .build();
     }
 
@@ -494,19 +498,33 @@ private boolean hasStatusChanged(TicketStatus previousStatus, TicketStatus newSt
         }
         return ticket;
     }
-    
+
     @Override
     public TicketDTO patchTicket(Long id, PatchTicketDTO patchTicketDTO) {
         return ticketRepository.findById(id).map(ticket -> {
             User previousAssignedWorker = ticket.getAssignedToWorker();
             TicketStatus previousStatus = ticket.getStatus();
-            
+
             boolean hasChanges = false;
 
+            // Handle service type update
+            if (patchTicketDTO.hasServiceType()) {
+                try {
+                    ServiceType serviceTypeEnum = ServiceType.valueOf(patchTicketDTO.getServiceType().toUpperCase());
+                    ticket.setServiceType(serviceTypeEnum);
+                    hasChanges = true;
+                    log.info("Updated service type to {} for ticket ID: {}", serviceTypeEnum, id);
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("Invalid service type: " + patchTicketDTO.getServiceType() +
+                            ". Valid values are: " + Arrays.toString(ServiceType.values()));
+                }
+            }
+
+            // Handle status update
             TicketStatus newStatus = null;
             if (patchTicketDTO.hasStatus()) {
                 try {
-                    newStatus = TicketStatus.valueOf(patchTicketDTO.getStatus());
+                    newStatus = TicketStatus.valueOf(patchTicketDTO.getStatus().toUpperCase());
                     ticket = updateTicketStatus(ticket, newStatus);
                     hasChanges = true;
                     log.info("Updated status to {} for ticket ID: {}", newStatus, id);
@@ -515,12 +533,14 @@ private boolean hasStatusChanged(TicketStatus previousStatus, TicketStatus newSt
                 }
             }
 
+            // Handle worker assignment
             User newAssignedWorker = null;
             if (patchTicketDTO.hasAssignedToWorkerId()) {
                 newAssignedWorker = userRepository.findById(patchTicketDTO.getAssignedToWorkerId())
-                        .orElseThrow(() -> new IllegalArgumentException("Worker not found with ID: " + patchTicketDTO.getAssignedToWorkerId()));
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                "Worker not found with ID: " + patchTicketDTO.getAssignedToWorkerId()));
                 ticket.setAssignedToWorker(newAssignedWorker);
-                
+
                 if (!patchTicketDTO.hasStatus()) {
                     ticket = updateTicketStatus(ticket, TicketStatus.IN_PROGRESS);
                     newStatus = TicketStatus.IN_PROGRESS;
@@ -530,9 +550,11 @@ private boolean hasStatusChanged(TicketStatus previousStatus, TicketStatus newSt
                 log.info("Assigned worker {} to ticket ID: {}", newAssignedWorker.getFullName(), id);
             }
 
+            // Handle supervisor assignment
             if (patchTicketDTO.hasAssignedBySupervisorId()) {
                 User assignedSupervisor = userRepository.findById(patchTicketDTO.getAssignedBySupervisorId())
-                        .orElseThrow(() -> new IllegalArgumentException("Supervisor not found with ID: " + patchTicketDTO.getAssignedBySupervisorId()));
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                "Supervisor not found with ID: " + patchTicketDTO.getAssignedBySupervisorId()));
                 ticket.setAssignedBySupervisor(assignedSupervisor);
                 hasChanges = true;
                 log.info("Assigned supervisor {} to ticket ID: {}", assignedSupervisor.getFullName(), id);
@@ -560,100 +582,91 @@ private boolean hasStatusChanged(TicketStatus previousStatus, TicketStatus newSt
     }
 
     @Override
-    public List<TicketAnalyticsDTO> getTicketAnalytics(List<Long> screenIds, 
-                                                      LocalDate startDate, 
-                                                      LocalDate endDate) {
+    public List<TicketAnalyticsDTO> getTicketAnalytics(List<Long> screenIds,
+            LocalDate startDate,
+            LocalDate endDate) {
         List<Ticket> tickets = getTicketsForAnalysis(screenIds, startDate, endDate);
 
         return tickets.stream()
-            .map(ticket -> {
-                Duration resolution = null;
-                if (ticket.getOpenedAt() != null && ticket.getClosedAt() != null) {
-                    resolution = Duration.between(ticket.getOpenedAt(), ticket.getClosedAt());
-                }
+                .map(ticket -> {
+                    Duration resolution = null;
+                    if (ticket.getOpenedAt() != null && ticket.getClosedAt() != null) {
+                        resolution = Duration.between(ticket.getOpenedAt(), ticket.getClosedAt());
+                    }
 
-                return TicketAnalyticsDTO.builder()
-                    .ticketId(ticket.getId())
-                    .serviceType(ticket.getServiceType() != null ? 
-                               ticket.getServiceType().getDisplayName() : 
-                               "Unspecified")
-                    .resolutionTime(resolution)
-                    .resolutionTimeFormatted(formatDuration(resolution))
-                    .build();
-            })
-            .collect(Collectors.toList());
+                    return TicketAnalyticsDTO.builder()
+                            .ticketId(ticket.getId())
+                            .serviceType(ticket.getServiceType() != null ? ticket.getServiceType().getDisplayName()
+                                    : "Unspecified")
+                            .resolutionTime(resolution)
+                            .resolutionTimeFormatted(formatDuration(resolution))
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 
     @Override
-    public TicketAnalyticsSummaryDTO getTicketAnalyticsSummary(List<Long> screenIds, 
-                                                              LocalDate startDate, 
-                                                              LocalDate endDate) {
+    public TicketAnalyticsSummaryDTO getTicketAnalyticsSummary(List<Long> screenIds,
+            LocalDate startDate,
+            LocalDate endDate) {
         List<Ticket> tickets = getTicketsForAnalysis(screenIds, startDate, endDate);
-        
+
         Map<String, Long> serviceTypeCounts = tickets.stream()
-            .collect(Collectors.groupingBy(
-                ticket -> ticket.getServiceType() != null ? 
-                         ticket.getServiceType().getDisplayName() : 
-                         "Unspecified",
-                Collectors.counting()
-            ));
+                .collect(Collectors.groupingBy(
+                        ticket -> ticket.getServiceType() != null ? ticket.getServiceType().getDisplayName()
+                                : "Unspecified",
+                        Collectors.counting()));
 
         List<Duration> resolutionTimes = tickets.stream()
-            .filter(ticket -> ticket.getOpenedAt() != null && ticket.getClosedAt() != null)
-            .map(ticket -> Duration.between(ticket.getOpenedAt(), ticket.getClosedAt()))
-            .collect(Collectors.toList());
+                .filter(ticket -> ticket.getOpenedAt() != null && ticket.getClosedAt() != null)
+                .map(ticket -> Duration.between(ticket.getOpenedAt(), ticket.getClosedAt()))
+                .collect(Collectors.toList());
 
         Duration averageResolution = calculateAverageDuration(resolutionTimes);
 
         Map<String, Duration> averageTimeByServiceType = tickets.stream()
-            .filter(ticket -> ticket.getOpenedAt() != null && ticket.getClosedAt() != null)
-            .collect(Collectors.groupingBy(
-                ticket -> ticket.getServiceType() != null ? 
-                         ticket.getServiceType().getDisplayName() : 
-                         "Unspecified",
-                Collectors.collectingAndThen(
-                    Collectors.mapping(
-                        ticket -> Duration.between(ticket.getOpenedAt(), ticket.getClosedAt()),
-                        Collectors.toList()
-                    ),
-                    this::calculateAverageDuration
-                )
-            ));
+                .filter(ticket -> ticket.getOpenedAt() != null && ticket.getClosedAt() != null)
+                .collect(Collectors.groupingBy(
+                        ticket -> ticket.getServiceType() != null ? ticket.getServiceType().getDisplayName()
+                                : "Unspecified",
+                        Collectors.collectingAndThen(
+                                Collectors.mapping(
+                                        ticket -> Duration.between(ticket.getOpenedAt(), ticket.getClosedAt()),
+                                        Collectors.toList()),
+                                this::calculateAverageDuration)));
 
         return TicketAnalyticsSummaryDTO.builder()
-            .averageResolutionTime(averageResolution)
-            .averageResolutionTimeFormatted(formatDuration(averageResolution))
-            .serviceTypeCounts(serviceTypeCounts)
-            .averageTimeByServiceType(averageTimeByServiceType)
-            .totalTickets((long) tickets.size())
-            .build();
+                .averageResolutionTime(averageResolution)
+                .averageResolutionTimeFormatted(formatDuration(averageResolution))
+                .serviceTypeCounts(serviceTypeCounts)
+                .averageTimeByServiceType(averageTimeByServiceType)
+                .totalTickets((long) tickets.size())
+                .build();
     }
 
-    private List<Ticket> getTicketsForAnalysis(List<Long> screenIds, 
-                                             LocalDate startDate, 
-                                             LocalDate endDate) {
+    private List<Ticket> getTicketsForAnalysis(List<Long> screenIds,
+            LocalDate startDate,
+            LocalDate endDate) {
         if (screenIds != null && !screenIds.isEmpty()) {
             return ticketRepository.findByScreenIdInAndCreatedAtBetween(
-                screenIds, 
-                startDate.atStartOfDay(), 
-                endDate.atTime(23, 59, 59)
-            );
+                    screenIds,
+                    startDate.atStartOfDay(),
+                    endDate.atTime(23, 59, 59));
         }
         return ticketRepository.findByCreatedAtBetween(
-            startDate.atStartOfDay(), 
-            endDate.atTime(23, 59, 59)
-        );
+                startDate.atStartOfDay(),
+                endDate.atTime(23, 59, 59));
     }
 
     private Duration calculateAverageDuration(List<Duration> durations) {
         if (durations == null || durations.isEmpty()) {
             return Duration.ZERO;
         }
-        
+
         long totalSeconds = durations.stream()
-            .mapToLong(Duration::getSeconds)
-            .sum();
-            
+                .mapToLong(Duration::getSeconds)
+                .sum();
+
         return Duration.ofSeconds(totalSeconds / durations.size());
     }
 
@@ -661,12 +674,12 @@ private boolean hasStatusChanged(TicketStatus previousStatus, TicketStatus newSt
         if (duration == null) {
             return "N/A";
         }
-        
+
         long days = duration.toDays();
         long hours = duration.toHoursPart();
         long minutes = duration.toMinutesPart();
         long seconds = duration.toSecondsPart();
-        
+
         StringBuilder formatted = new StringBuilder();
         if (days > 0) {
             formatted.append(days).append(" days ");
@@ -680,31 +693,31 @@ private boolean hasStatusChanged(TicketStatus previousStatus, TicketStatus newSt
         if (seconds > 0 && days == 0 && hours == 0) {
             formatted.append(seconds).append(" seconds");
         }
-        
+
         return formatted.toString().trim();
     }
-    
+
     @Override
     public List<TicketResponseDTO> getTicketsWithWorkerReportsByScreenId(Long screenId) {
         log.info("Fetching tickets with worker reports for screen ID: {}", screenId);
-        
+
         if (!screenRepository.existsById(screenId)) {
             throw new IllegalArgumentException("Screen not found with ID: " + screenId);
         }
-        
+
         List<Ticket> tickets = ticketRepository.findByScreenId(screenId);
-        
+
         return tickets.stream()
                 .map(this::toTicketResponseDtoWithWorkerReport)
                 .collect(Collectors.toList());
     }
-    
+
     private TicketResponseDTO toTicketResponseDtoWithWorkerReport(Ticket ticket) {
         WorkerReportResponseDTO workerReport = null;
         try {
             workerReport = workerReportService.getWorkerReportByTicketId(ticket.getId());
         } catch (Exception e) {
-            log.warn("Failed to retrieve worker report for ticket {}: {}", 
+            log.warn("Failed to retrieve worker report for ticket {}: {}",
                     ticket.getId(), e.getMessage());
         }
 
@@ -734,117 +747,122 @@ private boolean hasStatusChanged(TicketStatus previousStatus, TicketStatus newSt
                 .ticketImageUrl(ticket.getTicketImageUrl())
                 .ticketImageName(ticket.getTicketImageName())
                 .serviceType(ticket.getServiceType() != null ? ticket.getServiceType().name() : null)
-                .serviceTypeDisplayName(ticket.getServiceType() != null ? ticket.getServiceType().getDisplayName() : null)
+                .serviceTypeDisplayName(
+                        ticket.getServiceType() != null ? ticket.getServiceType().getDisplayName() : null)
                 .build();
     }
+
     private void sendTicketCompletionNotificationToCompany(Ticket ticket) {
-    try {
-        if (ticket.getCompany() == null) {
-            log.warn("Cannot send completion notification: Ticket {} has no associated company", ticket.getId());
-            return;
-        }
-
-        List<User> companyUsers = userRepository.findByCompanyId(ticket.getCompany().getId());
-
-        if (companyUsers.isEmpty()) {
-            log.warn("No users found for company {} for ticket completion {}",
-                    ticket.getCompany().getName(), ticket.getId());
-            return;
-        }
-
-        List<String> emails = companyUsers.stream()
-                .map(User::getEmail)
-                .filter(email -> email != null && !email.trim().isEmpty())
-                .collect(Collectors.toList());
-
-        if (emails.isEmpty()) {
-            log.warn("No valid emails found for company users for ticket completion {}", ticket.getId());
-            return;
-        }
-
-        // Get the worker report for this ticket
-        WorkerReportResponseDTO workerReport = null;
         try {
-            workerReport = workerReportService.getWorkerReportByTicketId(ticket.getId());
-        } catch (Exception e) {
-            log.error("Failed to retrieve worker report for ticket completion email: {}", e.getMessage(), e);
-        }
+            if (ticket.getCompany() == null) {
+                log.warn("Cannot send completion notification: Ticket {} has no associated company", ticket.getId());
+                return;
+            }
 
-        // Generate PDF and send email
-        if (workerReport != null) {
+            List<User> companyUsers = userRepository.findByCompanyId(ticket.getCompany().getId());
+
+            if (companyUsers.isEmpty()) {
+                log.warn("No users found for company {} for ticket completion {}",
+                        ticket.getCompany().getName(), ticket.getId());
+                return;
+            }
+
+            List<String> emails = companyUsers.stream()
+                    .map(User::getEmail)
+                    .filter(email -> email != null && !email.trim().isEmpty())
+                    .collect(Collectors.toList());
+
+            if (emails.isEmpty()) {
+                log.warn("No valid emails found for company users for ticket completion {}", ticket.getId());
+                return;
+            }
+
+            // Get the worker report for this ticket
+            WorkerReportResponseDTO workerReport = null;
             try {
-                // Convert ticket to TicketResponseDTO for PDF generation
-                TicketResponseDTO ticketResponse = toTicketResponseDto(ticket);
-                
-                // Generate PDF
-                String pdfFileName = String.format("WorkerReport_Ticket_%d_%s.pdf", 
-                                                   ticket.getId(), 
-                                                   LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")));
-                Resource pdfAttachment = pdfService.generateWorkerReportPdf(workerReport, ticketResponse, pdfFileName);
-
-                // Prepare ticket data for email
-                Map<String, Object> ticketData = new HashMap<>();
-                ticketData.put("ticketId", ticket.getId().toString());
-                ticketData.put("ticketTitle", ticket.getTitle());
-                ticketData.put("ticketDescription", ticket.getDescription());
-                ticketData.put("companyName", ticket.getCompany().getName());
-                ticketData.put("screenName", ticket.getScreen() != null ? ticket.getScreen().getName() : "");
-                ticketData.put("screenLocation", ticket.getScreen() != null ? ticket.getScreen().getLocation() : "");
-                ticketData.put("assignedWorker", ticket.getAssignedToWorker() != null ? ticket.getAssignedToWorker().getFullName() : "");
-                ticketData.put("completedAt", LocalDateTime.now().toString());
-                ticketData.put("defectsFound", workerReport.getDefectsFound());
-                ticketData.put("solutionsProvided", workerReport.getSolutionsProvided());
-                ticketData.put("notificationType", "TICKET_COMPLETION");
-
-                // Send completion email with PDF attachment
-                emailService.sendTicketCompletionEmailWithPdf(emails, ticket.getTitle(), ticketData, pdfAttachment, pdfFileName);
-
-                log.info("Ticket completion email with PDF sent to {} users in company '{}' for ticket ID: {}",
-                        emails.size(), ticket.getCompany().getName(), ticket.getId());
-
+                workerReport = workerReportService.getWorkerReportByTicketId(ticket.getId());
             } catch (Exception e) {
-                log.error("Failed to generate PDF or send completion email for ticket ID: {}", ticket.getId(), e);
-                // Fall back to sending completion email without PDF
+                log.error("Failed to retrieve worker report for ticket completion email: {}", e.getMessage(), e);
+            }
+
+            // Generate PDF and send email
+            if (workerReport != null) {
+                try {
+                    // Convert ticket to TicketResponseDTO for PDF generation
+                    TicketResponseDTO ticketResponse = toTicketResponseDto(ticket);
+
+                    // Generate PDF
+                    String pdfFileName = String.format("WorkerReport_Ticket_%d_%s.pdf",
+                            ticket.getId(),
+                            LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")));
+                    Resource pdfAttachment = pdfService.generateWorkerReportPdf(workerReport, ticketResponse,
+                            pdfFileName);
+
+                    // Prepare ticket data for email
+                    Map<String, Object> ticketData = new HashMap<>();
+                    ticketData.put("ticketId", ticket.getId().toString());
+                    ticketData.put("ticketTitle", ticket.getTitle());
+                    ticketData.put("ticketDescription", ticket.getDescription());
+                    ticketData.put("companyName", ticket.getCompany().getName());
+                    ticketData.put("screenName", ticket.getScreen() != null ? ticket.getScreen().getName() : "");
+                    ticketData.put("screenLocation",
+                            ticket.getScreen() != null ? ticket.getScreen().getLocation() : "");
+                    ticketData.put("assignedWorker",
+                            ticket.getAssignedToWorker() != null ? ticket.getAssignedToWorker().getFullName() : "");
+                    ticketData.put("completedAt", LocalDateTime.now().toString());
+                    ticketData.put("defectsFound", workerReport.getDefectsFound());
+                    ticketData.put("solutionsProvided", workerReport.getSolutionsProvided());
+                    ticketData.put("notificationType", "TICKET_COMPLETION");
+
+                    // Send completion email with PDF attachment
+                    emailService.sendTicketCompletionEmailWithPdf(emails, ticket.getTitle(), ticketData, pdfAttachment,
+                            pdfFileName);
+
+                    log.info("Ticket completion email with PDF sent to {} users in company '{}' for ticket ID: {}",
+                            emails.size(), ticket.getCompany().getName(), ticket.getId());
+
+                } catch (Exception e) {
+                    log.error("Failed to generate PDF or send completion email for ticket ID: {}", ticket.getId(), e);
+                    // Fall back to sending completion email without PDF
+                    sendTicketCompletionEmailWithoutPdf(ticket, emails);
+                }
+            } else {
+                log.warn("No worker report found for ticket completion {}, sending notification without PDF",
+                        ticket.getId());
                 sendTicketCompletionEmailWithoutPdf(ticket, emails);
             }
-        } else {
-            log.warn("No worker report found for ticket completion {}, sending notification without PDF", ticket.getId());
-            sendTicketCompletionEmailWithoutPdf(ticket, emails);
+
+        } catch (Exception e) {
+            log.error("Failed to send ticket completion notification for ticket ID: {}", ticket.getId(), e);
         }
-
-    } catch (Exception e) {
-        log.error("Failed to send ticket completion notification for ticket ID: {}", ticket.getId(), e);
     }
-}
 
-// Fallback method to send completion email without PDF
-private void sendTicketCompletionEmailWithoutPdf(Ticket ticket, List<String> emails) {
-    try {
-        Map<String, Object> ticketData = new HashMap<>();
-        ticketData.put("ticketId", ticket.getId().toString());
-        ticketData.put("ticketTitle", ticket.getTitle());
-        ticketData.put("ticketDescription", ticket.getDescription());
-        ticketData.put("companyName", ticket.getCompany().getName());
-        ticketData.put("screenName", ticket.getScreen() != null ? ticket.getScreen().getName() : "");
-        ticketData.put("screenLocation", ticket.getScreen() != null ? ticket.getScreen().getLocation() : "");
-        ticketData.put("assignedWorker", ticket.getAssignedToWorker() != null ? ticket.getAssignedToWorker().getFullName() : "");
-        ticketData.put("completedAt", LocalDateTime.now().toString());
-        ticketData.put("defectsFound", "Please check the system for details");
-        ticketData.put("solutionsProvided", "Please check the system for details");
+    // Fallback method to send completion email without PDF
+    private void sendTicketCompletionEmailWithoutPdf(Ticket ticket, List<String> emails) {
+        try {
+            Map<String, Object> ticketData = new HashMap<>();
+            ticketData.put("ticketId", ticket.getId().toString());
+            ticketData.put("ticketTitle", ticket.getTitle());
+            ticketData.put("ticketDescription", ticket.getDescription());
+            ticketData.put("companyName", ticket.getCompany().getName());
+            ticketData.put("screenName", ticket.getScreen() != null ? ticket.getScreen().getName() : "");
+            ticketData.put("screenLocation", ticket.getScreen() != null ? ticket.getScreen().getLocation() : "");
+            ticketData.put("assignedWorker",
+                    ticket.getAssignedToWorker() != null ? ticket.getAssignedToWorker().getFullName() : "");
+            ticketData.put("completedAt", LocalDateTime.now().toString());
+            ticketData.put("defectsFound", "Please check the system for details");
+            ticketData.put("solutionsProvided", "Please check the system for details");
 
-        // Send regular status update email for completion
-        emailService.sendTicketStatusUpdateEmail(emails, ticket.getTitle(), 
-                                                "IN_PROGRESS", "CLOSED", ticketData);
-        
-        log.info("Fallback completion email sent to {} users in company '{}' for ticket ID: {}",
-                emails.size(), ticket.getCompany().getName(), ticket.getId());
-                
-    } catch (Exception e) {
-        log.error("Failed to send fallback completion email for ticket ID: {}", ticket.getId(), e);
+            // Send regular status update email for completion
+            emailService.sendTicketStatusUpdateEmail(emails, ticket.getTitle(),
+                    "IN_PROGRESS", "CLOSED", ticketData);
+
+            log.info("Fallback completion email sent to {} users in company '{}' for ticket ID: {}",
+                    emails.size(), ticket.getCompany().getName(), ticket.getId());
+
+        } catch (Exception e) {
+            log.error("Failed to send fallback completion email for ticket ID: {}", ticket.getId(), e);
+        }
     }
-}
-
-
-
 
 }
