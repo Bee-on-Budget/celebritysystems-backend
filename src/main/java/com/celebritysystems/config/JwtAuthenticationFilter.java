@@ -32,26 +32,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String jwt = resolveToken(request);
 
-            if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
-                Long userId = tokenProvider.getUserIdFromJWT(jwt);
-                
-                // Get roles as Set from TokenProvider
-                Set<String> roles = tokenProvider.getRolesFromJWT(jwt);
-                
-                // Convert to authorities
-                List<SimpleGrantedAuthority> authorities = roles.stream()
-                        .filter(Objects::nonNull)
-                        .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role)
-                        .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList());
+            if (StringUtils.hasText(jwt)) {
+                if (tokenProvider.validateToken(jwt)) {
+                    Long userId = tokenProvider.getUserIdFromJWT(jwt);
 
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        userId,
-                        null,
-                        authorities);
+                    // Get roles as Set from TokenProvider
+                    Set<String> roles = tokenProvider.getRolesFromJWT(jwt);
 
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                    // Convert to authorities
+                    List<SimpleGrantedAuthority> authorities = roles.stream()
+                            .filter(Objects::nonNull)
+                            .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role)
+                            .map(SimpleGrantedAuthority::new)
+                            .collect(Collectors.toList());
+
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                            userId,
+                            null,
+                            authorities);
+
+                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                } else {
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token expired or invalid");
+                    return;
+                }
             }
         } catch (Exception ex) {
             logger.error("Could not set user authentication in security context", ex);
