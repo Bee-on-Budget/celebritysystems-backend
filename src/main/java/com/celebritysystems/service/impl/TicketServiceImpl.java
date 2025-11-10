@@ -122,6 +122,8 @@ public class TicketServiceImpl implements TicketService {
                 User assignedSupervisor = userRepository.findById(updatedTicketDTO.getAssignedBySupervisorId())
                         .orElse(null);
                 ticket.setAssignedBySupervisor(assignedSupervisor);
+                ticket.setStatus(TicketStatus.IN_PROGRESS);
+                ticket = updateTicketStatus(ticket, TicketStatus.IN_PROGRESS);
             }
 
             if (updatedTicketDTO.getScreenId() != null) {
