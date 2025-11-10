@@ -556,6 +556,12 @@ public class TicketServiceImpl implements TicketService {
                         .orElseThrow(() -> new IllegalArgumentException(
                                 "Supervisor not found with ID: " + patchTicketDTO.getAssignedBySupervisorId()));
                 ticket.setAssignedBySupervisor(assignedSupervisor);
+
+                if (!patchTicketDTO.hasStatus()) {
+                    ticket = updateTicketStatus(ticket, TicketStatus.IN_PROGRESS);
+                    newStatus = TicketStatus.IN_PROGRESS;
+                    log.info("Auto-updated status to IN_PROGRESS when assigning supervisor for ticket ID: {}", id);
+                }
                 hasChanges = true;
                 log.info("Assigned supervisor {} to ticket ID: {}", assignedSupervisor.getFullName(), id);
             }
