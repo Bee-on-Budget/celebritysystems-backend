@@ -464,7 +464,7 @@ public class TicketServiceImpl implements TicketService {
                 .inProgressAt(ticket.getInProgressAt())
                 .resolvedAt(ticket.getResolvedAt())
                 .closedAt(ticket.getClosedAt())
-                .ticketImageUrl(ticket.getTicketImageUrl())
+                .ticketImageUrl(ticket.getTicketImageUrl() != null ? s3Service.generatePresignedUrl(ticket.getTicketImageUrl(), 60) : null)
                 .ticketImageName(ticket.getTicketImageName())
                 .serviceType(ticket.getServiceType() != null ? ticket.getServiceType().name() : null)
                 .serviceTypeDisplayName(
@@ -744,7 +744,7 @@ public class TicketServiceImpl implements TicketService {
                 .inProgressAt(ticket.getInProgressAt())
                 .resolvedAt(ticket.getResolvedAt())
                 .closedAt(ticket.getClosedAt())
-                .ticketImageUrl(ticket.getTicketImageUrl())
+                .ticketImageUrl(ticket.getTicketImageUrl() != null ? s3Service.generatePresignedUrl(ticket.getTicketImageUrl(), 60) : null)
                 .ticketImageName(ticket.getTicketImageName())
                 .serviceType(ticket.getServiceType() != null ? ticket.getServiceType().name() : null)
                 .serviceTypeDisplayName(
