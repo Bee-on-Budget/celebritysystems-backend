@@ -115,6 +115,17 @@ public class TokenProvider {
         return false;
     }
 
+    public boolean isTokenExpired(String token) {
+        try {
+            parseToken(token);
+            return false;
+        } catch (ExpiredJwtException ex) {
+            return true;
+        } catch (Exception ex) {
+            return false; // If other exceptions, not expired
+        }
+    }
+
     private Claims parseToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(jwtSecretKey)
