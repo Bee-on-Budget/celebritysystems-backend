@@ -4,10 +4,13 @@ import com.celebritysystems.dto.*;
 import com.celebritysystems.dto.statistics.AnnualStats;
 import com.celebritysystems.dto.statistics.MonthlyStats;
 import com.celebritysystems.entity.Cabin;
+import com.celebritysystems.entity.Company;
+import com.celebritysystems.entity.Contract;
 import com.celebritysystems.entity.Module;
 import com.celebritysystems.entity.Screen;
 import com.celebritysystems.entity.enums.SolutionTypeInScreen;
 import com.celebritysystems.repository.CabinRepository;
+import com.celebritysystems.repository.CompanyRepository;
 import com.celebritysystems.repository.ContractRepository;
 import com.celebritysystems.repository.ModuleRepository;
 import com.celebritysystems.repository.ScreenRepository;
@@ -21,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -34,14 +38,33 @@ public class ScreenServiceImpl implements ScreenService {
     private final ModuleRepository moduleRepository;
     private final CabinRepository cabinRepository;
     private final ContractRepository contractRepository;
+    private final CompanyRepository companyRepository;
     private final S3Service s3Service;
 
     private ScreenResponse mapToResponse(Screen screen) {
-        ScreenResponse response = new ScreenResponse();
-        response.setId(screen.getId());
-        response.setName(screen.getName());
-        // Map other fields if needed
+        // ScreenResponse response = new ScreenResponse();
+        // response.setId(screen.getId());
+        // response.setName(screen.getName());
+        // // Map other fields if needed
+        
+        ScreenResponse response = new ScreenResponse(screen);
+        response.setCompanyName(resolveCompanyNameForScreen(screen.getId()));
         return response;
+    }
+
+    private String resolveCompanyNameForScreen(Long screenId) {
+        List<Contract> activeContracts = contractRepository.findActiveContractsByScreenId(screenId, LocalDateTime.now());
+        if (activeContracts.isEmpty()) {
+            return null;
+        }
+
+        Long companyId = activeContracts.get(0).getCompanyId();
+        if (companyId == null) {
+            return null;
+        }
+
+        Optional<Company> company = companyRepository.findById(companyId);
+        return company.map(Company::getName).orElse(null);
     }
 
     @Override
@@ -148,7 +171,8 @@ public class ScreenServiceImpl implements ScreenService {
         Pageable pageable = PageRequest.of(page, 10, Sort.by("id").descending());
 
         Page<Screen> screenPage = screenRepository.findAll(pageable);
-        List<ScreenResponse> content = screenPage.getContent().stream().map(ScreenResponse::new).toList();
+        // List<ScreenResponse> content = screenPage.getContent().stream().map(ScreenResponse::new).toList();
+        List<ScreenResponse> content = screenPage.getContent().stream().map(this::mapToResponse).toList();
 
         PaginatedResponse<ScreenResponse> response = new PaginatedResponse<>();
         response.setContent(content);
@@ -323,6 +347,9 @@ public class ScreenServiceImpl implements ScreenService {
                     screenResponse.setVersionFileUrl(screen.getVersionFileUrl());
                     screenResponse.setVersionFileName(screen.getVersionFileName());
 
+                    // Company Name
+                    screenResponse.setCompanyName(resolveCompanyNameForScreen(screen.getId()));
+
                     return screenResponse;
                 });
     }
@@ -390,6 +417,7 @@ public class ScreenServiceImpl implements ScreenService {
                     response.setId(screen.getId());
                     response.setName(screen.getName());
                     response.setLocation(screen.getLocation());
+                    response.setCompanyName(resolveCompanyNameForScreen(screen.getId()));
                     // Set other fields as needed
                     return response;
                 })

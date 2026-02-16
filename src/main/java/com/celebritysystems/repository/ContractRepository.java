@@ -39,6 +39,9 @@ public interface ContractRepository extends JpaRepository<Contract, Long> {
         @Query("SELECT c FROM Contract c WHERE c.expiredAt > :currentTime")
         List<Contract> findActiveContracts(@Param("currentTime") LocalDateTime currentTime);
 
+        @Query("SELECT c FROM Contract c JOIN c.screenIds screenId WHERE screenId = :screenId AND c.expiredAt > :currentTime ORDER BY c.expiredAt DESC")
+        List<Contract> findActiveContractsByScreenId(@Param("screenId") Long screenId, @Param("currentTime") LocalDateTime currentTime);
+
         @Query(value = "SELECT DATE(created_at) as date, COUNT(*) as count " +
                        "FROM contract " +
                        "WHERE created_at BETWEEN :startDate AND :endDate " +

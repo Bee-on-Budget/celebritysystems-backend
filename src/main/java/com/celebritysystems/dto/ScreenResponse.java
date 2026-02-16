@@ -98,6 +98,9 @@ public class ScreenResponse {
     private String versionFileUrl;
     private String versionFileName;
 
+    // Company Name
+    private String companyName;
+
     public ScreenResponse(Screen screen) {
         this.id = screen.getId();
         this.name = screen.getName();
